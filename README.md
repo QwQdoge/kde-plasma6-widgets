@@ -1,3 +1,11 @@
+> **MeoArch fork provenance**
+>
+> This repository is a MeoArch-maintained fork of
+> [MCC45TR/kde-plasma6-widgets](https://github.com/MCC45TR/kde-plasma6-widgets).
+> Upstream baseline: `ce3731be424f62f11ce96df5d989a2fbdc5d56d2`.
+> License: GPL-3.0-only. Original author and maintainer attribution remains
+> preserved below and throughout the repository history.
+
 <p align="center">
   <img src="https://kde.org/stuff/clipart/logo/kde-logo-white-blue-rounded-source.svg" alt="KDE Logo" width="80"/>
 </p>
@@ -10,7 +18,7 @@
 
 <p align="center">
   <a href="#installation"><img src="https://img.shields.io/badge/Platform-KDE_Plasma_6-1d99f3?style=for-the-badge&logo=kde" alt="Platform"></a>
-  <a href="./LICENSE"><img src="https://img.shields.io/badge/License-GPL--3.0-blue?style=for-the-badge" alt="License"></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/License-GPL--3.0--only-blue?style=for-the-badge" alt="GPL-3.0-only License"></a>
   <a href="#widget-catalog"><img src="https://img.shields.io/badge/Widgets-19+-success?style=for-the-badge" alt="Widgets"></a>
   <a href="#key-features"><img src="https://img.shields.io/badge/Languages-20-orange?style=for-the-badge" alt="Languages"></a>
 </p>
@@ -185,8 +193,8 @@ plasmawindowed     # For standalone testing (optional)
 
 ```bash
 # Clone the repository
-git clone https://github.com/MCC45TR/Plasma6Widgets.git
-cd Plasma6Widgets
+git clone https://github.com/QwQdoge/kde-plasma6-widgets.git
+cd kde-plasma6-widgets
 
 # Install all widgets
 chmod +x install_all.sh
@@ -292,7 +300,7 @@ This project is licensed under the **GPL-3.0 License** - see the [LICENSE](./LIC
 ---
 
 <p align="center">
-  <b>Maintained by <a href="https://github.com/MCC45TR">MCC45TR</a></b>
+  <b>Original project maintained by <a href="https://github.com/MCC45TR">MCC45TR</a></b>
 </p>
 
 <p align="center">
