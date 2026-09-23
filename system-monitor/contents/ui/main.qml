@@ -136,7 +136,7 @@ PlasmoidItem {
 
         TapHandler {
             acceptedButtons: Qt.LeftButton
-            onTapped: Plasmoid.openSystemMonitor()
+            onTapped: root.expanded = !root.expanded
         }
     }
 
@@ -193,56 +193,35 @@ PlasmoidItem {
                 }
 
                 Rectangle {
-                    implicitWidth: 48
+                    implicitWidth: 50
                     implicitHeight: 24
                     radius: 12
-                    color: Kirigami.Theme.positiveTextColor
-                    opacity: 0.12
-                }
-
-                RowLayout {
-                    Layout.preferredWidth: 48
-                    Layout.preferredHeight: 24
-                    Layout.leftMargin: -56
-                    spacing: 4
+                    color: Kirigami.Theme.backgroundColor
 
                     Rectangle {
-                        implicitWidth: 6
-                        implicitHeight: 6
-                        radius: 3
+                        anchors.fill: parent
+                        radius: parent.radius
                         color: Kirigami.Theme.positiveTextColor
+                        opacity: 0.12
                     }
 
-                    Text {
-                        text: i18n("Live")
-                        color: Kirigami.Theme.textColor
-                        font.pixelSize: 9
-                        font.weight: Font.Medium
-                    }
-                }
-
-                Rectangle {
-                    id: openButton
-                    implicitWidth: 32
-                    implicitHeight: 32
-                    radius: 16
-                    color: openHover.hovered ? Kirigami.Theme.alternateBackgroundColor : "transparent"
-
-                    Kirigami.Icon {
+                    RowLayout {
                         anchors.centerIn: parent
-                        source: "utilities-system-monitor"
-                        width: 17
-                        height: 17
-                        color: Kirigami.Theme.textColor
-                    }
+                        spacing: 4
 
-                    HoverHandler {
-                        id: openHover
-                    }
+                        Rectangle {
+                            implicitWidth: 6
+                            implicitHeight: 6
+                            radius: 3
+                            color: Kirigami.Theme.positiveTextColor
+                        }
 
-                    TapHandler {
-                        acceptedButtons: Qt.LeftButton
-                        onTapped: Plasmoid.openSystemMonitor()
+                        Text {
+                            text: i18n("Live")
+                            color: Kirigami.Theme.textColor
+                            font.pixelSize: 9
+                            font.weight: Font.Medium
+                        }
                     }
                 }
             }
@@ -259,7 +238,6 @@ PlasmoidItem {
                     : i18n("Average frequency")
                 accent: Kirigami.Theme.highlightColor
                 chartMaximum: 100
-                onActivated: Plasmoid.openSystemMonitor()
             }
 
             RowLayout {
@@ -277,7 +255,6 @@ PlasmoidItem {
                     sensor: cpuTemperature
                     accent: Kirigami.Theme.neutralTextColor
                     showChart: false
-                    onActivated: Plasmoid.openSystemMonitor()
                 }
 
                 MetricCard {
@@ -290,7 +267,6 @@ PlasmoidItem {
                     sensor: memoryUsage
                     accent: Kirigami.Theme.positiveTextColor
                     showChart: false
-                    onActivated: Plasmoid.openSystemMonitor()
                 }
             }
 
@@ -309,7 +285,6 @@ PlasmoidItem {
                     sensor: gpuUsage
                     accent: Kirigami.Theme.linkColor
                     showChart: false
-                    onActivated: Plasmoid.openSystemMonitor()
                 }
 
                 MetricCard {
@@ -322,7 +297,6 @@ PlasmoidItem {
                     sensor: vramUsage
                     accent: Kirigami.Theme.highlightColor
                     showChart: false
-                    onActivated: Plasmoid.openSystemMonitor()
                 }
             }
 
@@ -337,7 +311,6 @@ PlasmoidItem {
                 primaryLabel: i18n("Download")
                 secondaryLabel: i18n("Upload")
                 accent: Kirigami.Theme.positiveTextColor
-                onActivated: Plasmoid.openSystemMonitor()
             }
 
             DualMetricCard {
@@ -351,7 +324,6 @@ PlasmoidItem {
                 primaryLabel: i18n("Read")
                 secondaryLabel: i18n("Write")
                 accent: Kirigami.Theme.neutralTextColor
-                onActivated: Plasmoid.openSystemMonitor()
             }
 
             MetricCard {
@@ -364,16 +336,8 @@ PlasmoidItem {
                 sensor: diskUsage
                 accent: Kirigami.Theme.highlightColor
                 showChart: false
-                onActivated: Plasmoid.openSystemMonitor()
             }
         }
     }
 
-    Plasmoid.contextualActions: [
-        PlasmaCore.Action {
-            text: i18nc("@action", "Open System Monitor…")
-            icon.name: "utilities-system-monitor"
-            onTriggered: Plasmoid.openSystemMonitor()
-        }
-    ]
 }
