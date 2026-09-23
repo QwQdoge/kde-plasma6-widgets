@@ -8,22 +8,13 @@
                 "Email": "mcc45tr@gmail.com"
             }
         ],
-        "Category": "Utilities",
-        "Description": "A simple Sistem İzleme widget",
-        "Icon": "utilities-system-monitor",
+        "Category": "System Information",
+        "Description": "Low-overhead CPU, GPU, memory, network and storage performance monitor",
+        "Icon": "speedometer",
         "Id": "com.mcc45tr.systemmonitor",
-        "Name": "System Monitor",
-        "Version": "1.0",
+        "Name": "Performance Monitor",
+        "Version": "2.0",
         "Website": "",
-        "License": "GPL-3.0",
-        "Name[tr]": "Sistem İzleyici",
-        "Name[de]": "Systemmonitor",
-        "Name[fr]": "Moniteur système",
-        "Name[ro]": "Monitor sistem",
-        "Name[cs]": "Sledování systému",
-        "Name[es]": "Monitor del sistema",
-        "Name[ru]": "Системный монитор",
-        "Name[pt]": "Monitor do sistema",
-        "Name[ja]": "システムモニター"
+        "License": "GPL-3.0"
     }
 }
