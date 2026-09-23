@@ -10,11 +10,20 @@
         ],
         "Category": "System Information",
         "Description": "Low-overhead CPU, GPU, memory, network and storage performance monitor",
-        "Icon": "speedometer",
+        "Icon": "utilities-system-monitor",
         "Id": "com.mcc45tr.systemmonitor",
         "Name": "Performance Monitor",
         "Version": "2.0",
         "Website": "",
-        "License": "GPL-3.0"
+        "License": "GPL-3.0",
+        "Name[tr]": "Performans İzleyici",
+        "Name[de]": "Leistungsmonitor",
+        "Name[fr]": "Moniteur de performances",
+        "Name[ro]": "Monitor de performanță",
+        "Name[cs]": "Monitor výkonu",
+        "Name[es]": "Monitor de rendimiento",
+        "Name[ru]": "Монитор производительности",
+        "Name[pt]": "Monitor de desempenho",
+        "Name[ja]": "パフォーマンスモニター"
     }
 }
