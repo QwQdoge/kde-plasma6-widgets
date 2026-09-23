@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
+      http://www.kde.org/standards/kcfg/1.0/kcfg.xsd">
+  <kcfgfile name=""/>
+
+  <group name="General">
+    <entry name="showCpu" type="Bool">
+      <default>true</default>
+    </entry>
+    <entry name="showMemory" type="Bool">
+      <default>true</default>
+    </entry>
+    <entry name="showGpu" type="Bool">
+      <default>true</default>
+    </entry>
+    <entry name="showNetwork" type="Bool">
+      <default>true</default>
+    </entry>
+    <entry name="showDisk" type="Bool">
+      <default>true</default>
+    </entry>
+    <entry name="showTopApps" type="Bool">
+      <default>true</default>
+    </entry>
+    <entry name="topAppMetric" type="String">
+      <default>cpu</default>
+    </entry>
+    <entry name="topAppCount" type="Int">
+      <default>3</default>
+      <min>1</min>
+      <max>8</max>
+    </entry>
+    <entry name="updateInterval" type="Int">
+      <default>1000</default>
+      <min>500</min>
+      <max>10000</max>
+    </entry>
+    <entry name="historyLength" type="Int">
+      <default>60</default>
+      <min>20</min>
+      <max>180</max>
+    </entry>
+  </group>
+</kcfg>
