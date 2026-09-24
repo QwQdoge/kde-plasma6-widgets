@@ -35,19 +35,6 @@ jobs:
       - name: Check out widget
         uses: actions/checkout@v6
 
-      - name: Resolve System Monitor imports
-        run: |
-          scanner="$(command -v qmlimportscanner || true)"
-          if [ -z "$scanner" ] && [ -x /usr/lib/qt6/bin/qmlimportscanner ]; then
-            scanner=/usr/lib/qt6/bin/qmlimportscanner
-          fi
-          test -n "$scanner"
-          "$scanner" \
-            -rootPath system-monitor/contents/ui \
-            -importPath /usr/lib/qt6/qml \
-            > /tmp/system-monitor-imports.json
-          test -s /tmp/system-monitor-imports.json
-
       - name: Lint System Monitor QML
         run: |
           lint="$(command -v qmllint6 || command -v qmllint || true)"
