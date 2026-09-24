@@ -1,0 +1,25 @@
+name: System monitor contracts
+
+on:
+  pull_request:
+    paths:
+      - 'system-monitor/**'
+      - 'tests/system_monitor/**'
+      - '.github/workflows/system-monitor-contracts.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Validate metadata
+        run: python -m json.tool system-monitor/metadata.json >/dev/null
+      - name: Run system monitor contracts
+        run: python -m unittest discover -s tests/system_monitor -p 'test_*.py' -v
