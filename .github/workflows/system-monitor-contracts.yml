@@ -4,8 +4,11 @@ on:
   pull_request:
     paths:
       - 'system-monitor/**'
-      - 'tests/system_monitor/**'
+      - 'tests/test_system_monitor_contract.py'
       - '.github/workflows/system-monitor-contracts.yml'
+  push:
+    branches:
+      - meo/system-monitor-functional-v2
 
 permissions:
   contents: read
@@ -13,13 +16,15 @@ permissions:
 jobs:
   contracts:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-python@v6
-        with:
-          python-version: '3.13'
-      - name: Validate metadata
-        run: python -m json.tool system-monitor/metadata.json >/dev/null
-      - name: Run system monitor contracts
-        run: python -m unittest discover -s tests/system_monitor -p 'test_*.py' -v
+      - name: Validate JSON and XML
+        run: |
+          python -m json.tool system-monitor/metadata.json >/dev/null
+          python - <<'PY'
+          import xml.etree.ElementTree as ET
+          ET.parse("system-monitor/contents/config/main.xml")
+          PY
+      - name: Run system monitor source contracts
+        run: python -m unittest tests/test_system_monitor_contract.py -v
