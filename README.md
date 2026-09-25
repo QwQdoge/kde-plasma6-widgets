@@ -164,7 +164,7 @@ This repository contains a suite of plasmoids ranging from advanced system tools
 | Widget | Description |
 |--------|-------------|
 | **Browser Search** | Multi-engine search bar with history access |
-| **System Monitor** | CPU, RAM, and Disk visualization |
+| **System Monitor** | Live CPU, RAM, GPU, network, disk I/O, history graphs, and top applications |
 | **Notes** | List-based notes with drag-and-drop reordering |
 | **Control Center** | Quick toggles for system settings |
 | **AUR Updates** | (Arch Linux) Update monitoring |
@@ -292,7 +292,7 @@ This project is licensed under the **GPL-3.0 License** - see the [LICENSE](./LIC
 | **Weather** | Stable | **Notes** | Planned |
 | **App Menu** | WIP | **Photos** | Planned |
 | **Browser Search** | WIP | **Spotify** | Planned |
-| **Plasma Advanced Reboot** | Stable | **System Monitor** | Planned |
+| **Plasma Advanced Reboot** | Stable | **System Monitor** | Beta |
 | **Alarms** | Planned | **World Clock** | Planned |
 | **AUR Updates** | Planned | **MSI Control** | WIP |
 | **Battery** | WIP | **AFAD-Earthquake** | WIP |

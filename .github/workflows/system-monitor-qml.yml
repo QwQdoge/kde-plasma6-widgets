@@ -1,0 +1,47 @@
+name: System monitor QML validation
+
+on:
+  pull_request:
+    paths:
+      - 'system-monitor/**'
+      - '.github/workflows/system-monitor-qml.yml'
+  push:
+    branches:
+      - meo/system-monitor-functional-v2
+
+permissions:
+  contents: read
+
+concurrency:
+  group: system-monitor-qml-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  qml:
+    name: Plasma 6 QML imports and syntax
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Install Plasma QML runtime
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --needed --noconfirm \
+            qt6-base qt6-declarative qt6-tools \
+            kirigami libplasma plasma-workspace libksysguard kitemmodels
+
+      - name: Check out widget
+        uses: actions/checkout@v6
+
+      - name: Lint System Monitor QML
+        run: |
+          lint="$(command -v qmllint6 || command -v qmllint || true)"
+          if [ -z "$lint" ] && [ -x /usr/lib/qt6/bin/qmllint ]; then
+            lint=/usr/lib/qt6/bin/qmllint
+          fi
+          test -n "$lint"
+          mapfile -t files < <(find system-monitor/contents -type f -name '*.qml' -print | sort)
+          test "${#files[@]}" -gt 0
+          "$lint" -I /usr/lib/qt6/qml "${files[@]}"
