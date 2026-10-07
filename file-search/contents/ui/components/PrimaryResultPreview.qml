@@ -30,7 +30,11 @@ Rectangle {
     border.width: 1
     border.color: Qt.rgba(accentColor.r, accentColor.g, accentColor.b, 0.3)
 
-    Behavior on height { NumberAnimation { duration: 150 } }
+    Behavior on height {
+        NumberAnimation {
+            duration: 150
+        }
+    }
 
     readonly property var firstItem: flatSortedData && flatSortedData.length > 0 ? flatSortedData[0] : null
     readonly property string firstDisplay: firstItem ? (firstItem.display || "") : firstModelData(Qt.DisplayRole, "")
@@ -49,12 +53,13 @@ Rectangle {
     }
 
     property bool isPrimaryResult: {
-        if (resultCount === 0 || !resultsModel) return false
-        var firstIndex = resultsModel.index(0, 0)
-        var firstCat = resultsModel.data(firstIndex, resultsModel.CategoryRole) || ""
-        var decoration = resultsModel.data(firstIndex, Qt.DecorationRole) || ""
-        var matchId = resultsModel.data(firstIndex, resultsModel.DuplicateRole) || ""
-        return Utils.isPrimaryCategory(firstCat, decoration, matchId)
+        if (resultCount === 0 || !resultsModel)
+            return false;
+        var firstIndex = resultsModel.index(0, 0);
+        var firstCat = resultsModel.data(firstIndex, resultsModel.CategoryRole) || "";
+        var decoration = resultsModel.data(firstIndex, Qt.DecorationRole) || "";
+        var matchId = resultsModel.data(firstIndex, resultsModel.DuplicateRole) || "";
+        return Utils.isPrimaryCategory(firstCat, decoration, matchId);
     }
 
     RowLayout {
@@ -101,9 +106,7 @@ Rectangle {
 
             Text {
                 text: root.firstDisplay
-                font.pixelSize: root.previewSource.length > 0
-                    ? Math.round(Kirigami.Theme.defaultFont.pixelSize * 1.25)
-                    : Math.round(Kirigami.Theme.defaultFont.pixelSize * 2)
+                font.pixelSize: root.previewSource.length > 0 ? Math.round(Kirigami.Theme.defaultFont.pixelSize * 1.25) : Math.round(Kirigami.Theme.defaultFont.pixelSize * 2)
                 font.bold: true
                 color: root.textColor
                 elide: Text.ElideRight
@@ -111,9 +114,7 @@ Rectangle {
             }
 
             Text {
-                text: root.previewSource.length > 0
-                    ? Utils.decodeLocalPath(root.firstFilePath).replace(/^\/home\/[^\/]+\//, "")
-                    : root.searchText
+                text: root.previewSource.length > 0 ? Utils.decodeLocalPath(root.firstFilePath).replace(/^\/home\/[^\/]+\//, "") : root.searchText
                 font.family: Kirigami.Theme.smallFont.family
                 font.pixelSize: Kirigami.Theme.smallFont.pixelSize
                 color: Qt.rgba(root.textColor.r, root.textColor.g, root.textColor.b, 0.6)
@@ -139,7 +140,7 @@ Rectangle {
 
         onClicked: {
             if (root.resultCount > 0) {
-                root.resultClicked(root.firstResultIndex, root.firstDisplay, root.firstDecoration, root.firstCategory, root.firstMatchId, root.firstFilePath)
+                root.resultClicked(root.firstResultIndex, root.firstDisplay, root.firstDecoration, root.firstCategory, root.firstMatchId, root.firstFilePath);
             }
         }
     }

@@ -44,7 +44,7 @@ Item {
     property var titleDefault
     property int maxHistoryItems
     property int maxHistoryItemsDefault
-    
+
     // Properties matching main.xml (KConfig handles cfg_ prefix)
     property bool cfg_rssEnabled
     property bool cfg_rssEnabledDefault: true
@@ -60,7 +60,7 @@ Item {
     property real cfg_rssLastSyncAllDefault: 0
     property bool cfg_smartResultLimit: true
     property bool cfg_smartResultLimitDefault: true
-    
+
     // RSS Advanced Settings
     property bool cfg_rssShowImages: true
     property bool cfg_rssShowImagesDefault: true
@@ -74,11 +74,11 @@ Item {
     property int cfg_rssFrequencyDefault: 3
     property int cfg_weatherFrequency: 2
     property int cfg_weatherFrequencyDefault: 2
-    
+
     // =========================================================================
     // CONFIGURATION PROPERTIES (Matching main.xml for Plasma 6 injection)
     // =========================================================================
-    
+
     // All keys must be present in every config tab to avoid "cfg_... not found" warnings
     property int cfg_displayMode
     property int cfg_panelRadius
@@ -176,18 +176,23 @@ Item {
 
     // Access to the main logic controller for background tasks
     property var logic: {
-        if (typeof plasmoid === "undefined") return null;
+        if (typeof plasmoid === "undefined")
+            return null;
         var root = plasmoid.rootItem;
-        if (!root) return null;
-        
-        if (root.logic) return root.logic;
-        if (root.controller) return root.controller;
-        
+        if (!root)
+            return null;
+
+        if (root.logic)
+            return root.logic;
+        if (root.controller)
+            return root.controller;
+
         // Fallback for cases where the rootItem might be a wrapper
         if (root.children) {
             for (var i = 0; i < root.children.length; i++) {
                 var child = root.children[i];
-                if (child && (child.syncSourceBackground || child.logic)) return child.logic || child;
+                if (child && (child.syncSourceBackground || child.logic))
+                    return child.logic || child;
             }
         }
         return null;
@@ -200,28 +205,31 @@ Item {
     property var testResults: ({}) // { index: "success" | "error" | "testing" }
 
     function addLog(index, msg, status) {
-        var logs = testLogs[index] || []
-        logs.push({msg: msg, status: status})
-        testLogs[index] = logs
-        testLogs = JSON.parse(JSON.stringify(testLogs))
+        var logs = testLogs[index] || [];
+        logs.push({
+            msg: msg,
+            status: status
+        });
+        testLogs[index] = logs;
+        testLogs = JSON.parse(JSON.stringify(testLogs));
     }
 
     function updateLastLog(index, msg, status) {
-        var logs = testLogs[index] || []
+        var logs = testLogs[index] || [];
         if (logs.length > 0) {
-            logs[logs.length - 1].msg = msg || logs[logs.length - 1].msg
-            logs[logs.length - 1].status = status || logs[logs.length - 1].status
-            testLogs[index] = logs
-            testLogs = JSON.parse(JSON.stringify(testLogs))
+            logs[logs.length - 1].msg = msg || logs[logs.length - 1].msg;
+            logs[logs.length - 1].status = status || logs[logs.length - 1].status;
+            testLogs[index] = logs;
+            testLogs = JSON.parse(JSON.stringify(testLogs));
         } else {
-            addLog(index, msg, status)
+            addLog(index, msg, status);
         }
     }
 
     function getScriptPath() {
         // Qt.resolvedUrl is more reliable in config dialog contexts than plasmoid.file
         var path = Qt.resolvedUrl("../../tools/rss_sync.sh").toString();
-        
+
         if (path.indexOf("file://") === 0) {
             // Correctly handle file:// prefix for local paths
             return path.replace(/^file:\/\/\/?/, "/");
@@ -245,41 +253,41 @@ Item {
         property var callbacks: ({})
         property var processedIndex: ({})
         onNewData: (source, data) => {
-            var stdout = (data["stdout"] || "") + (data["stderr"] || "") // Merge stderr for debugging
-            var exitCode = data["exit code"]
-            var isFinished = (exitCode !== undefined)
-            
-            var offset = processedIndex[source] || 0
+            var stdout = (data["stdout"] || "") + (data["stderr"] || ""); // Merge stderr for debugging
+            var exitCode = data["exit code"];
+            var isFinished = (exitCode !== undefined);
+
+            var offset = processedIndex[source] || 0;
             if (stdout.length > offset) {
-                var newPart = stdout.substring(offset)
-                processedIndex[source] = stdout.length
-                
-                var lines = newPart.split("\n")
-                var callback = callbacks[source]
+                var newPart = stdout.substring(offset);
+                processedIndex[source] = stdout.length;
+
+                var lines = newPart.split("\n");
+                var callback = callbacks[source];
 
                 if (callback) {
                     for (var i = 0; i < lines.length; i++) {
-                        var line = lines[i].trim()
+                        var line = lines[i].trim();
                         if (line) {
-                            callback(line, source, false, exitCode)
+                            callback(line, source, false, exitCode);
                         }
                     }
                 }
             }
-            
+
             if (isFinished) {
-                var cb = callbacks[source]
+                var cb = callbacks[source];
                 if (cb) {
-                    cb("", source, true, exitCode)
+                    cb("", source, true, exitCode);
                 }
-                
-                delete callbacks[source]
-                delete processedIndex[source]
-                disconnectSource(source)
+
+                delete callbacks[source];
+                delete processedIndex[source];
+                disconnectSource(source);
             }
         }
     }
-    
+
     Timer {
         id: clearLogsTimer
         interval: 3000
@@ -287,432 +295,814 @@ Item {
         property int indexToClear: -1
         onTriggered: {
             if (indexToClear !== -1) {
-                clearLogs(indexToClear)
-                testResults[indexToClear] = ""
-                testResults = JSON.parse(JSON.stringify(testResults))
-                indexToClear = -1
+                clearLogs(indexToClear);
+                testResults[indexToClear] = "";
+                testResults = JSON.parse(JSON.stringify(testResults));
+                indexToClear = -1;
             }
         }
     }
-    
+
     readonly property var presetSources: {
         // ... (rest of presetSources)
         var lang = Qt.locale().name.substring(0, 2);
         var presets = [];
-        
-        presets.push({ section: i18nd("plasma_applet_com.mcc45tr.filesearch", "Arch & Linux News"), items: [
-            { name: "Arch News", url: "https://archlinux.org/feeds/news/" },
-            { name: "AUR News", url: "https://aur.archlinux.org/RSS/" }, 
-            { name: "Phoronix", url: "https://www.phoronix.com/rss.php" },
-            { name: "OMGUbuntu", url: "https://feeds.feedburner.com/d0od" },
-            { name: "It's FOSS", url: "https://itsfoss.com/feed/" },
-            { name: "9to5Linux", url: "https://9to5linux.com/feed" },
-            { name: "GamingOnLinux", url: "https://www.gamingonlinux.com/headlines.rss" }
-        ]});
 
-        presets.push({ section: i18nd("plasma_applet_com.mcc45tr.filesearch", "Security Bulletins"), items: [
-            { name: "TheHackerNews", url: "https://feeds.feedburner.com/TheHackersNews" },
-            { name: "BleepingComp", url: "https://www.bleepingcomputer.com/feed/" },
-            { name: "CISA Alerts", url: "https://www.cisa.gov/cybersecurity-advisories/feed" },
-            { name: "Dark Reading", url: "https://www.darkreading.com/rss.xml" },
-            { name: "KrebsSecurity", url: "https://krebsonsecurity.com/feed/" }
-        ]});
+        presets.push({
+            section: i18nd("plasma_applet_com.mcc45tr.filesearch", "Arch & Linux News"),
+            items: [
+                {
+                    name: "Arch News",
+                    url: "https://archlinux.org/feeds/news/"
+                },
+                {
+                    name: "AUR News",
+                    url: "https://aur.archlinux.org/RSS/"
+                },
+                {
+                    name: "Phoronix",
+                    url: "https://www.phoronix.com/rss.php"
+                },
+                {
+                    name: "OMGUbuntu",
+                    url: "https://feeds.feedburner.com/d0od"
+                },
+                {
+                    name: "It's FOSS",
+                    url: "https://itsfoss.com/feed/"
+                },
+                {
+                    name: "9to5Linux",
+                    url: "https://9to5linux.com/feed"
+                },
+                {
+                    name: "GamingOnLinux",
+                    url: "https://www.gamingonlinux.com/headlines.rss"
+                }
+            ]
+        });
+
+        presets.push({
+            section: i18nd("plasma_applet_com.mcc45tr.filesearch", "Security Bulletins"),
+            items: [
+                {
+                    name: "TheHackerNews",
+                    url: "https://feeds.feedburner.com/TheHackersNews"
+                },
+                {
+                    name: "BleepingComp",
+                    url: "https://www.bleepingcomputer.com/feed/"
+                },
+                {
+                    name: "CISA Alerts",
+                    url: "https://www.cisa.gov/cybersecurity-advisories/feed"
+                },
+                {
+                    name: "Dark Reading",
+                    url: "https://www.darkreading.com/rss.xml"
+                },
+                {
+                    name: "KrebsSecurity",
+                    url: "https://krebsonsecurity.com/feed/"
+                }
+            ]
+        });
 
         if (lang === "tr") {
-            presets.push({ section: i18nd("plasma_applet_com.mcc45tr.filesearch", "Türkiye News"), items: [
-                { name: "Anadolu Ajansı", url: "https://www.aa.com.tr/tr/rss" },
-                { name: "Hürriyet", url: "https://www.hurriyet.com.tr/rss/anasayfa" },
-                { name: "Cumhuriyet", url: "https://www.cumhuriyet.com.tr/rss" },
-                { name: "Webtekno", url: "https://www.webtekno.com/rss.xml" },
-                { name: "TeknoSeyir", url: "https://teknoseyir.com/feed" },
-                { name: "Sözcü", url: "https://www.sozcu.com.tr/feeds-haberler" },
-                { name: "TRT Haber", url: "https://www.trthaber.com/sondakika.rss" },
-                { name: "NTV", url: "https://www.ntv.com.tr/son-dakika.rss" },
-                { name: "Habertürk", url: "https://www.haberturk.com.tr/rss" },
-                { name: "CNN Türk", url: "https://www.cnnturk.com/feed/rss/all/news" },
-                { name: "Beyaz Gazete", url: "https://beyazgazete.com/rss/guncel.xml" }
-            ]});
+            presets.push({
+                section: i18nd("plasma_applet_com.mcc45tr.filesearch", "Türkiye News"),
+                items: [
+                    {
+                        name: "Anadolu Ajansı",
+                        url: "https://www.aa.com.tr/tr/rss"
+                    },
+                    {
+                        name: "Hürriyet",
+                        url: "https://www.hurriyet.com.tr/rss/anasayfa"
+                    },
+                    {
+                        name: "Cumhuriyet",
+                        url: "https://www.cumhuriyet.com.tr/rss"
+                    },
+                    {
+                        name: "Webtekno",
+                        url: "https://www.webtekno.com/rss.xml"
+                    },
+                    {
+                        name: "TeknoSeyir",
+                        url: "https://teknoseyir.com/feed"
+                    },
+                    {
+                        name: "Sözcü",
+                        url: "https://www.sozcu.com.tr/feeds-haberler"
+                    },
+                    {
+                        name: "TRT Haber",
+                        url: "https://www.trthaber.com/sondakika.rss"
+                    },
+                    {
+                        name: "NTV",
+                        url: "https://www.ntv.com.tr/son-dakika.rss"
+                    },
+                    {
+                        name: "Habertürk",
+                        url: "https://www.haberturk.com.tr/rss"
+                    },
+                    {
+                        name: "CNN Türk",
+                        url: "https://www.cnnturk.com/feed/rss/all/news"
+                    },
+                    {
+                        name: "Beyaz Gazete",
+                        url: "https://beyazgazete.com/rss/guncel.xml"
+                    }
+                ]
+            });
         } else if (lang === "az") {
-            presets.push({ section: i18nd("plasma_applet_com.mcc45tr.filesearch", "Azerbaijan News"), items: [
-                { name: "AZERTAC", url: "https://azertag.az/rss" },
-                { name: "APA", url: "https://apa.az/rss" },
-                { name: "Trend News", url: "https://az.trend.az/feeds/index.rss" },
-                { name: "Report.az", url: "https://report.az/rss/" },
-                { name: "Tech.az", url: "https://tech.az/feed/" }
-            ]});
+            presets.push({
+                section: i18nd("plasma_applet_com.mcc45tr.filesearch", "Azerbaijan News"),
+                items: [
+                    {
+                        name: "AZERTAC",
+                        url: "https://azertag.az/rss"
+                    },
+                    {
+                        name: "APA",
+                        url: "https://apa.az/rss"
+                    },
+                    {
+                        name: "Trend News",
+                        url: "https://az.trend.az/feeds/index.rss"
+                    },
+                    {
+                        name: "Report.az",
+                        url: "https://report.az/rss/"
+                    },
+                    {
+                        name: "Tech.az",
+                        url: "https://tech.az/feed/"
+                    }
+                ]
+            });
         } else if (lang === "bn") {
-            presets.push({ section: i18nd("plasma_applet_com.mcc45tr.filesearch", "Bangladesh News"), items: [
-                { name: "Prothom Alo", url: "https://www.prothomalo.com/feed" },
-                { name: "The Daily Star", url: "https://www.thedailystar.net/rss.xml" },
-                { name: "Ittefaq", url: "https://www.ittefaq.com.bd/rss.xml" },
-                { name: "Dhaka Tribune Tech", url: "https://www.dhakatribune.com/feed/articles/technology" }
-            ]});
+            presets.push({
+                section: i18nd("plasma_applet_com.mcc45tr.filesearch", "Bangladesh News"),
+                items: [
+                    {
+                        name: "Prothom Alo",
+                        url: "https://www.prothomalo.com/feed"
+                    },
+                    {
+                        name: "The Daily Star",
+                        url: "https://www.thedailystar.net/rss.xml"
+                    },
+                    {
+                        name: "Ittefaq",
+                        url: "https://www.ittefaq.com.bd/rss.xml"
+                    },
+                    {
+                        name: "Dhaka Tribune Tech",
+                        url: "https://www.dhakatribune.com/feed/articles/technology"
+                    }
+                ]
+            });
         } else if (lang === "cs") {
-            presets.push({ section: i18nd("plasma_applet_com.mcc45tr.filesearch", "Czech Republic"), items: [
-                { name: "iDNES.cz", url: "https://servis.idnes.cz/rss.aspx?c=zpravodaj" },
-                { name: "Novinky.cz", url: "https://www.novinky.cz/rss" },
-                { name: "Aktuálně.cz", url: "https://vyhledavani.aktualne.cz/zpravy/rss/" },
-                { name: "Živě.cz", url: "https://www.zive.cz/rss/sc-47/" }
-            ]});
+            presets.push({
+                section: i18nd("plasma_applet_com.mcc45tr.filesearch", "Czech Republic"),
+                items: [
+                    {
+                        name: "iDNES.cz",
+                        url: "https://servis.idnes.cz/rss.aspx?c=zpravodaj"
+                    },
+                    {
+                        name: "Novinky.cz",
+                        url: "https://www.novinky.cz/rss"
+                    },
+                    {
+                        name: "Aktuálně.cz",
+                        url: "https://vyhledavani.aktualne.cz/zpravy/rss/"
+                    },
+                    {
+                        name: "Živě.cz",
+                        url: "https://www.zive.cz/rss/sc-47/"
+                    }
+                ]
+            });
         } else if (lang === "de") {
-            presets.push({ section: i18nd("plasma_applet_com.mcc45tr.filesearch", "Germany News"), items: [
-                { name: "Spiegel Online", url: "https://www.spiegel.de/schlagzeilen/index.rss" },
-                { name: "Die Zeit", url: "https://newsfeed.zeit.de/index" },
-                { name: "FAZ", url: "https://www.faz.net/rss/aktuell/" },
-                { name: "Heise Online", url: "https://www.heise.de/rss/heise-atom.xml" }
-            ]});
+            presets.push({
+                section: i18nd("plasma_applet_com.mcc45tr.filesearch", "Germany News"),
+                items: [
+                    {
+                        name: "Spiegel Online",
+                        url: "https://www.spiegel.de/schlagzeilen/index.rss"
+                    },
+                    {
+                        name: "Die Zeit",
+                        url: "https://newsfeed.zeit.de/index"
+                    },
+                    {
+                        name: "FAZ",
+                        url: "https://www.faz.net/rss/aktuell/"
+                    },
+                    {
+                        name: "Heise Online",
+                        url: "https://www.heise.de/rss/heise-atom.xml"
+                    }
+                ]
+            });
         } else if (lang === "el") {
-            presets.push({ section: i18nd("plasma_applet_com.mcc45tr.filesearch", "Greece News"), items: [
-                { name: "Kathimerini", url: "https://www.kathimerini.gr/rss" },
-                { name: "To Vima", url: "https://www.tovima.gr/feed/" },
-                { name: "Naftemporiki", url: "https://www.naftemporiki.gr/rss/" },
-                { name: "ProtoThema", url: "https://www.protothema.gr/rss" },
-                { name: "News247", url: "https://www.news247.gr/rss/" },
-                { name: "Techblog.gr", url: "https://techblog.gr/feed/" }
-            ]});
+            presets.push({
+                section: i18nd("plasma_applet_com.mcc45tr.filesearch", "Greece News"),
+                items: [
+                    {
+                        name: "Kathimerini",
+                        url: "https://www.kathimerini.gr/rss"
+                    },
+                    {
+                        name: "To Vima",
+                        url: "https://www.tovima.gr/feed/"
+                    },
+                    {
+                        name: "Naftemporiki",
+                        url: "https://www.naftemporiki.gr/rss/"
+                    },
+                    {
+                        name: "ProtoThema",
+                        url: "https://www.protothema.gr/rss"
+                    },
+                    {
+                        name: "News247",
+                        url: "https://www.news247.gr/rss/"
+                    },
+                    {
+                        name: "Techblog.gr",
+                        url: "https://techblog.gr/feed/"
+                    }
+                ]
+            });
         } else if (lang === "es") {
-            presets.push({ section: i18nd("plasma_applet_com.mcc45tr.filesearch", "Spain & Mexico"), items: [
-                { name: "El País", url: "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada" },
-                { name: "El Mundo", url: "https://e00-elmundo.uecdn.es/elmundo/rss/portada.xml" },
-                { name: "ABC.es", url: "https://www.abc.es/rss/2.0/portada/" },
-                { name: "RTVE", url: "https://www.rtve.es/api/noticias/rss" }
-            ]});
+            presets.push({
+                section: i18nd("plasma_applet_com.mcc45tr.filesearch", "Spain & Mexico"),
+                items: [
+                    {
+                        name: "El País",
+                        url: "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada"
+                    },
+                    {
+                        name: "El Mundo",
+                        url: "https://e00-elmundo.uecdn.es/elmundo/rss/portada.xml"
+                    },
+                    {
+                        name: "ABC.es",
+                        url: "https://www.abc.es/rss/2.0/portada/"
+                    },
+                    {
+                        name: "RTVE",
+                        url: "https://www.rtve.es/api/noticias/rss"
+                    }
+                ]
+            });
         } else if (lang === "fa") {
-            presets.push({ section: i18nd("plasma_applet_com.mcc45tr.filesearch", "Iran News"), items: [
-                { name: "Fars News", url: "https://www.farsnews.ir/rss" },
-                { name: "ISNA", url: "https://www.isna.ir/rss" },
-                { name: "Hamshahri", url: "https://www.hamshahrionline.ir/rss" },
-                { name: "Zoomit", url: "https://zoomit.ir/feed/" }
-            ]});
+            presets.push({
+                section: i18nd("plasma_applet_com.mcc45tr.filesearch", "Iran News"),
+                items: [
+                    {
+                        name: "Fars News",
+                        url: "https://www.farsnews.ir/rss"
+                    },
+                    {
+                        name: "ISNA",
+                        url: "https://www.isna.ir/rss"
+                    },
+                    {
+                        name: "Hamshahri",
+                        url: "https://www.hamshahrionline.ir/rss"
+                    },
+                    {
+                        name: "Zoomit",
+                        url: "https://zoomit.ir/feed/"
+                    }
+                ]
+            });
         } else if (lang === "fr") {
-            presets.push({ section: i18nd("plasma_applet_com.mcc45tr.filesearch", "France News"), items: [
-                { name: "Le Monde", url: "https://www.lemonde.fr/rss/une.xml" },
-                { name: "Le Figaro", url: "https://www.lefigaro.fr/rss/figaro_actualites.xml" },
-                { name: "Libération", url: "https://www.liberation.fr/arc/outboundfeeds/rss-all/collection/accueil-une/?outputType=xml" },
-                { name: "France 24", url: "https://www.france24.com/fr/rss" },
-                { name: "Journal du Geek", url: "https://www.journaldugeek.com/feed/" }
-            ]});
+            presets.push({
+                section: i18nd("plasma_applet_com.mcc45tr.filesearch", "France News"),
+                items: [
+                    {
+                        name: "Le Monde",
+                        url: "https://www.lemonde.fr/rss/une.xml"
+                    },
+                    {
+                        name: "Le Figaro",
+                        url: "https://www.lefigaro.fr/rss/figaro_actualites.xml"
+                    },
+                    {
+                        name: "Libération",
+                        url: "https://www.liberation.fr/arc/outboundfeeds/rss-all/collection/accueil-une/?outputType=xml"
+                    },
+                    {
+                        name: "France 24",
+                        url: "https://www.france24.com/fr/rss"
+                    },
+                    {
+                        name: "Journal du Geek",
+                        url: "https://www.journaldugeek.com/feed/"
+                    }
+                ]
+            });
         } else if (lang === "hi") {
-            presets.push({ section: i18nd("plasma_applet_com.mcc45tr.filesearch", "India News (Hindi)"), items: [
-                { name: "Dainik Jagran", url: "https://www.jagran.com/rss/news/latest-news-rss.xml" },
-                { name: "Amar Ujala", url: "https://www.amarujala.com/rss/india-news.xml" },
-                { name: "Navbharat Times", url: "https://navbharattimes.indiatimes.com/rssfeeds/2292.cms" },
-                { name: "Gadgets 360", url: "https://hindi.gadgets360.com/rss/feeds" }
-            ]});
+            presets.push({
+                section: i18nd("plasma_applet_com.mcc45tr.filesearch", "India News (Hindi)"),
+                items: [
+                    {
+                        name: "Dainik Jagran",
+                        url: "https://www.jagran.com/rss/news/latest-news-rss.xml"
+                    },
+                    {
+                        name: "Amar Ujala",
+                        url: "https://www.amarujala.com/rss/india-news.xml"
+                    },
+                    {
+                        name: "Navbharat Times",
+                        url: "https://navbharattimes.indiatimes.com/rssfeeds/2292.cms"
+                    },
+                    {
+                        name: "Gadgets 360",
+                        url: "https://hindi.gadgets360.com/rss/feeds"
+                    }
+                ]
+            });
         } else if (lang === "hy") {
-            presets.push({ section: i18nd("plasma_applet_com.mcc45tr.filesearch", "Armenia News"), items: [
-                { name: "Armenpress", url: "https://armenpress.am/en/rss" },
-                { name: "PanARMENIAN", url: "https://www.panarmenian.net/rss/arm/" },
-                { name: "CivilNet", url: "https://www.civilnet.am/feed/" },
-                { name: "Itel.am", url: "https://itel.am/am/feed" }
-            ]});
+            presets.push({
+                section: i18nd("plasma_applet_com.mcc45tr.filesearch", "Armenia News"),
+                items: [
+                    {
+                        name: "Armenpress",
+                        url: "https://armenpress.am/en/rss"
+                    },
+                    {
+                        name: "PanARMENIAN",
+                        url: "https://www.panarmenian.net/rss/arm/"
+                    },
+                    {
+                        name: "CivilNet",
+                        url: "https://www.civilnet.am/feed/"
+                    },
+                    {
+                        name: "Itel.am",
+                        url: "https://itel.am/am/feed"
+                    }
+                ]
+            });
         } else if (lang === "id") {
-            presets.push({ section: i18nd("plasma_applet_com.mcc45tr.filesearch", "Indonesia News"), items: [
-                { name: "Detikcom", url: "https://rss.detik.com/" },
-                { name: "Kompas.com", url: "https://www.kompas.com/feed" },
-                { name: "Tempo", url: "https://www.tempo.co/rss/current" },
-                { name: "Tekno Kompas", url: "https://tekno.kompas.com/feed" }
-            ]});
+            presets.push({
+                section: i18nd("plasma_applet_com.mcc45tr.filesearch", "Indonesia News"),
+                items: [
+                    {
+                        name: "Detikcom",
+                        url: "https://rss.detik.com/"
+                    },
+                    {
+                        name: "Kompas.com",
+                        url: "https://www.kompas.com/feed"
+                    },
+                    {
+                        name: "Tempo",
+                        url: "https://www.tempo.co/rss/current"
+                    },
+                    {
+                        name: "Tekno Kompas",
+                        url: "https://tekno.kompas.com/feed"
+                    }
+                ]
+            });
         } else if (lang === "it") {
-            presets.push({ section: i18nd("plasma_applet_com.mcc45tr.filesearch", "Italy News"), items: [
-                { name: "La Repubblica", url: "https://www.repubblica.it/rss/homepage/rss2.0.xml" },
-                { name: "ANSA", url: "https://www.ansa.it/sito/ansait_rss.xml" },
-                { name: "Il Sole 24 Ore", url: "https://www.ilsole24ore.com/rss/italia.xml" },
-                { name: "HDblog.it", url: "https://www.hdblog.it/feed/" }
-            ]});
+            presets.push({
+                section: i18nd("plasma_applet_com.mcc45tr.filesearch", "Italy News"),
+                items: [
+                    {
+                        name: "La Repubblica",
+                        url: "https://www.repubblica.it/rss/homepage/rss2.0.xml"
+                    },
+                    {
+                        name: "ANSA",
+                        url: "https://www.ansa.it/sito/ansait_rss.xml"
+                    },
+                    {
+                        name: "Il Sole 24 Ore",
+                        url: "https://www.ilsole24ore.com/rss/italia.xml"
+                    },
+                    {
+                        name: "HDblog.it",
+                        url: "https://www.hdblog.it/feed/"
+                    }
+                ]
+            });
         } else if (lang === "ja") {
-            presets.push({ section: i18nd("plasma_applet_com.mcc45tr.filesearch", "Japan News"), items: [
-                { name: "NHK News", url: "https://www3.nhk.or.jp/rss/news/shuyou.xml" },
-                { name: "Asahi Shimbun", url: "https://www.asahi.com/rss/asahi/newsheadlines.rdf" },
-                { name: "Nikkei", url: "https://www.nikkei.com/rss/index.rdf" },
-                { name: "ITmedia", url: "https://rss.itmedia.co.jp/rss/2.0/itmedia_all.xml" }
-            ]});
+            presets.push({
+                section: i18nd("plasma_applet_com.mcc45tr.filesearch", "Japan News"),
+                items: [
+                    {
+                        name: "NHK News",
+                        url: "https://www3.nhk.or.jp/rss/news/shuyou.xml"
+                    },
+                    {
+                        name: "Asahi Shimbun",
+                        url: "https://www.asahi.com/rss/asahi/newsheadlines.rdf"
+                    },
+                    {
+                        name: "Nikkei",
+                        url: "https://www.nikkei.com/rss/index.rdf"
+                    },
+                    {
+                        name: "ITmedia",
+                        url: "https://rss.itmedia.co.jp/rss/2.0/itmedia_all.xml"
+                    }
+                ]
+            });
         } else if (lang === "pt") {
-            presets.push({ section: i18nd("plasma_applet_com.mcc45tr.filesearch", "Brazil & Portugal"), items: [
-                { name: "G1 (Globo)", url: "https://g1.globo.com/dynamo/rss2.xml" },
-                { name: "Folha de S.Paulo", url: "https://feeds.folha.uol.com.br/em-cima-da-hora/rss091.xml" },
-                { name: "Público", url: "https://www.publico.pt/feed/all" },
-                { name: "TecMundo", url: "https://www.tecmundo.com.br/rss" }
-            ]});
+            presets.push({
+                section: i18nd("plasma_applet_com.mcc45tr.filesearch", "Brazil & Portugal"),
+                items: [
+                    {
+                        name: "G1 (Globo)",
+                        url: "https://g1.globo.com/dynamo/rss2.xml"
+                    },
+                    {
+                        name: "Folha de S.Paulo",
+                        url: "https://feeds.folha.uol.com.br/em-cima-da-hora/rss091.xml"
+                    },
+                    {
+                        name: "Público",
+                        url: "https://www.publico.pt/feed/all"
+                    },
+                    {
+                        name: "TecMundo",
+                        url: "https://www.tecmundo.com.br/rss"
+                    }
+                ]
+            });
         } else if (lang === "ro") {
-            presets.push({ section: i18nd("plasma_applet_com.mcc45tr.filesearch", "Romania News"), items: [
-                { name: "HotNews", url: "https://www.hotnews.ro/rss" },
-                { name: "Digi24", url: "https://www.digi24.ro/rss" },
-                { name: "Adevarul", url: "https://adevarul.ro/rss/" },
-                { name: "Știrile ProTV", url: "https://stirileprotv.ro/rss" },
-                { name: "Start-up.ro", url: "https://www.start-up.ro/feed/" }
-            ]});
+            presets.push({
+                section: i18nd("plasma_applet_com.mcc45tr.filesearch", "Romania News"),
+                items: [
+                    {
+                        name: "HotNews",
+                        url: "https://www.hotnews.ro/rss"
+                    },
+                    {
+                        name: "Digi24",
+                        url: "https://www.digi24.ro/rss"
+                    },
+                    {
+                        name: "Adevarul",
+                        url: "https://adevarul.ro/rss/"
+                    },
+                    {
+                        name: "Știrile ProTV",
+                        url: "https://stirileprotv.ro/rss"
+                    },
+                    {
+                        name: "Start-up.ro",
+                        url: "https://www.start-up.ro/feed/"
+                    }
+                ]
+            });
         } else if (lang === "ru") {
-            presets.push({ section: i18nd("plasma_applet_com.mcc45tr.filesearch", "Russia News"), items: [
-                { name: "RIA Novosti", url: "https://ria.ru/export/rss2/archive/index.xml" },
-                { name: "TASS", url: "https://tass.ru/rss/v2.xml" },
-                { name: "Kommersant", url: "https://www.kommersant.ru/RSS/main.xml" },
-                { name: "Habr", url: "https://habr.com/ru/rss/all/all/" }
-            ]});
+            presets.push({
+                section: i18nd("plasma_applet_com.mcc45tr.filesearch", "Russia News"),
+                items: [
+                    {
+                        name: "RIA Novosti",
+                        url: "https://ria.ru/export/rss2/archive/index.xml"
+                    },
+                    {
+                        name: "TASS",
+                        url: "https://tass.ru/rss/v2.xml"
+                    },
+                    {
+                        name: "Kommersant",
+                        url: "https://www.kommersant.ru/RSS/main.xml"
+                    },
+                    {
+                        name: "Habr",
+                        url: "https://habr.com/ru/rss/all/all/"
+                    }
+                ]
+            });
         } else if (lang === "ur") {
-            presets.push({ section: i18nd("plasma_applet_com.mcc45tr.filesearch", "Pakistan News"), items: [
-                { name: "Dawn Urdu", url: "https://www.dawnnews.tv/rss" },
-                { name: "Jang", url: "https://jang.com.pk/rss/" },
-                { name: "Geo News", url: "https://urdu.geo.tv/rss/1" },
-                { name: "ProPakistani", url: "https://propakistani.pk/feed/" }
-            ]});
+            presets.push({
+                section: i18nd("plasma_applet_com.mcc45tr.filesearch", "Pakistan News"),
+                items: [
+                    {
+                        name: "Dawn Urdu",
+                        url: "https://www.dawnnews.tv/rss"
+                    },
+                    {
+                        name: "Jang",
+                        url: "https://jang.com.pk/rss/"
+                    },
+                    {
+                        name: "Geo News",
+                        url: "https://urdu.geo.tv/rss/1"
+                    },
+                    {
+                        name: "ProPakistani",
+                        url: "https://propakistani.pk/feed/"
+                    }
+                ]
+            });
         } else if (lang === "zh") {
-            presets.push({ section: i18nd("plasma_applet_com.mcc45tr.filesearch", "China News"), items: [
-                { name: "Caixin", url: "https://www.caixin.com/rss/" },
-                { name: "36Kr", url: "https://36kr.com/feed" }
-            ]});
+            presets.push({
+                section: i18nd("plasma_applet_com.mcc45tr.filesearch", "China News"),
+                items: [
+                    {
+                        name: "Caixin",
+                        url: "https://www.caixin.com/rss/"
+                    },
+                    {
+                        name: "36Kr",
+                        url: "https://36kr.com/feed"
+                    }
+                ]
+            });
         } else if (lang === "en") {
-            presets.push({ section: i18nd("plasma_applet_com.mcc45tr.filesearch", "USA & UK News"), items: [
-                { name: "NY Times", url: "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml" },
-                { name: "The Guardian", url: "https://www.theguardian.com/uk/rss" },
-                { name: "Reuters", url: "https://www.reuters.com/arc/outboundfeeds/rss/?outputType=xml" },
-                { name: "The Verge", url: "https://www.theverge.com/rss/index.xml" }
-            ]});
+            presets.push({
+                section: i18nd("plasma_applet_com.mcc45tr.filesearch", "USA & UK News"),
+                items: [
+                    {
+                        name: "NY Times",
+                        url: "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml"
+                    },
+                    {
+                        name: "The Guardian",
+                        url: "https://www.theguardian.com/uk/rss"
+                    },
+                    {
+                        name: "Reuters",
+                        url: "https://www.reuters.com/arc/outboundfeeds/rss/?outputType=xml"
+                    },
+                    {
+                        name: "The Verge",
+                        url: "https://www.theverge.com/rss/index.xml"
+                    }
+                ]
+            });
         } else {
-            presets.push({ section: i18nd("plasma_applet_com.mcc45tr.filesearch", "World News"), items: [
-                { name: "Reuters", url: "https://www.reuters.com/arc/outboundfeeds/rss/?outputType=xml" },
-                { name: "Al Jazeera", url: "https://www.aljazeera.com/xml/rss/all.xml" }
-            ]});
+            presets.push({
+                section: i18nd("plasma_applet_com.mcc45tr.filesearch", "World News"),
+                items: [
+                    {
+                        name: "Reuters",
+                        url: "https://www.reuters.com/arc/outboundfeeds/rss/?outputType=xml"
+                    },
+                    {
+                        name: "Al Jazeera",
+                        url: "https://www.aljazeera.com/xml/rss/all.xml"
+                    }
+                ]
+            });
         }
-        return presets
+        return presets;
     }
-    
+
     function isPresetSelected(url) {
         for (var i = 0; i < rssSources.length; i++) {
-            if (rssSources[i].url === url) return true
+            if (rssSources[i].url === url)
+                return true;
         }
-        return false
+        return false;
     }
 
     function addPreset(item) {
         for (var i = 0; i < rssSources.length; i++) {
             if (rssSources[i].url === item.url) {
-                removeSource(i)
-                return
+                removeSource(i);
+                return;
             }
         }
-        if (rssSources.length >= 30) return
-        rssSources.push({ 
-            url: item.url, 
-            name: item.name, 
-            lastSync: 0,
-            maxEntries: cfg_rssMaxEntries || 10, 
-            syncInterval: cfg_rssSyncInterval || 60 
-        })
-        rssSources = JSON.parse(JSON.stringify(rssSources))
-        saveSources()
-    }
-    
-    function moveSource(index, delta) {
-        var newIndex = index + delta
-        if (newIndex < 0 || newIndex >= rssSources.length) return
-        var item = rssSources.splice(index, 1)[0]
-        rssSources.splice(newIndex, 0, item)
-        rssSources = JSON.parse(JSON.stringify(rssSources))
-        saveSources()
-    }
-    
-    function addSource() {
-        if (rssSources.length >= 30) return
-        rssSources.push({ 
-            url: "", 
-            name: i18nd("plasma_applet_com.mcc45tr.filesearch", "New Source"), 
+        if (rssSources.length >= 30)
+            return;
+        rssSources.push({
+            url: item.url,
+            name: item.name,
             lastSync: 0,
             maxEntries: cfg_rssMaxEntries || 10,
             syncInterval: cfg_rssSyncInterval || 60
-        })
-        rssSources = JSON.parse(JSON.stringify(rssSources)) 
-        saveSources()
+        });
+        rssSources = JSON.parse(JSON.stringify(rssSources));
+        saveSources();
     }
-    
+
+    function moveSource(index, delta) {
+        var newIndex = index + delta;
+        if (newIndex < 0 || newIndex >= rssSources.length)
+            return;
+        var item = rssSources.splice(index, 1)[0];
+        rssSources.splice(newIndex, 0, item);
+        rssSources = JSON.parse(JSON.stringify(rssSources));
+        saveSources();
+    }
+
+    function addSource() {
+        if (rssSources.length >= 30)
+            return;
+        rssSources.push({
+            url: "",
+            name: i18nd("plasma_applet_com.mcc45tr.filesearch", "New Source"),
+            lastSync: 0,
+            maxEntries: cfg_rssMaxEntries || 10,
+            syncInterval: cfg_rssSyncInterval || 60
+        });
+        rssSources = JSON.parse(JSON.stringify(rssSources));
+        saveSources();
+    }
+
     Component.onCompleted: {
         try {
-            rssSources = JSON.parse(cfg_rssSources || "[]")
+            rssSources = JSON.parse(cfg_rssSources || "[]");
         } catch (e) {
-            rssSources = []
+            rssSources = [];
         }
     }
-    
+
     function saveSources() {
-        cfg_rssSources = JSON.stringify(rssSources)
+        cfg_rssSources = JSON.stringify(rssSources);
     }
-    
+
     function removeSource(index) {
-        rssSources.splice(index, 1)
-        rssSources = JSON.parse(JSON.stringify(rssSources)) 
-        saveSources()
+        rssSources.splice(index, 1);
+        rssSources = JSON.parse(JSON.stringify(rssSources));
+        saveSources();
     }
-    
+
     function updateSource(index, key, value) {
         if (rssSources[index]) {
-            rssSources[index][key] = value
+            rssSources[index][key] = value;
             // Replacing this array recreates every Repeater delegate and drops
             // focus from the TextField on every keystroke.
-            rssSourcesRevision++
-            saveSources()
+            rssSourcesRevision++;
+            saveSources();
         }
     }
 
-
-
     function clearLogs(index) {
-        var logs = testLogs
-        delete logs[index]
-        testLogs = JSON.parse(JSON.stringify(logs))
+        var logs = testLogs;
+        delete logs[index];
+        testLogs = JSON.parse(JSON.stringify(logs));
     }
 
     function cacheBasePath() {
-        return StandardPaths.writableLocation(StandardPaths.HomeLocation) + "/.cache/com.mcc45tr.filesearch/rss"
+        return StandardPaths.writableLocation(StandardPaths.HomeLocation) + "/.cache/com.mcc45tr.filesearch/rss";
     }
 
     function writeEntriesToCache(url, entries) {
-        var base = rssCacheBase
-        var path = RSSManager.getSourceFilePath(url, base)
-        var json = JSON.stringify(entries)
-        var base64Json = RSSManager.encodeBase64(json)
-        var cmd = "mkdir -p " + Utils.shellEscape(base)
-                + " && printf '%s' " + Utils.shellEscape(base64Json)
-                + " > " + Utils.shellEscape(path)
-        runExecutable(cmd, function() {})
+        var base = rssCacheBase;
+        var path = RSSManager.getSourceFilePath(url, base);
+        var json = JSON.stringify(entries);
+        var base64Json = RSSManager.encodeBase64(json);
+        var cmd = "mkdir -p " + Utils.shellEscape(base) + " && printf '%s' " + Utils.shellEscape(base64Json) + " > " + Utils.shellEscape(path);
+        runExecutable(cmd, function () {});
     }
 
     function updateCombinedCache(entriesBySource, markAsFresh) {
-        var combined = []
+        var combined = [];
         for (var key in entriesBySource) {
             if (!entriesBySource.hasOwnProperty(key)) {
-                continue
+                continue;
             }
 
-            var entries = entriesBySource[key]
+            var entries = entriesBySource[key];
             if (Array.isArray(entries)) {
-                combined = combined.concat(entries)
+                combined = combined.concat(entries);
             }
         }
 
-        combined.sort(function(a, b) {
-            return new Date(b.rawDate || 0).getTime() - new Date(a.rawDate || 0).getTime()
-        })
+        combined.sort(function (a, b) {
+            return new Date(b.rawDate || 0).getTime() - new Date(a.rawDate || 0).getTime();
+        });
 
-        cfg_rssCache = JSON.stringify(combined)
+        cfg_rssCache = JSON.stringify(combined);
         if (markAsFresh) {
-            cfg_rssLastSyncAll = Date.now()
+            cfg_rssLastSyncAll = Date.now();
         }
     }
 
     function mergeStandaloneCache(callback) {
-        var command = "sh " + Utils.shellEscape(getScriptPath())
-                + " --merge " + Utils.shellEscape(rssCacheBase)
-        runExecutable(command, function(line, source, isFinished, exitCode) {
-            if (isFinished && callback) callback(exitCode === 0)
-        })
+        var command = "sh " + Utils.shellEscape(getScriptPath()) + " --merge " + Utils.shellEscape(rssCacheBase);
+        runExecutable(command, function (line, source, isFinished, exitCode) {
+            if (isFinished && callback)
+                callback(exitCode === 0);
+        });
     }
 
     function syncSource(url, index, onComplete, deferMerge) {
         if (!/^https:\/\//i.test(String(url || ""))) {
-            addLog(index, i18nd("plasma_applet_com.mcc45tr.filesearch", "Only HTTPS RSS URLs are allowed"), "fail")
-            if (onComplete) onComplete(false, [])
-            return
+            addLog(index, i18nd("plasma_applet_com.mcc45tr.filesearch", "Only HTTPS RSS URLs are allowed"), "fail");
+            if (onComplete)
+                onComplete(false, []);
+            return;
         }
 
-        testResults[index] = "testing"
-        testResults = Object.assign({}, testResults)
-        testLogs[index] = []
-        addLog(index, i18nd("plasma_applet_com.mcc45tr.filesearch", "Starting background sync..."), "testing")
+        testResults[index] = "testing";
+        testResults = Object.assign({}, testResults);
+        testLogs[index] = [];
+        addLog(index, i18nd("plasma_applet_com.mcc45tr.filesearch", "Starting background sync..."), "testing");
 
-        var completed = false
+        var completed = false;
         function safeOnComplete(success) {
-            if (completed) return
-            completed = true
-            if (onComplete) onComplete(success)
+            if (completed)
+                return;
+            completed = true;
+            if (onComplete)
+                onComplete(success);
         }
 
-        var l = logic
+        var l = logic;
         if (l) {
-            l.syncSourceBackground(index, function(line, source) {
-                processSyncLine(index, line, true)
-                if (line === "SUCCESS") safeOnComplete(true)
-                else if (line.indexOf("FAIL:") === 0) safeOnComplete(false)
-            })
+            l.syncSourceBackground(index, function (line, source) {
+                processSyncLine(index, line, true);
+                if (line === "SUCCESS")
+                    safeOnComplete(true);
+                else if (line.indexOf("FAIL:") === 0)
+                    safeOnComplete(false);
+            });
         } else {
             // Standalone sync logic using local executable DataSource
-            var scriptPath = getScriptPath()
+            var scriptPath = getScriptPath();
             if (!scriptPath || scriptPath === "undefined" || scriptPath.indexOf("rss_sync.sh") === -1) {
-                  addLog(index, i18nd("plasma_applet_com.mcc45tr.filesearch", "Script not found at: %1", scriptPath), "fail")
-                   testResults[index] = "error"
-                   testResults = Object.assign({}, testResults)
-                   safeOnComplete(false)
-                   return
+                addLog(index, i18nd("plasma_applet_com.mcc45tr.filesearch", "Script not found at: %1", scriptPath), "fail");
+                testResults[index] = "error";
+                testResults = Object.assign({}, testResults);
+                safeOnComplete(false);
+                return;
             }
-            
-            var max = rssSources[index].maxEntries || cfg_rssMaxEntries || 10
-            var cmd = "sh " + Utils.shellEscape(scriptPath)
-                    + " " + Utils.shellEscape(rssCacheBase)
-                    + " " + Utils.shellEscape(url)
-                    + " " + Utils.shellEscape(rssSources[index].name || "")
-                    + " " + Utils.shellEscape(String(max))
-            
-            runExecutable(cmd, function(line, source, isFinished, exitCode) {
+
+            var max = rssSources[index].maxEntries || cfg_rssMaxEntries || 10;
+            var cmd = "sh " + Utils.shellEscape(scriptPath) + " " + Utils.shellEscape(rssCacheBase) + " " + Utils.shellEscape(url) + " " + Utils.shellEscape(rssSources[index].name || "") + " " + Utils.shellEscape(String(max));
+
+            runExecutable(cmd, function (line, source, isFinished, exitCode) {
                 if (line && line.trim() !== "SUCCESS") {
-                    processSyncLine(index, line)
+                    processSyncLine(index, line);
                 }
                 if (isFinished) {
                     if (exitCode === 0) {
                         if (deferMerge) {
-                            processSyncLine(index, "SUCCESS")
-                            safeOnComplete(true)
+                            processSyncLine(index, "SUCCESS");
+                            safeOnComplete(true);
                         } else {
-                            mergeStandaloneCache(function(merged) {
-                                processSyncLine(index, merged ? "SUCCESS" : "FAIL: Cache merge failed")
-                                safeOnComplete(merged)
-                            })
+                            mergeStandaloneCache(function (merged) {
+                                processSyncLine(index, merged ? "SUCCESS" : "FAIL: Cache merge failed");
+                                safeOnComplete(merged);
+                            });
                         }
                     } else {
-                        safeOnComplete(false)
+                        safeOnComplete(false);
                     }
                 }
-            })
+            });
         }
     }
 
     function processSyncLine(index, line, useLogic) {
         if (line === "SUCCESS") {
-            updateLastLog(index, i18nd("plasma_applet_com.mcc45tr.filesearch", "Sync: SUCCESS"), "ok")
-            testResults[index] = "success"
-            testResults = Object.assign({}, testResults)
-            updateSource(index, "lastSync", Date.now())
-            cfg_rssLastSyncAll = Date.now()
+            updateLastLog(index, i18nd("plasma_applet_com.mcc45tr.filesearch", "Sync: SUCCESS"), "ok");
+            testResults[index] = "success";
+            testResults = Object.assign({}, testResults);
+            updateSource(index, "lastSync", Date.now());
+            cfg_rssLastSyncAll = Date.now();
             if (useLogic && logic) {
                 // LogicController reports SUCCESS only after its single atomic
                 // merge and cache reload have completed.
             }
-            clearLogsTimer.indexToClear = index
-            clearLogsTimer.restart()
+            clearLogsTimer.indexToClear = index;
+            clearLogsTimer.restart();
         } else if (line.indexOf("FAIL:") === 0) {
-            updateLastLog(index, line.replace("FAIL:", "Sync: FAIL -"), "fail")
-            testResults[index] = "error"
-            testResults = Object.assign({}, testResults)
+            updateLastLog(index, line.replace("FAIL:", "Sync: FAIL -"), "fail");
+            testResults[index] = "error";
+            testResults = Object.assign({}, testResults);
         } else if (line.indexOf(": START") !== -1) {
-            addLog(index, line.replace(": START", "..."), "testing")
+            addLog(index, line.replace(": START", "..."), "testing");
         } else if (line.indexOf(": OK") !== -1) {
-            updateLastLog(index, line, "ok")
+            updateLastLog(index, line, "ok");
         } else if (line.indexOf("saved OK") !== -1) {
-            updateLastLog(index, line, "ok")
+            updateLastLog(index, line, "ok");
         } else {
             // Generic sync output line (suppressed for release)
         }
     }
 
     function testSource(url, index) {
-        syncSource(url, index, function(success) {
-            // Background script already updated the cache file
-        })
+        syncSource(url, index, function (success) {
+        // Background script already updated the cache file
+        });
     }
 
     function syncAllSources() {
         if (!rssSources.length) {
-            cfg_rssCache = "[]"
-            cfg_rssLastSyncAll = Date.now()
-            return
+            cfg_rssCache = "[]";
+            cfg_rssLastSyncAll = Date.now();
+            return;
         }
 
         if (logic && logic.syncAllRSS) {
@@ -723,16 +1113,17 @@ Item {
         var index = 0;
         function syncNext() {
             if (index >= rssSources.length) {
-                mergeStandaloneCache(function(merged) {
-                    if (merged) cfg_rssLastSyncAll = Date.now()
-                })
+                mergeStandaloneCache(function (merged) {
+                    if (merged)
+                        cfg_rssLastSyncAll = Date.now();
+                });
                 return;
             }
             var sourceUrl = rssSources[index].url;
             var currentIndex = index;
             index++;
-            
-            syncSource(sourceUrl, currentIndex, function(success) {
+
+            syncSource(sourceUrl, currentIndex, function (success) {
                 syncNext();
             }, true);
         }
@@ -741,40 +1132,40 @@ Item {
 
     function clearCacheFolder() {
         if (logic) {
-            logic.clearRssCache()
-            
+            logic.clearRssCache();
+
             // Sync local state with logic state
-            rssSources = JSON.parse(cfg_rssSources || "[]")
-            testLogs = ({})
-            testResults = ({})
+            rssSources = JSON.parse(cfg_rssSources || "[]");
+            testLogs = ({});
+            testResults = ({});
         } else {
             // Fallback if logic is missing
-            var base = rssCacheBase
-            var cmd = "rm -rf \"" + base + "\" && mkdir -p \"" + base + "\""
-            runExecutable(cmd, function() {})
-            cfg_rssCache = "[]"
-            cfg_rssLastSyncAll = 0
+            var base = rssCacheBase;
+            var cmd = "rm -rf \"" + base + "\" && mkdir -p \"" + base + "\"";
+            runExecutable(cmd, function () {});
+            cfg_rssCache = "[]";
+            cfg_rssLastSyncAll = 0;
             for (var i = 0; i < rssSources.length; i++) {
-                rssSources[i].lastSync = 0
+                rssSources[i].lastSync = 0;
             }
-            rssSources = JSON.parse(JSON.stringify(rssSources))
-            saveSources()
+            rssSources = JSON.parse(JSON.stringify(rssSources));
+            saveSources();
         }
     }
 
     function formatLastSync(timestamp) {
         if (!timestamp || Number(timestamp) <= 0) {
-            return i18nd("plasma_applet_com.mcc45tr.filesearch", "Never")
+            return i18nd("plasma_applet_com.mcc45tr.filesearch", "Never");
         }
 
-        var dt = new Date(Number(timestamp))
-        return Qt.formatDateTime(dt, "dd.MM.yyyy HH:mm")
+        var dt = new Date(Number(timestamp));
+        return Qt.formatDateTime(dt, "dd.MM.yyyy HH:mm");
     }
 
     QQC2.ScrollView {
         anchors.fill: parent
         contentWidth: -1 // Disable horizontal scroll
-        
+
         ColumnLayout {
             width: parent.width
             spacing: Kirigami.Units.gridUnit
@@ -805,19 +1196,21 @@ Item {
                     onClicked: clearCacheFolder()
                 }
 
-                Item { Layout.fillWidth: true }
+                Item {
+                    Layout.fillWidth: true
+                }
 
                 QQC2.Label {
                     text: i18nd("plasma_applet_com.mcc45tr.filesearch", "Last full sync: %1", formatLastSync(cfg_rssLastSyncAll))
                     opacity: 0.75
                 }
             }
-            
+
             RowLayout {
                 Layout.fillWidth: true
                 Layout.leftMargin: Kirigami.Units.gridUnit
                 spacing: Kirigami.Units.gridUnit * 2
-                
+
                 QQC2.CheckBox {
                     text: i18nd("plasma_applet_com.mcc45tr.filesearch", "Show images in results")
                     checked: cfg_rssShowImages
@@ -830,10 +1223,10 @@ Item {
                     onToggled: cfg_rssExpandableCards = checked
                 }
             }
-            
-            Kirigami.Separator { 
+
+            Kirigami.Separator {
                 Kirigami.FormData.isSection: true
-                Kirigami.FormData.label: i18nd("plasma_applet_com.mcc45tr.filesearch", "Popular Presets") 
+                Kirigami.FormData.label: i18nd("plasma_applet_com.mcc45tr.filesearch", "Popular Presets")
                 Layout.fillWidth: true
             }
 
@@ -847,26 +1240,30 @@ Item {
                     // Force refresh cards visibility
                 }
             }
-            
+
             Repeater {
                 model: presetSources
                 delegate: Kirigami.AbstractCard {
                     id: presetCard
                     property string searchText: presetSearchField.text.toLowerCase()
                     property bool sectionMatches: modelData.section.toLowerCase().indexOf(searchText) !== -1
-                    
+
                     Layout.fillWidth: true
                     visible: {
-                        if (!modelData || !modelData.items) return false;
-                        if (searchText.length === 0) return true;
-                        if (sectionMatches) return true;
+                        if (!modelData || !modelData.items)
+                            return false;
+                        if (searchText.length === 0)
+                            return true;
+                        if (sectionMatches)
+                            return true;
                         for (var i = 0; i < modelData.items.length; i++) {
-                            if (modelData.items[i].name.toLowerCase().indexOf(searchText) !== -1) return true;
+                            if (modelData.items[i].name.toLowerCase().indexOf(searchText) !== -1)
+                                return true;
                         }
                         return false;
                     }
                     contentItem: ColumnLayout {
-                        QQC2.Label { 
+                        QQC2.Label {
                             text: modelData.section
                             font.bold: true
                             color: Kirigami.Theme.highlightColor
@@ -886,10 +1283,10 @@ Item {
                                     checkable: true
                                     checked: isSelected
                                     onClicked: {
-                                        checked = isSelected // Preserve state until added/removed
-                                        addPreset(modelData)
+                                        checked = isSelected; // Preserve state until added/removed
+                                        addPreset(modelData);
                                     }
-                                    
+
                                     QQC2.ToolTip.visible: !!hovered
                                     QQC2.ToolTip.text: modelData.url
                                 }
@@ -899,12 +1296,12 @@ Item {
                 }
             }
 
-            Kirigami.Separator { 
+            Kirigami.Separator {
                 Kirigami.FormData.isSection: true
-                Kirigami.FormData.label: i18nd("plasma_applet_com.mcc45tr.filesearch", "RSS Sources (Max 30)") 
+                Kirigami.FormData.label: i18nd("plasma_applet_com.mcc45tr.filesearch", "RSS Sources (Max 30)")
                 Layout.fillWidth: true
             }
-            
+
             Repeater {
                 model: rssSources
                 delegate: Kirigami.AbstractCard {
@@ -939,7 +1336,7 @@ Item {
                                 width: 32
                                 height: 32
                                 Layout.alignment: Qt.AlignVCenter
-                                
+
                                 Rectangle {
                                     anchors.fill: parent
                                     radius: 4
@@ -960,20 +1357,22 @@ Item {
                             QQC2.TextField {
                                 placeholderText: i18nd("plasma_applet_com.mcc45tr.filesearch", "Name")
                                 text: modelData.name
-                                onTextChanged: if (focus) updateSource(index, "name", text)
+                                onTextChanged: if (focus)
+                                    updateSource(index, "name", text)
                                 Layout.preferredWidth: 100
                             }
                             QQC2.TextField {
                                 placeholderText: i18nd("plasma_applet_com.mcc45tr.filesearch", "URL")
                                 text: modelData.url
-                                onTextChanged: if (focus) updateSource(index, "url", text)
+                                onTextChanged: if (focus)
+                                    updateSource(index, "url", text)
                                 Layout.fillWidth: true
                             }
                             QQC2.Button {
                                 icon.name: testResults[index] === "testing" ? "view-refresh" : "network-connect"
                                 onClicked: testSource(modelData.url, index)
                                 flat: true
-                                
+
                                 QQC2.BusyIndicator {
                                     anchors.centerIn: parent
                                     width: parent.height * 0.6
@@ -988,22 +1387,27 @@ Item {
                                 flat: true
                             }
                         }
-                        
+
                         RowLayout {
                             Layout.fillWidth: true
-                            QQC2.Label { text: i18nd("plasma_applet_com.mcc45tr.filesearch", "Entries:") }
+                            QQC2.Label {
+                                text: i18nd("plasma_applet_com.mcc45tr.filesearch", "Entries:")
+                            }
                             QQC2.SpinBox {
-                                from: 1; to: 50
+                                from: 1
+                                to: 50
                                 value: modelData.maxEntries || (cfg_rssMaxEntries || 10)
                                 onValueModified: updateSource(index, "maxEntries", value)
                             }
-                            QQC2.Label { text: i18nd("plasma_applet_com.mcc45tr.filesearch", "Interval:") }
+                            QQC2.Label {
+                                text: i18nd("plasma_applet_com.mcc45tr.filesearch", "Interval:")
+                            }
                             QQC2.Button {
                                 property int currentVal: {
-                                    var revision = rssSourcesRevision
-                                    return modelData.syncInterval || (cfg_rssSyncInterval || 60)
+                                    var revision = rssSourcesRevision;
+                                    return modelData.syncInterval || (cfg_rssSyncInterval || 60);
                                 }
-                                text: currentVal >= 60 ? i18nd("plasma_applet_com.mcc45tr.filesearch", "%1h", Math.floor(currentVal/60)) : i18nd("plasma_applet_com.mcc45tr.filesearch", "%1m", currentVal)
+                                text: currentVal >= 60 ? i18nd("plasma_applet_com.mcc45tr.filesearch", "%1h", Math.floor(currentVal / 60)) : i18nd("plasma_applet_com.mcc45tr.filesearch", "%1m", currentVal)
                                 onClicked: intervalMenu.open()
                                 flat: true
                                 QQC2.Menu {
@@ -1011,29 +1415,31 @@ Item {
                                     Repeater {
                                         model: [10, 15, 30, 45, 60, 120, 180, 240, 300, 360, 480, 600, 720, 1440]
                                         QQC2.MenuItem {
-                                            text: modelData >= 60 ? i18nd("plasma_applet_com.mcc45tr.filesearch", "%1 hours", modelData/60) : i18nd("plasma_applet_com.mcc45tr.filesearch", "%1 mins", modelData)
+                                            text: modelData >= 60 ? i18nd("plasma_applet_com.mcc45tr.filesearch", "%1 hours", modelData / 60) : i18nd("plasma_applet_com.mcc45tr.filesearch", "%1 mins", modelData)
                                             onTriggered: updateSource(index, "syncInterval", modelData)
                                         }
                                     }
                                 }
                             }
 
-                            Item { Layout.fillWidth: true }
+                            Item {
+                                Layout.fillWidth: true
+                            }
 
                             QQC2.Label {
                                 text: {
-                                    var revision = rssSourcesRevision
-                                    return i18nd("plasma_applet_com.mcc45tr.filesearch", "Last sync: %1", formatLastSync(modelData.lastSync))
+                                    var revision = rssSourcesRevision;
+                                    return i18nd("plasma_applet_com.mcc45tr.filesearch", "Last sync: %1", formatLastSync(modelData.lastSync));
                                 }
                                 opacity: 0.75
                             }
                         }
-                        
+
                         ColumnLayout {
                             Layout.fillWidth: true
                             spacing: 1
                             visible: testLogs[index] && testLogs[index].length > 0
-                            
+
                             Repeater {
                                 model: testLogs[index] || []
                                 delegate: RowLayout {
@@ -1064,7 +1470,7 @@ Item {
                 onClicked: addSource()
             }
 
-            Kirigami.Separator { 
+            Kirigami.Separator {
                 Layout.fillWidth: true
             }
 
@@ -1092,20 +1498,24 @@ Item {
 
                 QQC2.SpinBox {
                     Kirigami.FormData.label: i18nd("plasma_applet_com.mcc45tr.filesearch", "Default Interval:")
-                    from: 5; to: 1440
+                    from: 5
+                    to: 1440
                     value: cfg_rssSyncInterval || 60
                     onValueModified: cfg_rssSyncInterval = value
                 }
 
                 QQC2.SpinBox {
                     Kirigami.FormData.label: i18nd("plasma_applet_com.mcc45tr.filesearch", "Default Entries:")
-                    from: 1; to: 50
+                    from: 1
+                    to: 50
                     value: cfg_rssMaxEntries || 10
                     onValueModified: cfg_rssMaxEntries = value
                 }
             }
-            
-            Item { Layout.fillHeight: true }
+
+            Item {
+                Layout.fillHeight: true
+            }
         }
     }
 }

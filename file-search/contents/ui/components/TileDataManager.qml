@@ -34,22 +34,30 @@ Item {
     Connections {
         target: logic
         function onRssCacheChanged() {
-            dataManager.rssRevision++
-            refreshDebouncer.restart()
+            dataManager.rssRevision++;
+            refreshDebouncer.restart();
         }
         function onCategorySettingsChanged() {
-            dataManager.settingsRevision++
-            dataManager.clearMetadataCache()
-            refreshDebouncer.restart()
+            dataManager.settingsRevision++;
+            dataManager.clearMetadataCache();
+            refreshDebouncer.restart();
         }
     }
 
     Connections {
         target: resultsModel
-        function onRowsInserted() { dataManager.noteModelEvent() }
-        function onRowsRemoved() { dataManager.noteModelEvent() }
-        function onModelReset() { dataManager.noteModelEvent() }
-        function onDataChanged() { dataManager.noteModelEvent() }
+        function onRowsInserted() {
+            dataManager.noteModelEvent();
+        }
+        function onRowsRemoved() {
+            dataManager.noteModelEvent();
+        }
+        function onModelReset() {
+            dataManager.noteModelEvent();
+        }
+        function onDataChanged() {
+            dataManager.noteModelEvent();
+        }
     }
 
     property var categorizedData: []
@@ -139,14 +147,7 @@ Item {
         var indexedHead = indexedLength > 0 ? indexedContent.substring(0, 64) : "";
         var indexedTail = indexedLength > 64 ? indexedContent.substring(indexedLength - 64) : indexedHead;
         var cached = itemMetadataCache[key];
-        if (cached
-                && cached.sourceDisplay === display
-                && cached.sourceCategory === category
-                && cached.sourceUrl === url
-                && cached.sourceDecoration === decoration
-                && cached.indexedLength === indexedLength
-                && cached.indexedHead === indexedHead
-                && cached.indexedTail === indexedTail) {
+        if (cached && cached.sourceDisplay === display && cached.sourceCategory === category && cached.sourceUrl === url && cached.sourceDecoration === decoration && cached.indexedLength === indexedLength && cached.indexedHead === indexedHead && cached.indexedTail === indexedTail) {
             metadataCacheHits++;
             if (includeIndexedContent && !cached.indexedNormalized) {
                 cached.lowerIndexedContent = indexedContent.toLocaleLowerCase().replace(/\u0307/g, "");
@@ -190,25 +191,7 @@ Item {
         var rssItems = (logic.rssCache && Array.isArray(logic.rssCache)) ? logic.rssCache : [];
         var firstItem = rawDataProxy.count > 0 ? rawDataProxy.objectAt(0) : null;
         var lastItem = rawDataProxy.count > 0 ? rawDataProxy.objectAt(rawDataProxy.count - 1) : null;
-        var signature = [
-            searchText,
-            activeFilter,
-            maxResults,
-            searchAlgorithm,
-            minResults,
-            smartResultLimit,
-            modelRevision,
-            rssRevision,
-            settingsRevision,
-            rawDataProxy.count,
-            firstItem ? (firstItem.display || "") : "",
-            firstItem ? (firstItem.url || "") : "",
-            lastItem ? (lastItem.display || "") : "",
-            lastItem ? (lastItem.url || "") : "",
-            rssItems.length,
-            rssItems.length > 0 ? (rssItems[0].duplicateId || rssItems[0].display || "") : "",
-            rssItems.length > 0 ? (rssItems[rssItems.length - 1].duplicateId || rssItems[rssItems.length - 1].display || "") : ""
-        ].join("||");
+        var signature = [searchText, activeFilter, maxResults, searchAlgorithm, minResults, smartResultLimit, modelRevision, rssRevision, settingsRevision, rawDataProxy.count, firstItem ? (firstItem.display || "") : "", firstItem ? (firstItem.url || "") : "", lastItem ? (lastItem.display || "") : "", lastItem ? (lastItem.url || "") : "", rssItems.length, rssItems.length > 0 ? (rssItems[0].duplicateId || rssItems[0].display || "") : "", rssItems.length > 0 ? (rssItems[rssItems.length - 1].duplicateId || rssItems[rssItems.length - 1].display || "") : ""].join("||");
 
         if (signature === lastRefreshSignature)
             return;
@@ -313,34 +296,18 @@ Item {
         var effectiveMaxResults = isRSSOnlyMode ? 400 : maxResults;
         if (isRSSOnlyMode) {
             if (rssQuery && rssQuery.length > 3) {
-                rawItems = SimilarityUtils.sortByPriorityAndSimilarity(
-                    rawItems,
-                    rssQuery,
-                    categorySettings,
-                    CategoryManager.getCategoryPriority,
-                    effectiveMaxResults,
-                    true,
-                    {
-                        searchAlgorithm: searchAlgorithm,
-                        minResults: minResults,
-                        smartResultLimit: smartResultLimit
-                    }
-                );
-            }
-        } else if (searchText && searchText.length > 0) {
-            rawItems = SimilarityUtils.sortByPriorityAndSimilarity(
-                rawItems,
-                searchText,
-                categorySettings,
-                CategoryManager.getCategoryPriority,
-                effectiveMaxResults,
-                false,
-                {
+                rawItems = SimilarityUtils.sortByPriorityAndSimilarity(rawItems, rssQuery, categorySettings, CategoryManager.getCategoryPriority, effectiveMaxResults, true, {
                     searchAlgorithm: searchAlgorithm,
                     minResults: minResults,
                     smartResultLimit: smartResultLimit
-                }
-            );
+                });
+            }
+        } else if (searchText && searchText.length > 0) {
+            rawItems = SimilarityUtils.sortByPriorityAndSimilarity(rawItems, searchText, categorySettings, CategoryManager.getCategoryPriority, effectiveMaxResults, false, {
+                searchAlgorithm: searchAlgorithm,
+                minResults: minResults,
+                smartResultLimit: smartResultLimit
+            });
         } else {
             rawItems = CategoryManager.applyPriorityToResults(rawItems, categorySettings);
         }
@@ -377,7 +344,6 @@ Item {
                 finalOrder.push(catName);
             }
         }
-
 
         finalOrder = CategoryManager.getSortedCategoryNames(categorySettings, finalOrder);
 
@@ -439,10 +405,8 @@ Item {
 
         var completedGeneration = generation;
         var startedAt = searchStartTime;
-        Qt.callLater(function() {
-            if (completedGeneration !== activeQueryGeneration
-                    || completedGeneration === lastRecordedQueryGeneration
-                    || startedAt <= 0)
+        Qt.callLater(function () {
+            if (completedGeneration !== activeQueryGeneration || completedGeneration === lastRecordedQueryGeneration || startedAt <= 0)
                 return;
             lastRecordedQueryGeneration = completedGeneration;
             lastLatency = Date.now() - startedAt;

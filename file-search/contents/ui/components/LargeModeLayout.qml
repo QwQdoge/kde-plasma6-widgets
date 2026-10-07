@@ -19,19 +19,33 @@ Item {
     property bool largeDetailsOpen: weatherRoot.largeDetailsOpen
     property string location: weatherRoot.location
 
-    function getWeatherIcon(item) { return weatherRoot.getWeatherIcon(item) }
-    function getLocalizedDay(day) { return weatherRoot.getLocalizedDay(day) }
+    function getWeatherIcon(item) {
+        return weatherRoot.getWeatherIcon(item);
+    }
+    function getLocalizedDay(day) {
+        return weatherRoot.getLocalizedDay(day);
+    }
 
     Item {
         id: contentContainer
         anchors.fill: parent
 
         opacity: weatherRoot.showForecastDetails ? 0 : 1
-        Behavior on opacity { NumberAnimation { duration: 300; easing.type: Easing.OutQuad } }
+        Behavior on opacity {
+            NumberAnimation {
+                duration: 300
+                easing.type: Easing.OutQuad
+            }
+        }
 
         transform: Translate {
             y: weatherRoot.showForecastDetails ? -largeLayout.height : 0
-            Behavior on y { NumberAnimation { duration: 350; easing.type: Easing.InOutQuart } }
+            Behavior on y {
+                NumberAnimation {
+                    duration: 350
+                    easing.type: Easing.InOutQuart
+                }
+            }
         }
 
         ColumnLayout {
@@ -138,8 +152,8 @@ Item {
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
                         if (forecastDaily && forecastDaily.length > 0) {
-                            weatherRoot.selectedForecast = forecastDaily[0]
-                            weatherRoot.showForecastDetails = true
+                            weatherRoot.selectedForecast = forecastDaily[0];
+                            weatherRoot.showForecastDetails = true;
                         }
                     }
                 }
@@ -185,10 +199,10 @@ Item {
                 cellHeight: height
                 flow: GridView.FlowTopToBottom
 
-                onItemClicked: function(data, idx, cardRect) {
+                onItemClicked: function (data, idx, cardRect) {
                     if (!forecastMode && data.hasDetails) {
-                        weatherRoot.selectedForecast = data
-                        weatherRoot.showForecastDetails = true
+                        weatherRoot.selectedForecast = data;
+                        weatherRoot.showForecastDetails = true;
                     }
                 }
             }
@@ -204,48 +218,127 @@ Item {
             target: weatherRoot
             function onLargeDetailsOpenChanged() {
                 if (weatherRoot.largeDetailsOpen) {
-                    var p = detailsButton.mapToItem(largeLayout, 0, 0)
-                    largeDetailsOverlay.closedGeometry = Qt.rect(p.x, p.y, detailsButton.width, detailsButton.height)
-                    largeDetailsOverlay.x = largeDetailsOverlay.closedGeometry.x
-                    largeDetailsOverlay.y = largeDetailsOverlay.closedGeometry.y
-                    largeDetailsOverlay.width = largeDetailsOverlay.closedGeometry.width
-                    largeDetailsOverlay.height = largeDetailsOverlay.closedGeometry.height
-                    largeDetailsOverlay.radius = 14 * weatherRoot.radiusMultiplier
-                    largeDetailsOverlay.topLeftRadius = 14 * weatherRoot.radiusMultiplier
-                    largeDetailsOverlay.bottomLeftRadius = 14 * weatherRoot.radiusMultiplier
-                    largeDetailsOverlay.topRightRadius = 5 * weatherRoot.radiusMultiplier
-                    largeDetailsOverlay.bottomRightRadius = 5 * weatherRoot.radiusMultiplier
-                    largeDetailsOverlay.color = weatherRoot.showInnerBackgrounds ? Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.1) : "transparent"
-                    largeDetailsOverlay.visible = true
-                    expandAnim.start()
+                    var p = detailsButton.mapToItem(largeLayout, 0, 0);
+                    largeDetailsOverlay.closedGeometry = Qt.rect(p.x, p.y, detailsButton.width, detailsButton.height);
+                    largeDetailsOverlay.x = largeDetailsOverlay.closedGeometry.x;
+                    largeDetailsOverlay.y = largeDetailsOverlay.closedGeometry.y;
+                    largeDetailsOverlay.width = largeDetailsOverlay.closedGeometry.width;
+                    largeDetailsOverlay.height = largeDetailsOverlay.closedGeometry.height;
+                    largeDetailsOverlay.radius = 14 * weatherRoot.radiusMultiplier;
+                    largeDetailsOverlay.topLeftRadius = 14 * weatherRoot.radiusMultiplier;
+                    largeDetailsOverlay.bottomLeftRadius = 14 * weatherRoot.radiusMultiplier;
+                    largeDetailsOverlay.topRightRadius = 5 * weatherRoot.radiusMultiplier;
+                    largeDetailsOverlay.bottomRightRadius = 5 * weatherRoot.radiusMultiplier;
+                    largeDetailsOverlay.color = weatherRoot.showInnerBackgrounds ? Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.1) : "transparent";
+                    largeDetailsOverlay.visible = true;
+                    expandAnim.start();
                 } else {
-                    collapseAnim.start()
+                    collapseAnim.start();
                 }
             }
         }
 
         ParallelAnimation {
             id: expandAnim
-            NumberAnimation { target: largeDetailsOverlay; property: "x"; to: 0; duration: 200; easing.type: Easing.InOutQuad }
-            NumberAnimation { target: largeDetailsOverlay; property: "y"; to: 0; duration: 200; easing.type: Easing.InOutQuad }
-            NumberAnimation { target: largeDetailsOverlay; property: "width"; to: containerWidth; duration: 200; easing.type: Easing.InOutQuad }
-            NumberAnimation { target: largeDetailsOverlay; property: "height"; to: containerHeight; duration: 200; easing.type: Easing.InOutQuad }
-            NumberAnimation { target: largeDetailsOverlay; properties: "radius,topLeftRadius,bottomLeftRadius,topRightRadius,bottomRightRadius"; to: 20 * weatherRoot.radiusMultiplier; duration: 200; easing.type: Easing.InOutQuad }
+            NumberAnimation {
+                target: largeDetailsOverlay
+                property: "x"
+                to: 0
+                duration: 200
+                easing.type: Easing.InOutQuad
+            }
+            NumberAnimation {
+                target: largeDetailsOverlay
+                property: "y"
+                to: 0
+                duration: 200
+                easing.type: Easing.InOutQuad
+            }
+            NumberAnimation {
+                target: largeDetailsOverlay
+                property: "width"
+                to: containerWidth
+                duration: 200
+                easing.type: Easing.InOutQuad
+            }
+            NumberAnimation {
+                target: largeDetailsOverlay
+                property: "height"
+                to: containerHeight
+                duration: 200
+                easing.type: Easing.InOutQuad
+            }
+            NumberAnimation {
+                target: largeDetailsOverlay
+                properties: "radius,topLeftRadius,bottomLeftRadius,topRightRadius,bottomRightRadius"
+                to: 20 * weatherRoot.radiusMultiplier
+                duration: 200
+                easing.type: Easing.InOutQuad
+            }
             SequentialAnimation {
-                PauseAnimation { duration: 50 }
-                NumberAnimation { target: overlayFlickable; property: "opacity"; from: 0; to: 1; duration: 150 }
+                PauseAnimation {
+                    duration: 50
+                }
+                NumberAnimation {
+                    target: overlayFlickable
+                    property: "opacity"
+                    from: 0
+                    to: 1
+                    duration: 150
+                }
             }
         }
 
         ParallelAnimation {
             id: collapseAnim
-            NumberAnimation { target: largeDetailsOverlay; property: "x"; to: largeDetailsOverlay.closedGeometry.x; duration: 200; easing.type: Easing.InOutQuad }
-            NumberAnimation { target: largeDetailsOverlay; property: "y"; to: largeDetailsOverlay.closedGeometry.y; duration: 200; easing.type: Easing.InOutQuad }
-            NumberAnimation { target: largeDetailsOverlay; property: "width"; to: largeDetailsOverlay.closedGeometry.width; duration: 200; easing.type: Easing.InOutQuad }
-            NumberAnimation { target: largeDetailsOverlay; property: "height"; to: largeDetailsOverlay.closedGeometry.height; duration: 200; easing.type: Easing.InOutQuad }
-            NumberAnimation { target: largeDetailsOverlay; properties: "radius,topLeftRadius,bottomLeftRadius"; to: 14 * weatherRoot.radiusMultiplier; duration: 200; easing.type: Easing.InOutQuad }
-            NumberAnimation { target: largeDetailsOverlay; properties: "topRightRadius,bottomRightRadius"; to: 5 * weatherRoot.radiusMultiplier; duration: 200; easing.type: Easing.InOutQuad }
-            NumberAnimation { target: overlayFlickable; property: "opacity"; to: 0; duration: 150 }
+            NumberAnimation {
+                target: largeDetailsOverlay
+                property: "x"
+                to: largeDetailsOverlay.closedGeometry.x
+                duration: 200
+                easing.type: Easing.InOutQuad
+            }
+            NumberAnimation {
+                target: largeDetailsOverlay
+                property: "y"
+                to: largeDetailsOverlay.closedGeometry.y
+                duration: 200
+                easing.type: Easing.InOutQuad
+            }
+            NumberAnimation {
+                target: largeDetailsOverlay
+                property: "width"
+                to: largeDetailsOverlay.closedGeometry.width
+                duration: 200
+                easing.type: Easing.InOutQuad
+            }
+            NumberAnimation {
+                target: largeDetailsOverlay
+                property: "height"
+                to: largeDetailsOverlay.closedGeometry.height
+                duration: 200
+                easing.type: Easing.InOutQuad
+            }
+            NumberAnimation {
+                target: largeDetailsOverlay
+                properties: "radius,topLeftRadius,bottomLeftRadius"
+                to: 14 * weatherRoot.radiusMultiplier
+                duration: 200
+                easing.type: Easing.InOutQuad
+            }
+            NumberAnimation {
+                target: largeDetailsOverlay
+                properties: "topRightRadius,bottomRightRadius"
+                to: 5 * weatherRoot.radiusMultiplier
+                duration: 200
+                easing.type: Easing.InOutQuad
+            }
+            NumberAnimation {
+                target: overlayFlickable
+                property: "opacity"
+                to: 0
+                duration: 150
+            }
             onFinished: largeDetailsOverlay.visible = false
         }
 
@@ -258,7 +351,10 @@ Item {
             clip: true
             opacity: 0
 
-            PlasmaComponents.ScrollBar.vertical: PlasmaComponents.ScrollBar { policy: PlasmaComponents.ScrollBar.AlwaysOff; width: 0 }
+            PlasmaComponents.ScrollBar.vertical: PlasmaComponents.ScrollBar {
+                policy: PlasmaComponents.ScrollBar.AlwaysOff
+                width: 0
+            }
 
             MouseArea {
                 anchors.fill: parent
@@ -284,7 +380,12 @@ Item {
 
         transform: Translate {
             y: weatherRoot.showForecastDetails ? 0 : largeLayout.height
-            Behavior on y { NumberAnimation { duration: 350; easing.type: Easing.InOutQuart } }
+            Behavior on y {
+                NumberAnimation {
+                    duration: 350
+                    easing.type: Easing.InOutQuart
+                }
+            }
         }
 
         Timer {
@@ -298,15 +399,20 @@ Item {
             target: weatherRoot
             function onShowForecastDetailsChanged() {
                 if (weatherRoot.showForecastDetails) {
-                    overlayAutoCloseTimerLarge.restart()
+                    overlayAutoCloseTimerLarge.restart();
                 } else {
-                    overlayAutoCloseTimerLarge.stop()
+                    overlayAutoCloseTimerLarge.stop();
                 }
             }
         }
 
         property real contentOpacity: weatherRoot.showForecastDetails ? 1 : 0
-        Behavior on contentOpacity { NumberAnimation { duration: 300; easing.type: Easing.OutQuad } }
+        Behavior on contentOpacity {
+            NumberAnimation {
+                duration: 300
+                easing.type: Easing.OutQuad
+            }
+        }
 
         // Hover Listener
         MouseArea {
@@ -314,10 +420,11 @@ Item {
             z: 1000
             hoverEnabled: true
             propagateComposedEvents: true
-            onPressed: (mouse) => mouse.accepted = false
-            onWheel: (wheel) => wheel.accepted = false
+            onPressed: mouse => mouse.accepted = false
+            onWheel: wheel => wheel.accepted = false
             onEntered: overlayAutoCloseTimerLarge.stop()
-            onExited: if (weatherRoot.showForecastDetails) overlayAutoCloseTimerLarge.restart()
+            onExited: if (weatherRoot.showForecastDetails)
+                overlayAutoCloseTimerLarge.restart()
         }
 
         // Background Click Listener
@@ -337,7 +444,10 @@ Item {
             boundsBehavior: Flickable.StopAtBounds
             opacity: forecastDetailsOverlayLarge.contentOpacity
 
-            PlasmaComponents.ScrollBar.vertical: PlasmaComponents.ScrollBar { policy: forecastDetailsContentLarge.height > parent.height ? PlasmaComponents.ScrollBar.AlwaysOn : PlasmaComponents.ScrollBar.AlwaysOff; width: 6 }
+            PlasmaComponents.ScrollBar.vertical: PlasmaComponents.ScrollBar {
+                policy: forecastDetailsContentLarge.height > parent.height ? PlasmaComponents.ScrollBar.AlwaysOn : PlasmaComponents.ScrollBar.AlwaysOff
+                width: 6
+            }
 
             Item {
                 width: parent.width

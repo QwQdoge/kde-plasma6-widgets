@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import base64
 import importlib.util
+import gzip
 import json
 import os
 from pathlib import Path
@@ -100,9 +101,71 @@ class RssSyncTests(unittest.TestCase):
             cache = Path(directory)
             target = rss_sync.source_path(cache, "https://example.com/feed")
             target.write_text("last-known-good", encoding="utf-8")
-            with mock.patch.object(rss_sync, "fetch_feed", return_value="<rss><broken>"), self.assertRaises(rss_sync.SyncError):
+            with mock.patch.object(rss_sync, "fetch_feed", return_value=("<rss><broken>", {})), self.assertRaises(rss_sync.SyncError):
                 rss_sync.sync_source(cache, "https://example.com/feed", "Feed", "10")
             self.assertEqual(target.read_text(encoding="utf-8"), "last-known-good")
+
+    def test_gzip_rejects_bombs_truncation_trailing_and_unknown_encoding(self):
+        payload = gzip.compress(b"<rss/>")
+        self.assertEqual(rss_sync.decode_body(payload, "gzip"), b"<rss/>")
+        for encoded in (payload[:-2], payload + b"junk", payload + payload,
+                        gzip.compress(b"x" * (rss_sync.MAX_RESPONSE_BYTES + 1))):
+            with self.assertRaises(rss_sync.SyncError):
+                rss_sync.decode_body(encoded, "gzip")
+        with self.assertRaises(rss_sync.SyncError):
+            rss_sync.decode_body(payload, "br")
+
+    def test_validators_reject_header_injection_and_unexpected_304(self):
+        request = rss_sync.build_feed_request("https://example.com/feed", {
+            "etag": '"good"\r\nInjected: header', "last_modified": "x" * 513,
+        })
+        self.assertFalse(request.has_header("If-none-match"))
+        self.assertFalse(request.has_header("If-modified-since"))
+        error = rss_sync.urllib.error.HTTPError("https://example.com/feed", 304, "unchanged", {}, None)
+        with mock.patch.object(rss_sync, "validate_remote_url"), mock.patch.object(
+                rss_sync.urllib.request.OpenerDirector, "open", side_effect=error):
+            with self.assertRaises(rss_sync.SyncError):
+                rss_sync.fetch_feed("https://example.com/feed", {})
+
+    def test_validators_bound_to_body_url_and_config_and_cleared_on_fresh_response(self):
+        url = "https://example.com/feed"
+        with tempfile.TemporaryDirectory() as directory:
+            cache = Path(directory)
+            with mock.patch.object(rss_sync, "fetch_feed", return_value=("<rss/>", {"etag": '"v1"'})):
+                rss_sync.sync_source(cache, url, "Feed", "10")
+            self.assertEqual(rss_sync.load_http_meta(cache, url, "Feed", 10)["etag"], '"v1"')
+            self.assertEqual(rss_sync.load_http_meta(cache, url, "Renamed", 10), {})
+            self.assertEqual(rss_sync.load_http_meta(cache, url, "Feed", 20), {})
+            target = rss_sync.source_path(cache, url)
+            saved = target.read_bytes()
+            with mock.patch.object(rss_sync, "fetch_feed", return_value=(None, {})) as fetch:
+                rss_sync.sync_source(cache, url, "Feed", "10")
+                self.assertEqual(fetch.call_args.args[1]["etag"], '"v1"')
+            self.assertEqual(target.read_bytes(), saved)
+            target.write_text("broken")
+            self.assertEqual(rss_sync.load_http_meta(cache, url, "Feed", 10), {})
+            target.write_bytes(saved)
+            meta = json.loads(rss_sync.meta_path(cache, url).read_text())
+            meta["url"] = "https://example.com/other"
+            rss_sync.meta_path(cache, url).write_text(json.dumps(meta))
+            self.assertEqual(rss_sync.load_http_meta(cache, url, "Feed", 10), {})
+            with mock.patch.object(rss_sync, "fetch_feed", return_value=("<rss/>", {})):
+                rss_sync.sync_source(cache, url, "Feed", "10")
+            self.assertEqual(rss_sync.load_http_meta(cache, url, "Feed", 10)["etag"], "")
+
+    def test_dedup_keeps_newest_across_feeds_and_does_not_count_repeats_toward_limit(self):
+        item = "<item><title>One</title><link>https://example.com/one</link></item>"
+        other = "<item><title>Two</title><link>https://example.com/two</link></item>"
+        entries = rss_sync.parse_rss("<rss>" + item * 3 + other + "</rss>", "Feed", "https://example.com", 2)
+        self.assertEqual([e["display"] for e in entries], ["One", "Two"])
+        with tempfile.TemporaryDirectory() as directory:
+            cache = Path(directory)
+            for index, date in enumerate(("2024-01-01", "2025-01-01")):
+                entry = dict(entries[0], rawDate=date, display=date)
+                (cache / f"source_{index}.json").write_text(json.dumps([entry]))
+            rss_sync.merge_cache(cache)
+            self.assertEqual(json.loads((cache / "combined.json").read_text())[0]["display"], "2025-01-01")
+            self.assertEqual(len(json.loads((cache / "combined.json").read_text())), 1)
 
 
 if __name__ == "__main__":

@@ -15,7 +15,7 @@ import org.kde.plasma.workspace.dbus as DBus
 Item {
     id: logicRoot
 
-    signal backgroundMaintenanceRequested()
+    signal backgroundMaintenanceRequested
 
     // Required dependencies
     required property var plasmoidConfig
@@ -38,19 +38,18 @@ Item {
     property string pendingPinnedJson: ""
     property string currentActivityId: "global"
     // ===== CATEGORY SETTINGS =====
-    property var categorySettings: {
-    }
+    property var categorySettings: {}
     // ===== TELEMETRY =====
     property var telemetryStats: TelemetryManager.getStatsObject(plasmoidConfig.telemetryData || "{}")
     property bool telemetryDirty: false
     // Reactive property for bindings
     readonly property var visiblePinnedItems: PinnedManager.getPinnedForActivity(pinnedItems, currentActivityId)
     readonly property var pinnedLookup: {
-        var lookup = ({})
+        var lookup = ({});
         for (var i = 0; i < visiblePinnedItems.length; i++) {
-            lookup["$" + visiblePinnedItems[i].matchId] = visiblePinnedItems[i]
+            lookup["$" + visiblePinnedItems[i].matchId] = visiblePinnedItems[i];
         }
-        return lookup
+        return lookup;
     }
     // Activity management
     readonly property string currentActivityName: currentActivityId === "global" ? "Global" : currentActivityId
@@ -101,7 +100,7 @@ Item {
         var completedBatchQueued = rssBatchQueued;
         var completedBatchCount = rssBatchCompleted;
         persistRssSources();
-        mergeCombinedCache(function(success) {
+        mergeCombinedCache(function (success) {
             if (success)
                 updateCombinedCache(true);
             if (debugEnabled && completedBatchStartedAt > 0) {
@@ -187,7 +186,9 @@ Item {
     }
 
     function formatHistoryTime(timestamp) {
-        return Utils.formatHistoryTime(timestamp, function(s) { return i18nd("plasma_applet_com.mcc45tr.filesearch", s); });
+        return Utils.formatHistoryTime(timestamp, function (s) {
+            return i18nd("plasma_applet_com.mcc45tr.filesearch", s);
+        });
     }
 
     function clearHistory() {
@@ -202,26 +203,21 @@ Item {
 
     // Shell escape helper - delegates to Utils.shellEscape
     function shellEscape(str) {
-        return Utils.shellEscape(str)
+        return Utils.shellEscape(str);
     }
 
     // Launch a .desktop application safely
     function launchApp(filePath) {
-        if (!filePath) return
-        runShellCommand("kioclient exec " + shellEscape(filePath.toString()))
+        if (!filePath)
+            return;
+        runShellCommand("kioclient exec " + shellEscape(filePath.toString()));
     }
 
     // Show file/app properties dialog safely
     function showProperties(filePath) {
-        if (!filePath) return
-        callSessionDBus(
-            "org.freedesktop.FileManager1",
-            "/org/freedesktop/FileManager1",
-            "org.freedesktop.FileManager1",
-            "ShowItemProperties",
-            "ass",
-            [[filePath.toString()], ""]
-        )
+        if (!filePath)
+            return;
+        callSessionDBus("org.freedesktop.FileManager1", "/org/freedesktop/FileManager1", "org.freedesktop.FileManager1", "ShowItemProperties", "ass", [[filePath.toString()], ""]);
     }
 
     function callSessionDBus(service, path, iface, member, signature, args) {
@@ -232,14 +228,16 @@ Item {
             member: member,
             signature: signature,
             arguments: args || []
-        } as DBus.dbusMessage
-        var reply = DBus.SessionBus.asyncCall(message)
-        reply.finished.connect(function() { reply.destroy() })
+        } as DBus.dbusMessage;
+        var reply = DBus.SessionBus.asyncCall(message);
+        reply.finished.connect(function () {
+            reply.destroy();
+        });
     }
 
     function runShellCommand(cmd) {
         if (!cmd)
-            return ;
+            return;
 
         globalShellSource.connectSource(cmd);
     }
@@ -254,16 +252,9 @@ Item {
     // ===== FILE OPERATIONS =====
     function openFolder(url) {
         if (!url)
-            return ;
+            return;
 
-        callSessionDBus(
-            "org.freedesktop.FileManager1",
-            "/org/freedesktop/FileManager1",
-            "org.freedesktop.FileManager1",
-            "ShowItems",
-            "ass",
-            [[url.toString()], ""]
-        );
+        callSessionDBus("org.freedesktop.FileManager1", "/org/freedesktop/FileManager1", "org.freedesktop.FileManager1", "ShowItems", "ass", [[url.toString()], ""]);
     }
 
     function openContainingFolder(url) {
@@ -272,35 +263,21 @@ Item {
 
     function openWith(url) {
         if (!url)
-            return ;
+            return;
 
-        callSessionDBus(
-            "org.kde.klauncher5",
-            "/KLauncher",
-            "org.kde.KLauncher",
-            "openUrl",
-            "sss",
-            [url.toString(), "", ""]
-        );
+        callSessionDBus("org.kde.klauncher5", "/KLauncher", "org.kde.KLauncher", "openUrl", "sss", [url.toString(), "", ""]);
     }
 
     function copyToClipboard(text) {
         if (!text)
-            return ;
+            return;
 
-        callSessionDBus(
-            "org.kde.klipper",
-            "/klipper",
-            "org.kde.klipper.klipper",
-            "setClipboardContents",
-            "s",
-            [text.toString()]
-        );
+        callSessionDBus("org.kde.klipper", "/klipper", "org.kde.klipper.klipper", "setClipboardContents", "s", [text.toString()]);
     }
 
     function moveToTrash(url) {
         if (!url)
-            return ;
+            return;
 
         var path = url.toString();
         var cmd = "kioclient move " + shellEscape(path) + " trash:/";
@@ -309,13 +286,11 @@ Item {
 
     function openTerminal(url) {
         if (!url)
-            return ;
+            return;
 
         var path = Utils.decodeLocalPath(url);
         var escapedPath = shellEscape(path);
-        var cmd = "target=" + escapedPath
-                + "; if test -d \"$target\"; then workdir=$target; else workdir=$(dirname -- \"$target\"); fi"
-                + "; konsole --workdir \"$workdir\"";
+        var cmd = "target=" + escapedPath + "; if test -d \"$target\"; then workdir=$target; else workdir=$(dirname -- \"$target\"); fi" + "; konsole --workdir \"$workdir\"";
         runShellCommand(cmd);
     }
 
@@ -507,8 +482,7 @@ Item {
 
     function clearRssCache() {
         var cmd = "rm -rf " + shellEscape(rssCacheBase) + " && mkdir -p " + shellEscape(rssCacheBase);
-        runExecutable(cmd, function(stdout, isFinished, exitCode) {
-        });
+        runExecutable(cmd, function (stdout, isFinished, exitCode) {});
         rssCache = [];
         rssTickerEntries = [];
         // Set to empty string instead of writing JSON array representation to KConfig
@@ -525,12 +499,12 @@ Item {
     function loadSourceEntries(url, callback) {
         if (!url) {
             callback([]);
-            return ;
+            return;
         }
         var path = getSourceFilePath(url);
 
         var xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function() {
+        xhr.onreadystatechange = function () {
             if (xhr.readyState === XMLHttpRequest.DONE) {
                 if (xhr.status === 200 || xhr.status === 0) {
                     var raw = xhr.responseText.trim();
@@ -565,7 +539,7 @@ Item {
         }
 
         function readLocalTextSnippetFallback() {
-            readFullLocalFile(path, function(content) {
+            readFullLocalFile(path, function (content) {
                 var raw = (content || "").trim();
                 if (raw) {
                     tryParseRaw(raw);
@@ -591,7 +565,7 @@ Item {
             return;
         }
         var cmd = "cat " + shellEscape(path);
-        runExecutable(cmd, function(stdout, isFinished, exitCode) {
+        runExecutable(cmd, function (stdout, isFinished, exitCode) {
             if (isFinished) {
                 callback(stdout);
             }
@@ -599,7 +573,7 @@ Item {
     }
 
     function loadWeatherCache() {
-        readFullLocalFile(weatherCachePath, function(content) {
+        readFullLocalFile(weatherCachePath, function (content) {
             var cached = (content || "").trim();
             if (!cached || cached === "{}") {
                 // One-time migration from older releases that stored the full
@@ -620,13 +594,8 @@ Item {
         weatherCache = serialized && serialized !== "{}" ? serialized : "";
         weatherCacheLoaded = true;
         var temporaryPath = weatherCachePath + ".tmp." + Date.now() + "." + Math.floor(Math.random() * 1000000);
-        var cmd = "mkdir -p " + shellEscape(weatherCacheBase)
-                + " && chmod 700 " + shellEscape(weatherCacheBase)
-                + " && printf '%s' " + shellEscape(serialized)
-                + " > " + shellEscape(temporaryPath)
-                + " && chmod 600 " + shellEscape(temporaryPath)
-                + " && mv -f " + shellEscape(temporaryPath) + " " + shellEscape(weatherCachePath);
-        runExecutable(cmd, function(stdout, isFinished, exitCode) {
+        var cmd = "mkdir -p " + shellEscape(weatherCacheBase) + " && chmod 700 " + shellEscape(weatherCacheBase) + " && printf '%s' " + shellEscape(serialized) + " > " + shellEscape(temporaryPath) + " && chmod 600 " + shellEscape(temporaryPath) + " && mv -f " + shellEscape(temporaryPath) + " " + shellEscape(weatherCachePath);
+        runExecutable(cmd, function (stdout, isFinished, exitCode) {
             if (isFinished && exitCode !== 0)
                 console.warn("LogicController: Failed to persist weather cache");
         });
@@ -634,7 +603,7 @@ Item {
 
     function checkAndSyncRSS() {
         if (!rssEnabled || rssSources.length === 0)
-            return ;
+            return;
 
         var now = new Date().getTime();
         for (var i = 0; i < rssSources.length; i++) {
@@ -644,13 +613,13 @@ Item {
             var lastSync = source.lastSync || 0;
             if (now - lastSync > intervalMs)
                 syncSource(i);
-
         }
     }
 
     function syncSource(index) {
-        var source = rssSources[index]
-        if (!source || !source.url) return
+        var source = rssSources[index];
+        if (!source || !source.url)
+            return;
         if (!isSyncing) {
             rssBatchId++;
             rssBatchStartedAt = Date.now();
@@ -670,17 +639,17 @@ Item {
     property int pendingSyncs: 0
 
     function syncSourceSingle(sourceUrl) {
-        var index = -1
+        var index = -1;
         for (var sourceIndex = 0; sourceIndex < rssSources.length; sourceIndex++) {
             if (rssSources[sourceIndex].url === sourceUrl) {
-                index = sourceIndex
-                break
+                index = sourceIndex;
+                break;
             }
         }
         var source = rssSources[index];
         if (!source || !source.url) {
             processQueueTimer.restart();
-            return ;
+            return;
         }
 
         var scriptPath = getScriptPath();
@@ -689,13 +658,13 @@ Item {
 
         logicRoot.pendingSyncs++;
 
-        runExecutable(cmd, function(stdout, isFinished, exitCode) {
+        runExecutable(cmd, function (stdout, isFinished, exitCode) {
             if (isFinished) {
                 if (exitCode === 0) {
                     for (var updateIndex = 0; updateIndex < rssSources.length; updateIndex++) {
                         if (rssSources[updateIndex].url === sourceUrl) {
                             rssSources[updateIndex].lastSync = new Date().getTime();
-                            break
+                            break;
                         }
                     }
                 }
@@ -710,7 +679,8 @@ Item {
     function syncSourceBackground(index, callback) {
         var source = rssSources[index];
         if (!source || !source.url) {
-            if (callback) callback("FAIL: Invalid source");
+            if (callback)
+                callback("FAIL: Invalid source");
             return;
         }
 
@@ -719,7 +689,7 @@ Item {
         var cmd = "sh " + shellEscape(scriptPath) + " " + shellEscape(rssCacheBase) + " " + shellEscape(source.url) + " " + shellEscape(source.name) + " " + shellEscape(String(max));
 
         var lastLength = 0;
-        runExecutable(cmd, function(stdout, isFinished, exitCode) {
+        runExecutable(cmd, function (stdout, isFinished, exitCode) {
             if (stdout.length > lastLength) {
                 var newPart = stdout.substring(lastLength);
                 lastLength = stdout.length;
@@ -734,7 +704,7 @@ Item {
             }
             if (isFinished) {
                 if (exitCode === 0) {
-                    mergeCombinedCache(function(merged) {
+                    mergeCombinedCache(function (merged) {
                         if (callback)
                             callback(merged ? "SUCCESS" : "FAIL: Cache merge failed", cmd);
                         if (merged)
@@ -767,9 +737,8 @@ Item {
             return;
         }
         rssMergeInProgress = true;
-        var command = "sh " + shellEscape(getScriptPath())
-                    + " --merge " + shellEscape(rssCacheBase);
-        runExecutable(command, function(stdout, isFinished, exitCode) {
+        var command = "sh " + shellEscape(getScriptPath()) + " --merge " + shellEscape(rssCacheBase);
+        runExecutable(command, function (stdout, isFinished, exitCode) {
             if (!isFinished)
                 return;
             rssMergeInProgress = false;
@@ -787,7 +756,7 @@ Item {
 
     function syncAllRSS() {
         if (!rssEnabled || rssSources.length === 0)
-            return ;
+            return;
 
         for (var i = 0; i < rssSources.length; i++) {
             syncSource(i);
@@ -797,7 +766,7 @@ Item {
     function updateCombinedCache(markAsFresh) {
         rssCacheRebuildCount++;
         var path = rssCacheBase + "/combined.json";
-        readFullLocalFile(path, function(content) {
+        readFullLocalFile(path, function (content) {
             var raw = (content || "").trim();
             if (raw) {
                 try {
@@ -871,7 +840,7 @@ Item {
     function startSnippetRequest(request) {
         var requestPath = request.path;
         var cmd = "stat -c %s " + shellEscape(requestPath) + " && echo '---SIZE_END---' && head -c 20000 " + shellEscape(requestPath);
-        runExecutable(cmd, function(stdout, isFinished, exitCode) {
+        runExecutable(cmd, function (stdout, isFinished, exitCode) {
             if (!isFinished)
                 return;
 
@@ -924,7 +893,9 @@ Item {
 
         snippetPendingCallbacks[path] = [callback];
         snippetRequestStartedAt[path] = Date.now();
-        snippetQueue.push({ path: path });
+        snippetQueue.push({
+            path: path
+        });
         pumpSnippetQueue();
     }
 
@@ -934,8 +905,8 @@ Item {
         repeat: false
         onTriggered: {
             if (logicRoot.pendingHistoryJson !== "") {
-                logicRoot.plasmoidConfig.searchHistory = logicRoot.pendingHistoryJson
-                logicRoot.pendingHistoryJson = ""
+                logicRoot.plasmoidConfig.searchHistory = logicRoot.pendingHistoryJson;
+                logicRoot.pendingHistoryJson = "";
             }
         }
     }
@@ -946,8 +917,8 @@ Item {
         repeat: false
         onTriggered: {
             if (logicRoot.pendingPinnedJson !== "") {
-                logicRoot.plasmoidConfig.pinnedItems = logicRoot.pendingPinnedJson
-                logicRoot.pendingPinnedJson = ""
+                logicRoot.plasmoidConfig.pinnedItems = logicRoot.pendingPinnedJson;
+                logicRoot.pendingPinnedJson = "";
             }
         }
     }
@@ -999,7 +970,7 @@ Item {
         repeat: false
         onTriggered: {
             if (!uuid)
-                return ;
+                return;
 
             /// Only check if it has a file path
             if (filePath && filePath.toString().indexOf("file://") === 0) {
@@ -1010,7 +981,7 @@ Item {
                     if (isFolder) {
                         var updatedHistory = HistoryManager.updateItemIcon(searchHistory, uuid, "folder");
                         if (updatedHistory) {
-                            searchHistory = updatedHistory
+                            searchHistory = updatedHistory;
                             saveHistory();
                         }
                     }
@@ -1120,9 +1091,11 @@ Item {
     }
 
     Component.onDestruction: {
-        if (pendingHistoryJson !== "") plasmoidConfig.searchHistory = pendingHistoryJson
-        if (pendingPinnedJson !== "") plasmoidConfig.pinnedItems = pendingPinnedJson
-        flushTelemetry()
+        if (pendingHistoryJson !== "")
+            plasmoidConfig.searchHistory = pendingHistoryJson;
+        if (pendingPinnedJson !== "")
+            plasmoidConfig.pinnedItems = pendingPinnedJson;
+        flushTelemetry();
         if (executable) {
             executable.callbacks = {};
         }

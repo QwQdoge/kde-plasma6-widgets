@@ -24,12 +24,12 @@ Item {
         id: background
         anchors.fill: parent
         radius: width / 2
-        color: pinButton.isPinned
-            ? Qt.rgba(pinButton.accentColor.r, pinButton.accentColor.g, pinButton.accentColor.b, 0.2)
-            : (mouseArea.containsMouse ? Qt.rgba(pinButton.textColor.r, pinButton.textColor.g, pinButton.textColor.b, 0.1) : "transparent")
+        color: pinButton.isPinned ? Qt.rgba(pinButton.accentColor.r, pinButton.accentColor.g, pinButton.accentColor.b, 0.2) : (mouseArea.containsMouse ? Qt.rgba(pinButton.textColor.r, pinButton.textColor.g, pinButton.textColor.b, 0.1) : "transparent")
 
         Behavior on color {
-            ColorAnimation { duration: 150 }
+            ColorAnimation {
+                duration: 150
+            }
         }
     }
 
@@ -42,13 +42,18 @@ Item {
         color: pinButton.isPinned ? pinButton.accentColor : Qt.rgba(pinButton.textColor.r, pinButton.textColor.g, pinButton.textColor.b, 0.6)
 
         Behavior on color {
-            ColorAnimation { duration: 150 }
+            ColorAnimation {
+                duration: 150
+            }
         }
 
         // Rotation animation on pin
         rotation: pinButton.isPinned ? 0 : -45
         Behavior on rotation {
-            RotationAnimation { duration: 200; easing.type: Easing.OutBack }
+            RotationAnimation {
+                duration: 200
+                easing.type: Easing.OutBack
+            }
         }
     }
 
@@ -59,7 +64,7 @@ Item {
         cursorShape: Qt.PointingHandCursor
 
         onClicked: {
-            pinButton.toggled(!pinButton.isPinned)
+            pinButton.toggled(!pinButton.isPinned);
         }
     }
 

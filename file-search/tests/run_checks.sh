@@ -46,7 +46,7 @@ elif test -x /usr/lib/qt6/bin/qmllint; then
     qmllint_bin=/usr/lib/qt6/bin/qmllint
 fi
 if test -n "$qmllint_bin"; then
-    "$qmllint_bin" -I contents/ui -I contents/ui/components $QML_FILES
+    find contents tests -name '*.qml' -exec "$qmllint_bin" -I contents/ui -I contents/ui/components {} +
 fi
 python3 tools/build_release.py
 python3 tools/build_release.py --verify

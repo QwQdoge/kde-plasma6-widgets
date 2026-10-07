@@ -12,14 +12,16 @@ PlasmaComponents.Menu {
 
     // Helper: Check if item is a folder
     readonly property bool isFolder: {
-        if (!historyItem) return false
-        return Utils.isFolderCategory(historyItem.category || "", historyItem.filePath || "", historyItem.decoration || "")
+        if (!historyItem)
+            return false;
+        return Utils.isFolderCategory(historyItem.category || "", historyItem.filePath || "", historyItem.decoration || "");
     }
 
     // Helper: Get Match ID for pinning
     readonly property string matchId: {
-        if (!historyItem) return ""
-        return historyItem.matchId || historyItem.display || ""
+        if (!historyItem)
+            return "";
+        return historyItem.matchId || historyItem.display || "";
     }
 
     // ===== PIN / UNPIN =====
@@ -29,10 +31,10 @@ PlasmaComponents.Menu {
         enabled: historyItem
         onTriggered: {
             if (historyItem) {
-                var disp = historyItem.display || ""
-                var dec = historyItem.decoration || "application-x-executable"
-                var cat = historyItem.category || "Other"
-                var path = historyItem.filePath || ""
+                var disp = historyItem.display || "";
+                var dec = historyItem.decoration || "application-x-executable";
+                var cat = historyItem.category || "Other";
+                var path = historyItem.filePath || "";
 
                 logic.togglePin({
                     display: disp,
@@ -40,7 +42,7 @@ PlasmaComponents.Menu {
                     category: cat,
                     matchId: matchId,
                     filePath: path
-                })
+                });
             }
         }
     }
@@ -54,9 +56,10 @@ PlasmaComponents.Menu {
         onTriggered: {
             if (historyItem && historyItem.filePath) {
                 if (Utils.isDesktopEntry(historyItem.filePath)) {
-                    logic.launchApp(historyItem.filePath)
+                    logic.launchApp(historyItem.filePath);
                 } else {
-                    if (Utils.isSafeExternalUrl(historyItem.filePath)) Qt.openUrlExternally(historyItem.filePath)
+                    if (Utils.isSafeExternalUrl(historyItem.filePath))
+                        Qt.openUrlExternally(historyItem.filePath);
                 }
             }
         }
@@ -66,10 +69,13 @@ PlasmaComponents.Menu {
         text: i18nd("plasma_applet_com.mcc45tr.filesearch", "Open With...")
         icon.name: "application-menu"
         visible: !!(historyItem && !historyItem.isApplication && historyItem.filePath)
-        onTriggered: if (logic) logic.openWith(historyItem.filePath)
+        onTriggered: if (logic)
+            logic.openWith(historyItem.filePath)
     }
 
-    PlasmaComponents.MenuSeparator { visible: historyItem && !historyItem.isApplication && historyItem.filePath }
+    PlasmaComponents.MenuSeparator {
+        visible: historyItem && !historyItem.isApplication && historyItem.filePath
+    }
 
     // ===== COPY PATH =====
     PlasmaComponents.MenuItem {
@@ -78,11 +84,11 @@ PlasmaComponents.Menu {
         enabled: historyItem && historyItem.filePath
         onTriggered: {
             if (historyItem && historyItem.filePath) {
-                var path = historyItem.filePath.toString()
+                var path = historyItem.filePath.toString();
                 if (path.indexOf("file://") === 0) {
-                    path = path.substring(7)
+                    path = path.substring(7);
                 }
-                logic.copyToClipboard(path)
+                logic.copyToClipboard(path);
             }
         }
     }
@@ -94,7 +100,7 @@ PlasmaComponents.Menu {
         visible: !!(historyItem && !historyItem.isApplication && (root.isFolder || (historyItem.filePath && historyItem.filePath.toString())))
         onTriggered: {
             if (historyItem && historyItem.filePath) {
-                logic.openTerminal(historyItem.filePath)
+                logic.openTerminal(historyItem.filePath);
             }
         }
     }
@@ -107,7 +113,9 @@ PlasmaComponents.Menu {
         onTriggered: logic.openFolder(historyItem.filePath)
     }
 
-    PlasmaComponents.MenuSeparator { visible: !!(historyItem && !historyItem.isApplication && historyItem.filePath) }
+    PlasmaComponents.MenuSeparator {
+        visible: !!(historyItem && !historyItem.isApplication && historyItem.filePath)
+    }
 
     // ===== MOVE TO TRASH =====
     PlasmaComponents.MenuItem {
@@ -115,10 +123,11 @@ PlasmaComponents.Menu {
         icon.name: "user-trash"
         visible: !!(historyItem && !historyItem.isApplication && historyItem.filePath)
         onTriggered: {
-            logic.moveToTrash(historyItem.filePath)
-            if (logic.isPinned(matchId)) logic.unpinItem(matchId)
+            logic.moveToTrash(historyItem.filePath);
+            if (logic.isPinned(matchId))
+                logic.unpinItem(matchId);
             if (historyItem.uuid) {
-                logic.removeFromHistory(historyItem.uuid)
+                logic.removeFromHistory(historyItem.uuid);
             }
         }
     }
@@ -131,7 +140,9 @@ PlasmaComponents.Menu {
         onTriggered: logic.showProperties(historyItem.filePath)
     }
 
-    PlasmaComponents.MenuSeparator { visible: !!(historyItem && historyItem.isApplication) }
+    PlasmaComponents.MenuSeparator {
+        visible: !!(historyItem && historyItem.isApplication)
+    }
 
     // ===== MANAGE APP =====
     PlasmaComponents.MenuItem {
@@ -141,7 +152,9 @@ PlasmaComponents.Menu {
         onTriggered: logic.showProperties(historyItem.filePath)
     }
 
-    PlasmaComponents.MenuSeparator { visible: !!(historyItem && historyItem.uuid) }
+    PlasmaComponents.MenuSeparator {
+        visible: !!(historyItem && historyItem.uuid)
+    }
 
     // ===== REMOVE FROM HISTORY =====
     PlasmaComponents.MenuItem {
@@ -150,7 +163,7 @@ PlasmaComponents.Menu {
         visible: !!(historyItem && historyItem.uuid)
         onTriggered: {
             if (historyItem && historyItem.uuid) {
-                logic.removeFromHistory(historyItem.uuid)
+                logic.removeFromHistory(historyItem.uuid);
             }
         }
     }

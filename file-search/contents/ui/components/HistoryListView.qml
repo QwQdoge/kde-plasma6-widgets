@@ -50,7 +50,8 @@ Item {
     }
 
     function isItemSelected(catIdx, itemIdx) {
-        if (currentIndex < 0 || currentIndex >= flatItems.length) return false;
+        if (currentIndex < 0 || currentIndex >= flatItems.length)
+            return false;
         var current = flatItems[currentIndex];
         return current.catIdx === catIdx && current.itemIdx === itemIdx;
     }
@@ -77,7 +78,7 @@ Item {
     // Signals
     signal itemClicked(var item)
 
-    signal clearClicked()
+    signal clearClicked
 
     // Localization removed
     // Use standard i18nd("plasma_applet_com.mcc45tr.filesearch", )
@@ -106,437 +107,444 @@ Item {
             Repeater {
                 model: historyList.categorizedHistory
 
-            delegate: Column {
-                id: histListCategoryDelegate
-                width: listView.width
-                spacing: 4
+                delegate: Column {
+                    id: histListCategoryDelegate
+                    width: listView.width
+                    spacing: 4
 
-                property int catIdx: index
-                property bool isCollapsed: false
+                    property int catIdx: index
+                    property bool isCollapsed: false
 
-                CategoryHeader {
-                    width: parent.width
-                    categoryName: modelData.categoryName
-                    itemCount: modelData.items.length
-                    collapsed: histListCategoryDelegate.isCollapsed
-                    textColor: historyList.textColor
-                    accentColor: historyList.accentColor
-                    actionIcon: index === 0 ? "edit-clear-history" : ""
-                    actionText: i18nd("plasma_applet_com.mcc45tr.filesearch", "Clear History")
-                    onToggleRequested: histListCategoryDelegate.isCollapsed = !histListCategoryDelegate.isCollapsed
-                    onActionTriggered: historyList.clearClicked()
-                }
-
-                // Items container (Animated collapse/expand)
-                Item {
-                    width: parent.width
-                    height: histListCategoryDelegate.isCollapsed ? 0 : histListContent.implicitHeight
-                    clip: true
-
-                    Behavior on height {
-                        NumberAnimation { duration: 200; easing.type: Easing.InOutQuad }
+                    CategoryHeader {
+                        width: parent.width
+                        categoryName: modelData.categoryName
+                        itemCount: modelData.items.length
+                        collapsed: histListCategoryDelegate.isCollapsed
+                        textColor: historyList.textColor
+                        accentColor: historyList.accentColor
+                        actionIcon: index === 0 ? "edit-clear-history" : ""
+                        actionText: i18nd("plasma_applet_com.mcc45tr.filesearch", "Clear History")
+                        onToggleRequested: histListCategoryDelegate.isCollapsed = !histListCategoryDelegate.isCollapsed
+                        onActionTriggered: historyList.clearClicked()
                     }
 
-                    Column {
-                        id: histListContent
-                        anchors.left: parent.left
-                        anchors.right: parent.right
-                        anchors.top: parent.top
-                        spacing: 2
+                    // Items container (Animated collapse/expand)
+                    Item {
+                        width: parent.width
+                        height: histListCategoryDelegate.isCollapsed ? 0 : histListContent.implicitHeight
+                        clip: true
 
-                    Repeater {
-                        // Destroy delegates for collapsed categories instead of merely clipping them.
-                        model: histListCategoryDelegate.isCollapsed ? [] : modelData.items
-
-                        Rectangle {
-                            id: historyItemDelegate
-                            width: listView.width
-                            height: mainLayout.implicitHeight + 12
-                            color: itemMouseArea.containsMouse || historyItemDelegate.isSelected || (contextMenu.visible && contextMenu.historyItem === modelData) ? Qt.rgba(historyList.accentColor.r, historyList.accentColor.g, historyList.accentColor.b, 0.15) : "transparent"
-                            radius: 4
-                            clip: true
-
-                            property bool animateHeight: false
-                            property bool isSelected: historyList.isItemSelected(catIdx, index)
-
-                            Behavior on height {
-                                enabled: historyItemDelegate.animateHeight
-                                NumberAnimation {
-                                    duration: 250;
-                                    easing.type: Easing.InOutQuad
-                                    onFinished: historyItemDelegate.animateHeight = false
-                                }
+                        Behavior on height {
+                            NumberAnimation {
+                                duration: 200
+                                easing.type: Easing.InOutQuad
                             }
+                        }
 
-                            readonly property bool isPreviewAvailable: PreviewUtils.isPreviewAvailable(modelData.filePath || modelData.url || "", modelData.category || "", historyList.previewSettings)
-                            readonly property bool previewActive: historyList.previewEnabled && isPreviewAvailable && (historyList.previewInlineMode === 0 ? itemMouseArea.containsMouse : historyItemDelegate.isSelected)
-                            readonly property bool showInlinePreview: historyList.previewEnabled && historyList.previewShowHistory && historyList.previewInlineMode === 1 && isPreviewAvailable && historyItemDelegate.isSelected
-                            readonly property string previewPath: previewActive ? PreviewUtils.getLocalPreviewPath(modelData.filePath || modelData.url || "") : ""
-                            readonly property string previewSource: previewActive ? PreviewUtils.getPreviewSource((modelData.filePath || modelData.url || "").toString(), historyList.previewEnabled, historyList.previewSettings, historyList.thumbnailCacheBase) : ""
-                            readonly property string previewFileType: previewActive ? PreviewUtils.getFileTypeLabel(modelData.filePath || modelData.url || "") : ""
+                        Column {
+                            id: histListContent
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.top: parent.top
+                            spacing: 2
 
-                            onShowInlinePreviewChanged: {
-                                historyItemDelegate.animateHeight = true;
-                                if (showInlinePreview) {
-                                    if (isTextFile) {
-                                        loadTextSnippet();
+                            Repeater {
+                                // Destroy delegates for collapsed categories instead of merely clipping them.
+                                model: histListCategoryDelegate.isCollapsed ? [] : modelData.items
+
+                                Rectangle {
+                                    id: historyItemDelegate
+                                    width: listView.width
+                                    height: mainLayout.implicitHeight + 12
+                                    color: itemMouseArea.containsMouse || historyItemDelegate.isSelected || (contextMenu.visible && contextMenu.historyItem === modelData) ? Qt.rgba(historyList.accentColor.r, historyList.accentColor.g, historyList.accentColor.b, 0.15) : "transparent"
+                                    radius: 4
+                                    clip: true
+
+                                    property bool animateHeight: false
+                                    property bool isSelected: historyList.isItemSelected(catIdx, index)
+
+                                    Behavior on height {
+                                        enabled: historyItemDelegate.animateHeight
+                                        NumberAnimation {
+                                            duration: 250
+                                            easing.type: Easing.InOutQuad
+                                            onFinished: historyItemDelegate.animateHeight = false
+                                        }
                                     }
-                                }
-                            }
 
-                            readonly property bool isTextFile: {
-                                return PreviewUtils.isTextExtension(PreviewUtils.getExtension(previewPath));
-                            }
-                            property int snippetRequestToken: 0
+                                    readonly property bool isPreviewAvailable: PreviewUtils.isPreviewAvailable(modelData.filePath || modelData.url || "", modelData.category || "", historyList.previewSettings)
+                                    readonly property bool previewActive: historyList.previewEnabled && isPreviewAvailable && (historyList.previewInlineMode === 0 ? itemMouseArea.containsMouse : historyItemDelegate.isSelected)
+                                    readonly property bool showInlinePreview: historyList.previewEnabled && historyList.previewShowHistory && historyList.previewInlineMode === 1 && isPreviewAvailable && historyItemDelegate.isSelected
+                                    readonly property string previewPath: previewActive ? PreviewUtils.getLocalPreviewPath(modelData.filePath || modelData.url || "") : ""
+                                    readonly property string previewSource: previewActive ? PreviewUtils.getPreviewSource((modelData.filePath || modelData.url || "").toString(), historyList.previewEnabled, historyList.previewSettings, historyList.thumbnailCacheBase) : ""
+                                    readonly property string previewFileType: previewActive ? PreviewUtils.getFileTypeLabel(modelData.filePath || modelData.url || "") : ""
 
-                            function loadTextSnippet() {
-                                if (!previewPath || !historyList.logic) return;
-                                var token = ++snippetRequestToken
-                                historyList.logic.readLocalTextSnippet(previewPath, function(content, bytes) {
-                                        if (token === snippetRequestToken) {
-                                            var lines = content.split('\n').slice(0, 5).join('\n');
-                                            textSnippet.text = lines;
-
-                                            var sizeStr = "";
-                                            if (bytes < 1024) sizeStr = bytes + " B";
-                                            else if (bytes < 1048576) sizeStr = (bytes / 1024).toFixed(1) + " KB";
-                                            else sizeStr = (bytes / 1048576).toFixed(1) + " MB";
-                                            fileSizeText.text = i18nd("plasma_applet_com.mcc45tr.filesearch", "Size") + ": " + sizeStr;
-                                        }
-                                })
-                            }
-                            Component.onDestruction: snippetRequestToken++
-
-                            ColumnLayout {
-                                id: mainLayout
-                                anchors.left: parent.left
-                                anchors.right: parent.right
-                                anchors.top: parent.top
-                                anchors.margins: 6
-                                spacing: 4
-
-                                RowLayout {
-                                    Layout.fillWidth: true
-                                    spacing: 10
-
-                                    Item {
-                                        Layout.preferredWidth: historyList.listIconSize
-                                        Layout.preferredHeight: historyList.listIconSize
-
-                                        Kirigami.Icon {
-                                            anchors.fill: parent
-                                            source: modelData.decoration || "application-x-executable"
-                                            color: historyList.textColor
-                                            visible: !previewImageHistory.item || previewImageHistory.item.status !== Image.Ready
-                                        }
-
-                                        Loader {
-                                            id: previewImageHistory
-                                            anchors.fill: parent
-                                            active: historyList.listIconSize > 22 && historyItemDelegate.previewActive
-                                            sourceComponent: Image {
-                                                asynchronous: true
-                                                fillMode: Image.PreserveAspectCrop
-                                                sourceSize.width: historyList.listIconSize
-                                                sourceSize.height: historyList.listIconSize
-                                                cache: true
-                                                source: historyItemDelegate.previewSource
-                                                visible: source.length > 0 && status === Image.Ready
+                                    onShowInlinePreviewChanged: {
+                                        historyItemDelegate.animateHeight = true;
+                                        if (showInlinePreview) {
+                                            if (isTextFile) {
+                                                loadTextSnippet();
                                             }
                                         }
                                     }
+
+                                    readonly property bool isTextFile: {
+                                        return PreviewUtils.isTextExtension(PreviewUtils.getExtension(previewPath));
+                                    }
+                                    property int snippetRequestToken: 0
+
+                                    function loadTextSnippet() {
+                                        if (!previewPath || !historyList.logic)
+                                            return;
+                                        var token = ++snippetRequestToken;
+                                        historyList.logic.readLocalTextSnippet(previewPath, function (content, bytes) {
+                                            if (token === snippetRequestToken) {
+                                                var lines = content.split('\n').slice(0, 5).join('\n');
+                                                textSnippet.text = lines;
+
+                                                var sizeStr = "";
+                                                if (bytes < 1024)
+                                                    sizeStr = bytes + " B";
+                                                else if (bytes < 1048576)
+                                                    sizeStr = (bytes / 1024).toFixed(1) + " KB";
+                                                else
+                                                    sizeStr = (bytes / 1048576).toFixed(1) + " MB";
+                                                fileSizeText.text = i18nd("plasma_applet_com.mcc45tr.filesearch", "Size") + ": " + sizeStr;
+                                            }
+                                        });
+                                    }
+                                    Component.onDestruction: snippetRequestToken++
 
                                     ColumnLayout {
-                                        Layout.fillWidth: true
-                                        spacing: 2
+                                        id: mainLayout
+                                        anchors.left: parent.left
+                                        anchors.right: parent.right
+                                        anchors.top: parent.top
+                                        anchors.margins: 6
+                                        spacing: 4
 
-                                        Text {
-                                            text: modelData.display || ""
-                                            color: historyList.textColor
-                                            font.family: Kirigami.Theme.defaultFont.family
-                                            font.pixelSize: Kirigami.Theme.defaultFont.pixelSize
-                                            elide: Text.ElideRight
+                                        RowLayout {
                                             Layout.fillWidth: true
-                                        }
+                                            spacing: 10
 
-                                        Text {
-                                            text: {
-                                                if (modelData.isApplication) return "";
-                                                var path = modelData.filePath ? modelData.filePath.toString() : "";
-                                                if (path && path.length > 0) {
-                                                    path = path.replace("file://", "");
-                                                    path = path.replace(/^\/home\/[^\/]+\//, "");
-                                                    return path;
+                                            Item {
+                                                Layout.preferredWidth: historyList.listIconSize
+                                                Layout.preferredHeight: historyList.listIconSize
+
+                                                Kirigami.Icon {
+                                                    anchors.fill: parent
+                                                    source: modelData.decoration || "application-x-executable"
+                                                    color: historyList.textColor
+                                                    visible: !previewImageHistory.item || previewImageHistory.item.status !== Image.Ready
                                                 }
-                                                return "";
-                                            }
-                                            visible: text.length > 0
-                                            color: Qt.rgba(historyList.textColor.r, historyList.textColor.g, historyList.textColor.b, 0.5)
-                                            font.family: Kirigami.Theme.smallFont.family
-                                            font.pixelSize: Kirigami.Theme.smallFont.pixelSize
-                                            elide: Text.ElideMiddle
-                                            Layout.fillWidth: true
-                                        }
-                                    }
 
-                                    Text {
-                                        text: historyList.formatTimeFunc(modelData.timestamp)
-                                        color: Qt.rgba(historyList.textColor.r, historyList.textColor.g, historyList.textColor.b, 0.5)
-                                        font.family: Kirigami.Theme.smallFont.family
-                                        font.pixelSize: Kirigami.Theme.smallFont.pixelSize
-                                        Layout.alignment: Qt.AlignVCenter
-                                    }
-                                }
-
-                                // Native Inline Preview Card
-                                ColumnLayout {
-                                    id: inlinePreviewCard
-                                    Layout.fillWidth: true
-                                    visible: historyItemDelegate.showInlinePreview
-                                    spacing: 8
-                                    Layout.topMargin: 8
-
-                                    Rectangle {
-                                        Layout.fillWidth: true
-                                        Layout.preferredHeight: 1
-                                        color: Qt.rgba(historyList.textColor.r, historyList.textColor.g, historyList.textColor.b, 0.15)
-                                    }
-
-                                    RowLayout {
-                                        Layout.fillWidth: true
-                                        spacing: 12
-                                        Layout.leftMargin: 4
-                                        Layout.rightMargin: 4
-
-                                        // Left Column: Thumbnail or large icon
-                                        Item {
-                                            id: thumbContainer
-                                            Layout.preferredWidth: historyList.previewSize === 0 ? 64 : (historyList.previewSize === 1 ? 120 : 200)
-                                            Layout.preferredHeight: historyList.previewSize === 0 ? 48 : (historyList.previewSize === 1 ? 90 : 150)
-                                            visible: historyItemDelegate.previewSource.length > 0 || historyItemDelegate.previewFileType.length > 0
-
-                                            // Background fallback placeholder
-                                            Rectangle {
-                                                anchors.fill: parent
-                                                color: Qt.rgba(historyList.textColor.r, historyList.textColor.g, historyList.textColor.b, 0.05)
-                                                radius: 4
+                                                Loader {
+                                                    id: previewImageHistory
+                                                    anchors.fill: parent
+                                                    active: historyList.listIconSize > 22 && historyItemDelegate.previewActive
+                                                    sourceComponent: Image {
+                                                        asynchronous: true
+                                                        fillMode: Image.PreserveAspectCrop
+                                                        sourceSize.width: historyList.listIconSize
+                                                        sourceSize.height: historyList.listIconSize
+                                                        cache: true
+                                                        source: historyItemDelegate.previewSource
+                                                        visible: source.length > 0 && status === Image.Ready
+                                                    }
+                                                }
                                             }
 
-                                            Kirigami.Icon {
-                                                anchors.centerIn: parent
-                                                implicitWidth: 32
-                                                implicitHeight: 32
-                                                source: modelData.decoration || "application-x-executable"
-                                                color: historyList.textColor
-                                                opacity: 0.3
-                                                visible: imgPreview.status !== Image.Ready
-                                            }
-
-                                            Image {
-                                                id: imgPreview
-                                                anchors.fill: parent
-                                                source: historyItemDelegate.previewSource
-                                                fillMode: Image.PreserveAspectFit
-                                                visible: source.length > 0
-                                                cache: true
-                                                asynchronous: true
-                                            }
-                                        }
-
-                                        // Right Column: Metadata
-                                        ColumnLayout {
-                                            Layout.fillWidth: true
-                                            spacing: 4
-
-                                            Text {
-                                                text: modelData.display || ""
-                                                color: historyList.textColor
-                                                font.bold: true
-                                                font.family: Kirigami.Theme.defaultFont.family
-                                                font.pixelSize: Kirigami.Theme.defaultFont.pixelSize
-                                                elide: Text.ElideRight
+                                            ColumnLayout {
                                                 Layout.fillWidth: true
+                                                spacing: 2
+
+                                                Text {
+                                                    text: modelData.display || ""
+                                                    color: historyList.textColor
+                                                    font.family: Kirigami.Theme.defaultFont.family
+                                                    font.pixelSize: Kirigami.Theme.defaultFont.pixelSize
+                                                    elide: Text.ElideRight
+                                                    Layout.fillWidth: true
+                                                }
+
+                                                Text {
+                                                    text: {
+                                                        if (modelData.isApplication)
+                                                            return "";
+                                                        var path = modelData.filePath ? modelData.filePath.toString() : "";
+                                                        if (path && path.length > 0) {
+                                                            path = path.replace("file://", "");
+                                                            path = path.replace(/^\/home\/[^\/]+\//, "");
+                                                            return path;
+                                                        }
+                                                        return "";
+                                                    }
+                                                    visible: text.length > 0
+                                                    color: Qt.rgba(historyList.textColor.r, historyList.textColor.g, historyList.textColor.b, 0.5)
+                                                    font.family: Kirigami.Theme.smallFont.family
+                                                    font.pixelSize: Kirigami.Theme.smallFont.pixelSize
+                                                    elide: Text.ElideMiddle
+                                                    Layout.fillWidth: true
+                                                }
                                             }
 
                                             Text {
-                                                text: i18nd("plasma_applet_com.mcc45tr.filesearch", "Category") + ": " + (modelData.category || "Other")
-                                                color: Qt.rgba(historyList.textColor.r, historyList.textColor.g, historyList.textColor.b, 0.7)
-                                                font.family: Kirigami.Theme.smallFont.family
-                                                font.pixelSize: Kirigami.Theme.smallFont.pixelSize
-                                                textFormat: Text.PlainText
-                                            }
-
-                                            Text {
-                                                text: i18nd("plasma_applet_com.mcc45tr.filesearch", "File Type") + ": " + historyItemDelegate.previewFileType
-                                                color: Qt.rgba(historyList.textColor.r, historyList.textColor.g, historyList.textColor.b, 0.7)
-                                                font.family: Kirigami.Theme.smallFont.family
-                                                font.pixelSize: Kirigami.Theme.smallFont.pixelSize
-                                                visible: historyItemDelegate.previewFileType.length > 0
-                                                textFormat: Text.PlainText
-                                            }
-
-                                            Text {
-                                                id: fileSizeText
-                                                text: ""
-                                                color: Qt.rgba(historyList.textColor.r, historyList.textColor.g, historyList.textColor.b, 0.7)
-                                                font.family: Kirigami.Theme.smallFont.family
-                                                font.pixelSize: Kirigami.Theme.smallFont.pixelSize
-                                                visible: text.length > 0
-                                                textFormat: Text.PlainText
-                                            }
-
-                                            Text {
-                                                text: i18nd("plasma_applet_com.mcc45tr.filesearch", "Path") + ": " + historyItemDelegate.previewPath
+                                                text: historyList.formatTimeFunc(modelData.timestamp)
                                                 color: Qt.rgba(historyList.textColor.r, historyList.textColor.g, historyList.textColor.b, 0.5)
                                                 font.family: Kirigami.Theme.smallFont.family
                                                 font.pixelSize: Kirigami.Theme.smallFont.pixelSize
-                                                wrapMode: Text.WrapAnywhere
-                                                Layout.fillWidth: true
-                                                textFormat: Text.PlainText
+                                                Layout.alignment: Qt.AlignVCenter
                                             }
                                         }
-                                    }
 
-                                    // Text File Snippet Preview
-                                    Rectangle {
-                                        id: textSnippetBox
-                                        Layout.fillWidth: true
-                                        Layout.preferredHeight: textSnippet.implicitHeight + 12
-                                        color: Qt.rgba(0, 0, 0, 0.2)
-                                        radius: 4
-                                        border.width: 1
-                                        border.color: Qt.rgba(historyList.textColor.r, historyList.textColor.g, historyList.textColor.b, 0.1)
-                                        visible: historyItemDelegate.isTextFile && textSnippet.text.length > 0
+                                        // Native Inline Preview Card
+                                        ColumnLayout {
+                                            id: inlinePreviewCard
+                                            Layout.fillWidth: true
+                                            visible: historyItemDelegate.showInlinePreview
+                                            spacing: 8
+                                            Layout.topMargin: 8
 
-                                        Text {
-                                            id: textSnippet
-                                            anchors.fill: parent
-                                            anchors.margins: 6
-                                            text: ""
-                                            color: historyList.textColor
-                                            font.family: "Monospace"
-                                            font.pixelSize: Kirigami.Theme.smallFont.pixelSize
-                                            wrapMode: Text.Wrap
-                                        }
-                                    }
+                                            Rectangle {
+                                                Layout.fillWidth: true
+                                                Layout.preferredHeight: 1
+                                                color: Qt.rgba(historyList.textColor.r, historyList.textColor.g, historyList.textColor.b, 0.15)
+                                            }
 
-                                    // Quick Actions
-                                    RowLayout {
-                                        Layout.fillWidth: true
-                                        spacing: 10
+                                            RowLayout {
+                                                Layout.fillWidth: true
+                                                spacing: 12
+                                                Layout.leftMargin: 4
+                                                Layout.rightMargin: 4
 
-                                        PlasmaComponents.Button {
-                                            text: i18nd("plasma_applet_com.mcc45tr.filesearch", "Copy Path")
-                                            icon.name: "edit-copy"
-                                            flat: true
-                                            Layout.preferredHeight: 28
-                                            onClicked: if (historyList.logic) historyList.logic.copyToClipboard(historyItemDelegate.previewPath)
-                                        }
+                                                // Left Column: Thumbnail or large icon
+                                                Item {
+                                                    id: thumbContainer
+                                                    Layout.preferredWidth: historyList.previewSize === 0 ? 64 : (historyList.previewSize === 1 ? 120 : 200)
+                                                    Layout.preferredHeight: historyList.previewSize === 0 ? 48 : (historyList.previewSize === 1 ? 90 : 150)
+                                                    visible: historyItemDelegate.previewSource.length > 0 || historyItemDelegate.previewFileType.length > 0
 
-                                        PlasmaComponents.Button {
-                                            text: i18nd("plasma_applet_com.mcc45tr.filesearch", "Open Folder")
-                                            icon.name: "folder-open"
-                                            flat: true
-                                            Layout.preferredHeight: 28
-                                            visible: historyItemDelegate.previewPath.length > 0 && historyItemDelegate.previewPath.includes("/")
-                                            onClicked: {
-                                                if (historyList.logic && historyItemDelegate.previewPath) {
-                                                    historyList.logic.openContainingFolder(historyItemDelegate.previewPath)
+                                                    // Background fallback placeholder
+                                                    Rectangle {
+                                                        anchors.fill: parent
+                                                        color: Qt.rgba(historyList.textColor.r, historyList.textColor.g, historyList.textColor.b, 0.05)
+                                                        radius: 4
+                                                    }
+
+                                                    Kirigami.Icon {
+                                                        anchors.centerIn: parent
+                                                        implicitWidth: 32
+                                                        implicitHeight: 32
+                                                        source: modelData.decoration || "application-x-executable"
+                                                        color: historyList.textColor
+                                                        opacity: 0.3
+                                                        visible: imgPreview.status !== Image.Ready
+                                                    }
+
+                                                    Image {
+                                                        id: imgPreview
+                                                        anchors.fill: parent
+                                                        source: historyItemDelegate.previewSource
+                                                        fillMode: Image.PreserveAspectFit
+                                                        visible: source.length > 0
+                                                        cache: true
+                                                        asynchronous: true
+                                                    }
+                                                }
+
+                                                // Right Column: Metadata
+                                                ColumnLayout {
+                                                    Layout.fillWidth: true
+                                                    spacing: 4
+
+                                                    Text {
+                                                        text: modelData.display || ""
+                                                        color: historyList.textColor
+                                                        font.bold: true
+                                                        font.family: Kirigami.Theme.defaultFont.family
+                                                        font.pixelSize: Kirigami.Theme.defaultFont.pixelSize
+                                                        elide: Text.ElideRight
+                                                        Layout.fillWidth: true
+                                                    }
+
+                                                    Text {
+                                                        text: i18nd("plasma_applet_com.mcc45tr.filesearch", "Category") + ": " + (modelData.category || "Other")
+                                                        color: Qt.rgba(historyList.textColor.r, historyList.textColor.g, historyList.textColor.b, 0.7)
+                                                        font.family: Kirigami.Theme.smallFont.family
+                                                        font.pixelSize: Kirigami.Theme.smallFont.pixelSize
+                                                        textFormat: Text.PlainText
+                                                    }
+
+                                                    Text {
+                                                        text: i18nd("plasma_applet_com.mcc45tr.filesearch", "File Type") + ": " + historyItemDelegate.previewFileType
+                                                        color: Qt.rgba(historyList.textColor.r, historyList.textColor.g, historyList.textColor.b, 0.7)
+                                                        font.family: Kirigami.Theme.smallFont.family
+                                                        font.pixelSize: Kirigami.Theme.smallFont.pixelSize
+                                                        visible: historyItemDelegate.previewFileType.length > 0
+                                                        textFormat: Text.PlainText
+                                                    }
+
+                                                    Text {
+                                                        id: fileSizeText
+                                                        text: ""
+                                                        color: Qt.rgba(historyList.textColor.r, historyList.textColor.g, historyList.textColor.b, 0.7)
+                                                        font.family: Kirigami.Theme.smallFont.family
+                                                        font.pixelSize: Kirigami.Theme.smallFont.pixelSize
+                                                        visible: text.length > 0
+                                                        textFormat: Text.PlainText
+                                                    }
+
+                                                    Text {
+                                                        text: i18nd("plasma_applet_com.mcc45tr.filesearch", "Path") + ": " + historyItemDelegate.previewPath
+                                                        color: Qt.rgba(historyList.textColor.r, historyList.textColor.g, historyList.textColor.b, 0.5)
+                                                        font.family: Kirigami.Theme.smallFont.family
+                                                        font.pixelSize: Kirigami.Theme.smallFont.pixelSize
+                                                        wrapMode: Text.WrapAnywhere
+                                                        Layout.fillWidth: true
+                                                        textFormat: Text.PlainText
+                                                    }
+                                                }
+                                            }
+
+                                            // Text File Snippet Preview
+                                            Rectangle {
+                                                id: textSnippetBox
+                                                Layout.fillWidth: true
+                                                Layout.preferredHeight: textSnippet.implicitHeight + 12
+                                                color: Qt.rgba(0, 0, 0, 0.2)
+                                                radius: 4
+                                                border.width: 1
+                                                border.color: Qt.rgba(historyList.textColor.r, historyList.textColor.g, historyList.textColor.b, 0.1)
+                                                visible: historyItemDelegate.isTextFile && textSnippet.text.length > 0
+
+                                                Text {
+                                                    id: textSnippet
+                                                    anchors.fill: parent
+                                                    anchors.margins: 6
+                                                    text: ""
+                                                    color: historyList.textColor
+                                                    font.family: "Monospace"
+                                                    font.pixelSize: Kirigami.Theme.smallFont.pixelSize
+                                                    wrapMode: Text.Wrap
+                                                }
+                                            }
+
+                                            // Quick Actions
+                                            RowLayout {
+                                                Layout.fillWidth: true
+                                                spacing: 10
+
+                                                PlasmaComponents.Button {
+                                                    text: i18nd("plasma_applet_com.mcc45tr.filesearch", "Copy Path")
+                                                    icon.name: "edit-copy"
+                                                    flat: true
+                                                    Layout.preferredHeight: 28
+                                                    onClicked: if (historyList.logic)
+                                                        historyList.logic.copyToClipboard(historyItemDelegate.previewPath)
+                                                }
+
+                                                PlasmaComponents.Button {
+                                                    text: i18nd("plasma_applet_com.mcc45tr.filesearch", "Open Folder")
+                                                    icon.name: "folder-open"
+                                                    flat: true
+                                                    Layout.preferredHeight: 28
+                                                    visible: historyItemDelegate.previewPath.length > 0 && historyItemDelegate.previewPath.includes("/")
+                                                    onClicked: {
+                                                        if (historyList.logic && historyItemDelegate.previewPath) {
+                                                            historyList.logic.openContainingFolder(historyItemDelegate.previewPath);
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }
                                     }
-                                }
-                            }
 
-                            MouseArea {
-                                id: itemMouseArea
-                                anchors.fill: parent
-                                hoverEnabled: true
-                                acceptedButtons: Qt.LeftButton | Qt.RightButton
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: (mouse) => {
-                                    if (mouse.button === Qt.RightButton) {
-                                        contextMenu.historyItem = modelData
-                                        contextMenu.popup()
-                                    } else {
-                                        historyList.itemClicked(modelData)
-                                    }
-                                }
-                            }
-
-                            Loader {
-                                active: historyList.previewInlineMode === 0
-                                        && itemMouseArea.containsMouse
-                                        && historyItemDelegate.previewSource.length > 0
-                                sourceComponent: PlasmaComponents.ToolTip {
-                                    visible: true
-                                    delay: 400
-                                    timeout: 10000
-                                    x: historyItemDelegate.width + 4
-                                    y: 0
-
-                                    contentItem: Column {
-                                    spacing: 6
-
-                                    Text {
-                                        text: modelData.display || ""
-                                        font.bold: true
-                                        font.family: Kirigami.Theme.defaultFont.family
-                                        font.pixelSize: Kirigami.Theme.defaultFont.pixelSize
-                                        color: historyList.textColor
+                                    MouseArea {
+                                        id: itemMouseArea
+                                        anchors.fill: parent
+                                        hoverEnabled: true
+                                        acceptedButtons: Qt.LeftButton | Qt.RightButton
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked: mouse => {
+                                            if (mouse.button === Qt.RightButton) {
+                                                contextMenu.historyItem = modelData;
+                                                contextMenu.popup();
+                                            } else {
+                                                historyList.itemClicked(modelData);
+                                            }
+                                        }
                                     }
 
-                                    Image {
-                                        source: historyItemDelegate.previewSource
-                                        width: source.length > 0 ? 150 : 0
-                                        height: source.length > 0 ? 100 : 0
-                                        fillMode: Image.PreserveAspectFit
-                                        visible: source.length > 0
-                                        cache: true
-                                        asynchronous: true
-                                    }
+                                    Loader {
+                                        active: historyList.previewInlineMode === 0 && itemMouseArea.containsMouse && historyItemDelegate.previewSource.length > 0
+                                        sourceComponent: PlasmaComponents.ToolTip {
+                                            visible: true
+                                            delay: 400
+                                            timeout: 10000
+                                            x: historyItemDelegate.width + 4
+                                            y: 0
 
-                                    Text {
-                                        text: i18nd("plasma_applet_com.mcc45tr.filesearch", "Category") + ": " + (modelData.category || "")
-                                        font.family: Kirigami.Theme.smallFont.family
-                                        font.pixelSize: Kirigami.Theme.smallFont.pixelSize
-                                        color: Qt.rgba(historyList.textColor.r, historyList.textColor.g, historyList.textColor.b, 0.7)
-                                        visible: (modelData.category || "").length > 0
-                                    }
+                                            contentItem: Column {
+                                                spacing: 6
 
-                                    Text {
-                                        text: i18nd("plasma_applet_com.mcc45tr.filesearch", "File Type") + ": " + historyItemDelegate.previewFileType
-                                        font.family: Kirigami.Theme.smallFont.family
-                                        font.pixelSize: Kirigami.Theme.smallFont.pixelSize
-                                        color: Qt.rgba(historyList.textColor.r, historyList.textColor.g, historyList.textColor.b, 0.7)
-                                        visible: historyItemDelegate.previewFileType.length > 0
-                                    }
+                                                Text {
+                                                    text: modelData.display || ""
+                                                    font.bold: true
+                                                    font.family: Kirigami.Theme.defaultFont.family
+                                                    font.pixelSize: Kirigami.Theme.defaultFont.pixelSize
+                                                    color: historyList.textColor
+                                                }
 
-                                    Text {
-                                        text: i18nd("plasma_applet_com.mcc45tr.filesearch", "Path") + ": " + historyItemDelegate.previewPath
-                                        font.family: Kirigami.Theme.smallFont.family
-                                        font.pixelSize: Kirigami.Theme.smallFont.pixelSize
-                                        color: Qt.rgba(historyList.textColor.r, historyList.textColor.g, historyList.textColor.b, 0.7)
-                                        wrapMode: Text.WrapAnywhere
-                                        width: 300
-                                        visible: historyItemDelegate.previewPath.length > 0
-                                    }
-                                    }
+                                                Image {
+                                                    source: historyItemDelegate.previewSource
+                                                    width: source.length > 0 ? 150 : 0
+                                                    height: source.length > 0 ? 100 : 0
+                                                    fillMode: Image.PreserveAspectFit
+                                                    visible: source.length > 0
+                                                    cache: true
+                                                    asynchronous: true
+                                                }
 
-                                    background: Rectangle {
-                                        color: Kirigami.Theme.backgroundColor
-                                        border.color: historyList.accentColor
-                                        border.width: 1
-                                        radius: 6
+                                                Text {
+                                                    text: i18nd("plasma_applet_com.mcc45tr.filesearch", "Category") + ": " + (modelData.category || "")
+                                                    font.family: Kirigami.Theme.smallFont.family
+                                                    font.pixelSize: Kirigami.Theme.smallFont.pixelSize
+                                                    color: Qt.rgba(historyList.textColor.r, historyList.textColor.g, historyList.textColor.b, 0.7)
+                                                    visible: (modelData.category || "").length > 0
+                                                }
+
+                                                Text {
+                                                    text: i18nd("plasma_applet_com.mcc45tr.filesearch", "File Type") + ": " + historyItemDelegate.previewFileType
+                                                    font.family: Kirigami.Theme.smallFont.family
+                                                    font.pixelSize: Kirigami.Theme.smallFont.pixelSize
+                                                    color: Qt.rgba(historyList.textColor.r, historyList.textColor.g, historyList.textColor.b, 0.7)
+                                                    visible: historyItemDelegate.previewFileType.length > 0
+                                                }
+
+                                                Text {
+                                                    text: i18nd("plasma_applet_com.mcc45tr.filesearch", "Path") + ": " + historyItemDelegate.previewPath
+                                                    font.family: Kirigami.Theme.smallFont.family
+                                                    font.pixelSize: Kirigami.Theme.smallFont.pixelSize
+                                                    color: Qt.rgba(historyList.textColor.r, historyList.textColor.g, historyList.textColor.b, 0.7)
+                                                    wrapMode: Text.WrapAnywhere
+                                                    width: 300
+                                                    visible: historyItemDelegate.previewPath.length > 0
+                                                }
+                                            }
+
+                                            background: Rectangle {
+                                                color: Kirigami.Theme.backgroundColor
+                                                border.color: historyList.accentColor
+                                                border.width: 1
+                                                radius: 6
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
                     }
-                    }
                 }
-            }
             }
         }
     }

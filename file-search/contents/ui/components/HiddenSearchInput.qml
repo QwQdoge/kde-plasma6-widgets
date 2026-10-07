@@ -8,13 +8,13 @@ PlasmaComponents.TextField {
     // Signals (renamed to avoid conflict with property change signals)
     signal textUpdated(string newText)
     signal searchSubmitted(int selectedIndex)
-    signal escapePressed()
-    signal upPressed()
-    signal downPressed()
-    signal tabPressedSignal()
-    signal shiftTabPressedSignal()
-    signal leftPressed()
-    signal rightPressed()
+    signal escapePressed
+    signal upPressed
+    signal downPressed
+    signal tabPressedSignal
+    signal shiftTabPressedSignal
+    signal leftPressed
+    signal rightPressed
     signal viewModeChangeRequested(int mode)
 
     // For referencing result count
@@ -27,66 +27,66 @@ PlasmaComponents.TextField {
     activeFocusOnPress: true
 
     onTextChanged: {
-        hiddenInput.textUpdated(text)
+        hiddenInput.textUpdated(text);
     }
 
     onAccepted: {
         if (resultCount > 0) {
-            var idx = currentIndex >= 0 ? currentIndex : 0
-            hiddenInput.searchSubmitted(idx)
+            var idx = currentIndex >= 0 ? currentIndex : 0;
+            hiddenInput.searchSubmitted(idx);
         }
     }
 
     Keys.onEscapePressed: {
-        hiddenInput.escapePressed()
+        hiddenInput.escapePressed();
     }
 
     Keys.onDownPressed: {
-        hiddenInput.downPressed()
+        hiddenInput.downPressed();
     }
 
     Keys.onUpPressed: {
-        hiddenInput.upPressed()
+        hiddenInput.upPressed();
     }
 
     Keys.onLeftPressed: {
-        hiddenInput.leftPressed()
+        hiddenInput.leftPressed();
     }
 
     Keys.onRightPressed: {
-        hiddenInput.rightPressed()
+        hiddenInput.rightPressed();
     }
 
-    Keys.onTabPressed: (event) => {
+    Keys.onTabPressed: event => {
         if (event.modifiers & Qt.ShiftModifier) {
-            hiddenInput.shiftTabPressedSignal()
+            hiddenInput.shiftTabPressedSignal();
         } else {
-            hiddenInput.tabPressedSignal()
+            hiddenInput.tabPressedSignal();
         }
-        event.accepted = true
+        event.accepted = true;
     }
 
-    Keys.onPressed: (event) => {
+    Keys.onPressed: event => {
         if (event.modifiers & Qt.ControlModifier) {
             if (event.key === Qt.Key_1) {
-                hiddenInput.viewModeChangeRequested(0)
-                event.accepted = true
+                hiddenInput.viewModeChangeRequested(0);
+                event.accepted = true;
             } else if (event.key === Qt.Key_2) {
-                hiddenInput.viewModeChangeRequested(1)
-                event.accepted = true
+                hiddenInput.viewModeChangeRequested(1);
+                event.accepted = true;
             }
         }
     }
 
     // Force focus
     function focusInput() {
-        forceActiveFocus()
+        forceActiveFocus();
     }
 
     // Clear and focus
     function clearAndFocus() {
-        text = ""
-        forceActiveFocus()
-        selectAll()
+        text = "";
+        forceActiveFocus();
+        selectAll();
     }
 }

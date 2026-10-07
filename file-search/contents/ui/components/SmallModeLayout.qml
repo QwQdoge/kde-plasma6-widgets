@@ -11,7 +11,9 @@ Item {
     property var currentWeather: weatherRoot.currentWeather
     property string location: weatherRoot.location
 
-    function getWeatherIcon(item) { return weatherRoot.getWeatherIcon(item) }
+    function getWeatherIcon(item) {
+        return weatherRoot.getWeatherIcon(item);
+    }
 
     Timer {
         id: autoReturnTimer
@@ -103,14 +105,34 @@ Item {
 
                 RowLayout {
                     spacing: 2
-                    Text { text: "▲"; color: Kirigami.Theme.positiveTextColor; font.pixelSize: Math.max(Kirigami.Theme.defaultFont.pixelSize, smallLayout.height * 0.08); font.bold: true }
-                    Text { text: currentWeather ? currentWeather.temp_max + "°" : "--"; color: Kirigami.Theme.textColor; font.pixelSize: Math.max(Kirigami.Theme.defaultFont.pixelSize, smallLayout.height * 0.08); font.bold: true }
+                    Text {
+                        text: "▲"
+                        color: Kirigami.Theme.positiveTextColor
+                        font.pixelSize: Math.max(Kirigami.Theme.defaultFont.pixelSize, smallLayout.height * 0.08)
+                        font.bold: true
+                    }
+                    Text {
+                        text: currentWeather ? currentWeather.temp_max + "°" : "--"
+                        color: Kirigami.Theme.textColor
+                        font.pixelSize: Math.max(Kirigami.Theme.defaultFont.pixelSize, smallLayout.height * 0.08)
+                        font.bold: true
+                    }
                 }
 
                 RowLayout {
                     spacing: 2
-                    Text { text: "▼"; color: Kirigami.Theme.negativeTextColor; font.pixelSize: Math.max(Kirigami.Theme.defaultFont.pixelSize, smallLayout.height * 0.08); font.bold: true }
-                    Text { text: currentWeather ? currentWeather.temp_min + "°" : "--"; color: Kirigami.Theme.textColor; font.pixelSize: Math.max(Kirigami.Theme.defaultFont.pixelSize, smallLayout.height * 0.08); font.bold: true }
+                    Text {
+                        text: "▼"
+                        color: Kirigami.Theme.negativeTextColor
+                        font.pixelSize: Math.max(Kirigami.Theme.defaultFont.pixelSize, smallLayout.height * 0.08)
+                        font.bold: true
+                    }
+                    Text {
+                        text: currentWeather ? currentWeather.temp_min + "°" : "--"
+                        color: Kirigami.Theme.textColor
+                        font.pixelSize: Math.max(Kirigami.Theme.defaultFont.pixelSize, smallLayout.height * 0.08)
+                        font.bold: true
+                    }
                 }
             }
 
@@ -135,8 +157,8 @@ Item {
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
-                        swipeView.currentIndex = 1
-                        autoReturnTimer.restart()
+                        swipeView.currentIndex = 1;
+                        autoReturnTimer.restart();
                     }
                 }
             }
@@ -174,6 +196,4 @@ Item {
             }
         }
     }
-
-
 }
