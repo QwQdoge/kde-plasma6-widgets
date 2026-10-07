@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls as Controls
 import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
+import org.kde.plasma.core as PlasmaCore
 import org.kde.plasma.plasmoid
 import org.kde.ksysguard.sensors as Sensors
 import org.kde.kitemmodels as KItemModels
@@ -12,6 +13,40 @@ PlasmoidItem {
 
     implicitWidth: 360
     implicitHeight: 560
+
+    readonly property bool isPanel: Plasmoid.formFactor === PlasmaCore.Types.Horizontal
+                                    || Plasmoid.formFactor === PlasmaCore.Types.Vertical
+    preferredRepresentation: isPanel ? compactRepresentation : fullRepresentation
+
+    compactRepresentation: Controls.ToolButton {
+        implicitWidth: summary.implicitWidth + Kirigami.Units.smallSpacing * 2
+        implicitHeight: summary.implicitHeight + Kirigami.Units.smallSpacing * 2
+        Accessible.name: i18n("System Monitor")
+        Accessible.description: i18n("CPU %1, memory %2", root.percentText(root.cpuUsage), root.percentText(root.memoryPercent))
+        onClicked: root.expanded = !root.expanded
+        Controls.ToolTip.visible: hovered
+        Controls.ToolTip.text: Accessible.description
+
+        contentItem: RowLayout {
+            id: summary
+            spacing: Kirigami.Units.smallSpacing
+            Kirigami.Icon {
+                source: "utilities-system-monitor"
+                Layout.preferredWidth: Kirigami.Units.iconSizes.smallMedium
+                Layout.preferredHeight: Layout.preferredWidth
+            }
+            Controls.Label {
+                visible: root.showCpu
+                text: root.percentText(root.cpuUsage)
+                font.weight: Font.DemiBold
+            }
+            Controls.Label {
+                visible: root.showMemory
+                text: root.percentText(root.memoryPercent)
+                color: Kirigami.Theme.disabledTextColor
+            }
+        }
+    }
 
     readonly property int updateInterval: Math.max(500, Number(Plasmoid.configuration.updateInterval) || 1000)
     readonly property int historyLength: Math.max(20, Number(Plasmoid.configuration.historyLength) || 60)
@@ -455,8 +490,9 @@ PlasmoidItem {
         function onLayoutChanged() { root.rebuildTopApplications(); }
     }
 
-    Rectangle {
-        anchors.fill: parent
+    fullRepresentation: Rectangle {
+        implicitWidth: 360
+        implicitHeight: 560
         radius: 22
         color: Qt.rgba(Kirigami.Theme.backgroundColor.r,
                        Kirigami.Theme.backgroundColor.g,
