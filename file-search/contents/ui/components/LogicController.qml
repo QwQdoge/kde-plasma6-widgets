@@ -3,6 +3,7 @@ import "../js/ConfigManager.js" as ConfigManager
 import "../js/HistoryManager.js" as HistoryManager
 import "../js/PinnedManager.js" as PinnedManager
 import "../js/RSSManager.js" as RSSManager
+import "../js/RSSSchedule.js" as RSSSchedule
 import "../js/TelemetryManager.js" as TelemetryManager
 import "../js/utils.js" as Utils
 import QtCore
@@ -82,6 +83,8 @@ Item {
     property real rssBatchStartedAt: 0
     property int rssBatchQueued: 0
     property int rssBatchCompleted: 0
+    property bool rssBatchOnlyUnchanged: true
+    property var rssInFlight: ({})
     property int rssCacheRebuildCount: 0
     property bool rssMergeInProgress: false
     property bool rssMergeRequested: false
@@ -100,6 +103,10 @@ Item {
         var completedBatchQueued = rssBatchQueued;
         var completedBatchCount = rssBatchCompleted;
         persistRssSources();
+        if (rssBatchOnlyUnchanged && rssCache.length > 0) {
+            rssBatchStartedAt = 0;
+            return;
+        }
         mergeCombinedCache(function (success) {
             if (success)
                 updateCombinedCache(true);
@@ -492,6 +499,8 @@ Item {
         // Reset lastSync for all sources
         for (var i = 0; i < rssSources.length; i++) {
             rssSources[i].lastSync = 0;
+            rssSources[i].lastAttempt = 0;
+            rssSources[i].failCount = 0;
         }
         persistRssSources();
     }
@@ -608,23 +617,21 @@ Item {
         var now = new Date().getTime();
         for (var i = 0; i < rssSources.length; i++) {
             var source = rssSources[i];
-            var interval = source.syncInterval || plasmoidConfig.rssSyncInterval || 60;
-            var intervalMs = interval * 60 * 1000;
-            var lastSync = source.lastSync || 0;
-            if (now - lastSync > intervalMs)
+            if (RSSSchedule.isDue(source, plasmoidConfig.rssSyncInterval, now))
                 syncSource(i);
         }
     }
 
     function syncSource(index) {
         var source = rssSources[index];
-        if (!source || !source.url)
+        if (!source || !source.url || rssInFlight[source.url])
             return;
         if (!isSyncing) {
             rssBatchId++;
             rssBatchStartedAt = Date.now();
             rssBatchQueued = 0;
             rssBatchCompleted = 0;
+            rssBatchOnlyUnchanged = true;
         }
         if (syncQueue.indexOf(source.url) === -1) {
             syncQueue.push(source.url);
@@ -656,16 +663,20 @@ Item {
         var max = source.maxEntries || plasmoidConfig.rssMaxEntries || 10;
         var cmd = "sh " + shellEscape(scriptPath) + " " + shellEscape(rssCacheBase) + " " + shellEscape(source.url) + " " + shellEscape(source.name) + " " + shellEscape(String(max));
 
+        rssInFlight[sourceUrl] = true;
+        source.lastAttempt = Date.now();
         logicRoot.pendingSyncs++;
 
         runExecutable(cmd, function (stdout, isFinished, exitCode) {
             if (isFinished) {
-                if (exitCode === 0) {
-                    for (var updateIndex = 0; updateIndex < rssSources.length; updateIndex++) {
-                        if (rssSources[updateIndex].url === sourceUrl) {
-                            rssSources[updateIndex].lastSync = new Date().getTime();
-                            break;
-                        }
+                delete rssInFlight[sourceUrl];
+                var succeeded = exitCode === 0;
+                if (!succeeded || String(stdout || "").indexOf("NOT_MODIFIED:") !== 0)
+                    rssBatchOnlyUnchanged = false;
+                for (var updateIndex = 0; updateIndex < rssSources.length; updateIndex++) {
+                    if (rssSources[updateIndex].url === sourceUrl) {
+                        RSSSchedule.complete(rssSources[updateIndex], succeeded, Date.now());
+                        break;
                     }
                 }
                 logicRoot.rssBatchCompleted++;
