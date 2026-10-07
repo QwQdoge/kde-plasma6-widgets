@@ -15,19 +15,43 @@ Item {
     property string units: "metric"
     property bool showUnits: true
     property string fontFamily: Kirigami.Theme.defaultFont.family
-    
+
     property var forecastData: null
     property int itemIndex: 0
     property bool hasDetails: forecastData && forecastData.hasDetails === true
-    
+
     signal clicked(var data, int index, rect cardRect)
+
+    activeFocusOnTab: hasDetails
+    Accessible.role: hasDetails ? Accessible.Button : Accessible.StaticText
+    Accessible.name: label + ", " + temp + "°" + (showUnits ? (units === "imperial" ? "F" : "C") : "")
+    Accessible.focusable: hasDetails
+    Accessible.focused: activeFocus
+    Accessible.onPressAction: activateForecast()
+
+    function activateForecast() {
+        if (!hasDetails || !forecastData)
+            return false;
+        var globalPos = mapToGlobal(0, 0);
+        clicked(forecastData, itemIndex, Qt.rect(globalPos.x, globalPos.y, width, height));
+        return true;
+    }
+
+    Keys.onReturnPressed: function (event) {
+        event.accepted = activateForecast();
+    }
+    Keys.onEnterPressed: function (event) {
+        event.accepted = activateForecast();
+    }
+    Keys.onSpacePressed: function (event) {
+        event.accepted = activateForecast();
+    }
 
     property real availableWidth: 300
     property int cardCount: 5
     property real cardSpacing: 2
 
-    readonly property real calculatedWidth: Math.max(55, Math.min(110,
-        (availableWidth - cardSpacing * (cardCount - 1)) / Math.max(1, cardCount)))
+    readonly property real calculatedWidth: Math.max(55, Math.min(110, (availableWidth - cardSpacing * (cardCount - 1)) / Math.max(1, cardCount)))
 
     implicitWidth: calculatedWidth
     implicitHeight: parent ? parent.height : 120
@@ -44,12 +68,13 @@ Item {
         layer.samples: 4
 
         ShapePath {
-            strokeWidth: 0
-            strokeColor: "transparent"
+            strokeWidth: itemRoot.activeFocus && itemRoot.hasDetails ? 2 : 0
+            strokeColor: Kirigami.Theme.highlightColor
             fillColor: itemRoot.showBackground ? Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.1) : "transparent"
 
             PathRectangle {
-                x: 0; y: 0
+                x: 0
+                y: 0
                 width: itemRoot.width
                 height: itemRoot.height
                 topLeftRadius: itemRoot.radiusTL
@@ -64,7 +89,11 @@ Item {
         anchors.fill: parent
         visible: opacity > 0
         opacity: mouseArea.containsMouse ? 0.15 : 0
-        Behavior on opacity { NumberAnimation { duration: 150 } }
+        Behavior on opacity {
+            NumberAnimation {
+                duration: 150
+            }
+        }
 
         layer.enabled: true
         layer.samples: 4
@@ -75,7 +104,8 @@ Item {
             fillColor: Kirigami.Theme.highlightColor
 
             PathRectangle {
-                x: 0; y: 0
+                x: 0
+                y: 0
                 width: itemRoot.width
                 height: itemRoot.height
                 topLeftRadius: itemRoot.radiusTL
@@ -131,11 +161,11 @@ Item {
         Item {
             Layout.preferredHeight: parent.height
             Layout.preferredWidth: parent.height // Square aspect ratio
-            
+
             Kirigami.Icon {
                 anchors.centerIn: parent
                 width: parent.width - 20
-                height: parent.height - 20           
+                height: parent.height - 20
                 source: itemRoot.iconPath
                 isMask: false
                 smooth: true
@@ -147,12 +177,12 @@ Item {
             Layout.fillWidth: true
             Layout.fillHeight: true
             spacing: 0
-            
+
             // Day label
             Item {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                
+
                 Text {
                     anchors.centerIn: parent
                     text: itemRoot.label
@@ -163,12 +193,12 @@ Item {
                     elide: Text.ElideRight
                 }
             }
-            
+
             // Temperature
             Item {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                
+
                 Text {
                     anchors.centerIn: parent
                     text: itemRoot.temp + "°"
@@ -186,11 +216,10 @@ Item {
         anchors.fill: parent
         hoverEnabled: true
         cursorShape: itemRoot.hasDetails ? Qt.PointingHandCursor : Qt.ArrowCursor
-        onClicked: function(mouse) {
-            if (itemRoot.hasDetails && itemRoot.forecastData) {
-                var globalPos = itemRoot.mapToGlobal(0, 0)
-                itemRoot.clicked(itemRoot.forecastData, itemRoot.itemIndex, Qt.rect(globalPos.x, globalPos.y, itemRoot.width, itemRoot.height))
-            }
+        onClicked: function (mouse) {
+            if (itemRoot.hasDetails)
+                itemRoot.forceActiveFocus(Qt.MouseFocusReason);
+            itemRoot.activateForecast();
         }
     }
 }
