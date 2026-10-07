@@ -24,7 +24,7 @@ jobs:
         run: |
           pacman -Syu --noconfirm
           pacman -S --needed --noconfirm \
-            git python gettext jq libxml2 shellcheck unzip \
+            git python gettext jq libxml2 shellcheck unzip diffutils \
             qt6-base qt6-declarative qt6-tools qt6-5compat \
             kirigami libplasma plasma-workspace kitemmodels
 
