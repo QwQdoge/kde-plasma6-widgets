@@ -15,18 +15,23 @@ permissions:
 
 jobs:
   test-and-package:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
     timeout-minutes: 15
     steps:
+      - name: Install Qt Quick and Plasma test runtime
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --needed --noconfirm \
+            git python gettext jq libxml2 shellcheck unzip \
+            qt6-base qt6-declarative qt6-tools qt6-5compat \
+            kirigami libplasma plasma-workspace kitemmodels
+
       - name: Check out source
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-
-      - name: Install Qt Quick test runner
-        run: |
-          sudo apt-get update
-          sudo apt-get install --no-install-recommends gettext jq libxml2-utils shellcheck qt6-declarative-dev-tools qml6-module-qtquick qml6-module-qttest
 
       - name: Run unit, policy, package, and integrity checks
         env:

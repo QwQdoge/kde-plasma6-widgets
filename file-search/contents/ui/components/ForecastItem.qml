@@ -26,8 +26,7 @@ Item {
     property int cardCount: 5
     property real cardSpacing: 2
 
-    readonly property real calculatedWidth: Math.max(55, Math.min(110,
-        (availableWidth - cardSpacing * (cardCount - 1)) / Math.max(1, cardCount)))
+    readonly property real calculatedWidth: Math.max(55, Math.min(110, (availableWidth - cardSpacing * (cardCount - 1)) / Math.max(1, cardCount)))
 
     implicitWidth: calculatedWidth
     implicitHeight: parent ? parent.height : 120
@@ -49,7 +48,8 @@ Item {
             fillColor: itemRoot.showBackground ? Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.1) : "transparent"
 
             PathRectangle {
-                x: 0; y: 0
+                x: 0
+                y: 0
                 width: itemRoot.width
                 height: itemRoot.height
                 topLeftRadius: itemRoot.radiusTL
@@ -64,7 +64,11 @@ Item {
         anchors.fill: parent
         visible: opacity > 0
         opacity: mouseArea.containsMouse ? 0.15 : 0
-        Behavior on opacity { NumberAnimation { duration: 150 } }
+        Behavior on opacity {
+            NumberAnimation {
+                duration: 150
+            }
+        }
 
         layer.enabled: true
         layer.samples: 4
@@ -75,7 +79,8 @@ Item {
             fillColor: Kirigami.Theme.highlightColor
 
             PathRectangle {
-                x: 0; y: 0
+                x: 0
+                y: 0
                 width: itemRoot.width
                 height: itemRoot.height
                 topLeftRadius: itemRoot.radiusTL
@@ -186,10 +191,10 @@ Item {
         anchors.fill: parent
         hoverEnabled: true
         cursorShape: itemRoot.hasDetails ? Qt.PointingHandCursor : Qt.ArrowCursor
-        onClicked: function(mouse) {
+        onClicked: function (mouse) {
             if (itemRoot.hasDetails && itemRoot.forecastData) {
-                var globalPos = itemRoot.mapToGlobal(0, 0)
-                itemRoot.clicked(itemRoot.forecastData, itemRoot.itemIndex, Qt.rect(globalPos.x, globalPos.y, itemRoot.width, itemRoot.height))
+                var globalPos = itemRoot.mapToGlobal(0, 0);
+                itemRoot.clicked(itemRoot.forecastData, itemRoot.itemIndex, Qt.rect(globalPos.x, globalPos.y, itemRoot.width, itemRoot.height));
             }
         }
     }

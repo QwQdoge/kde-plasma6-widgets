@@ -56,9 +56,11 @@ GridView {
 
         // Data bindings
         label: {
-            if (root.isHourly) return modelData.time
-            if (root.useTodayLabel && index === 0) return i18n("Today")
-            return root.weatherRoot.getLocalizedDay(modelData.day)
+            if (root.isHourly)
+                return modelData.time;
+            if (root.useTodayLabel && index === 0)
+                return i18n("Today");
+            return root.weatherRoot.getLocalizedDay(modelData.day);
         }
         iconPath: root.weatherRoot.getWeatherIcon(modelData)
         // Daily forecasts use the maximum; hourly forecasts use the current temperature.
@@ -75,8 +77,8 @@ GridView {
         itemIndex: index
 
         // Click Handling
-        onClicked: function(data, idx, cardRect) {
-            root.itemClicked(data, idx, cardRect)
+        onClicked: function (data, idx, cardRect) {
+            root.itemClicked(data, idx, cardRect);
         }
 
         // Radius Logic styling

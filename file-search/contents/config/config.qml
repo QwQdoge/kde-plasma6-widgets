@@ -34,7 +34,6 @@ ConfigModel {
         source: "config/ConfigRSS.qml"
     }
 
-
     ConfigCategory {
         name: i18n("Debug")
         icon: "tools-report-bug"

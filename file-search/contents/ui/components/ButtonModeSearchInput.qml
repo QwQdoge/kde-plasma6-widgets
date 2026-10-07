@@ -20,13 +20,13 @@ Rectangle {
 
     // Signals
     signal searchSubmitted(string text, int selectedIndex)
-    signal escapePressed()
-    signal upPressed()
-    signal downPressed()
-    signal tabPressedSignal()
-    signal shiftTabPressedSignal()
-    signal leftPressed()
-    signal rightPressed()
+    signal escapePressed
+    signal upPressed
+    signal downPressed
+    signal tabPressedSignal
+    signal shiftTabPressedSignal
+    signal leftPressed
+    signal rightPressed
     signal viewModeChangeRequested(int mode)
 
     height: 56
@@ -35,17 +35,17 @@ Rectangle {
 
     // Focus the input field
     function focusInput() {
-        searchInputField.forceActiveFocus()
+        searchInputField.forceActiveFocus();
     }
 
     // Set text
     function setText(text) {
-        searchInputField.text = text
+        searchInputField.text = text;
     }
 
     // Clear text
     function clear() {
-        searchInputField.text = ""
+        searchInputField.text = "";
     }
 
     RowLayout {
@@ -66,60 +66,60 @@ Rectangle {
             background: Item {} // No background
 
             onTextChanged: {
-                root.searchText = text
+                root.searchText = text;
             }
 
             onAccepted: {
-                root.searchSubmitted(text, 0)
+                root.searchSubmitted(text, 0);
             }
 
             Keys.onEscapePressed: {
-                root.escapePressed()
+                root.escapePressed();
             }
 
             Keys.onDownPressed: {
-                root.downPressed()
+                root.downPressed();
             }
 
             Keys.onUpPressed: {
-                root.upPressed()
+                root.upPressed();
             }
 
-            Keys.onLeftPressed: (event) => {
+            Keys.onLeftPressed: event => {
                 if (cursorPosition === 0) {
-                    root.leftPressed()
-                    event.accepted = true
+                    root.leftPressed();
+                    event.accepted = true;
                 } else {
-                    event.accepted = false
+                    event.accepted = false;
                 }
             }
 
-            Keys.onRightPressed: (event) => {
+            Keys.onRightPressed: event => {
                 if (cursorPosition === text.length) {
-                    root.rightPressed()
-                    event.accepted = true
+                    root.rightPressed();
+                    event.accepted = true;
                 } else {
-                    event.accepted = false
+                    event.accepted = false;
                 }
             }
 
-            Keys.onTabPressed: (event) => {
+            Keys.onTabPressed: event => {
                 if (event.modifiers & Qt.ShiftModifier) {
-                    root.shiftTabPressedSignal()
+                    root.shiftTabPressedSignal();
                 } else {
-                    root.tabPressedSignal()
+                    root.tabPressedSignal();
                 }
-                event.accepted = true
+                event.accepted = true;
             }
 
-            Keys.onPressed: (event) => {
+            Keys.onPressed: event => {
                 if (event.modifiers & Qt.ControlModifier) {
                     if (event.key === Qt.Key_1) {
-                        root.viewModeChangeRequested(0)
-                        event.accepted = true
+                        root.viewModeChangeRequested(0);
+                        event.accepted = true;
                     } else if (event.key === Qt.Key_2) {
-                        root.viewModeChangeRequested(1)
-                        event.accepted = true
+                        root.viewModeChangeRequested(1);
+                        event.accepted = true;
                     }
                 }
             }
@@ -146,7 +146,7 @@ Rectangle {
                 anchors.fill: parent
                 cursorShape: Qt.PointingHandCursor
                 onClicked: {
-                    root.searchSubmitted(searchInputField.text, 0)
+                    root.searchSubmitted(searchInputField.text, 0);
                 }
             }
         }

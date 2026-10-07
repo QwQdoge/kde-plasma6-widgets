@@ -17,13 +17,11 @@ Rectangle {
     property string actionIcon: ""
     property string actionText: ""
 
-    signal toggleRequested()
-    signal actionTriggered()
+    signal toggleRequested
+    signal actionTriggered
 
     implicitHeight: Kirigami.Units.gridUnit + Kirigami.Units.smallSpacing
-    color: headerMouse.containsMouse && root.collapsible
-        ? Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.1)
-        : "transparent"
+    color: headerMouse.containsMouse && root.collapsible ? Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.1) : "transparent"
     radius: Kirigami.Units.cornerRadius
 
     MouseArea {

@@ -32,40 +32,43 @@ Item {
         engine: "executable"
         onNewData: (sourceName, data) => {
             if (data["stdout"]) {
-                if (!root.cmdDataBuffer[sourceName]) root.cmdDataBuffer[sourceName] = ""
-                root.cmdDataBuffer[sourceName] += data["stdout"]
+                if (!root.cmdDataBuffer[sourceName])
+                    root.cmdDataBuffer[sourceName] = "";
+                root.cmdDataBuffer[sourceName] += data["stdout"];
             }
 
             // Parse the accumulated response as soon as it is complete.
-            var fullData = root.cmdDataBuffer[sourceName]
+            var fullData = root.cmdDataBuffer[sourceName];
 
             if (sourceName && sourceName.indexOf("bootctl list") !== -1) {
                 // Auth successful
-                root.requestPreventClosing(false)
-                authSafetyTimer.stop()
+                root.requestPreventClosing(false);
+                authSafetyTimer.stop();
                 try {
                     // Boot entries captured
-                    var entries = JSON.parse(fullData)
-                    root.processEntries(entries)
-                    root.isLoading = false
+                    var entries = JSON.parse(fullData);
+                    root.processEntries(entries);
+                    root.isLoading = false;
 
                     if (sourceName.indexOf("pkexec") !== -1) {
-                         // Saving to config cache
-                         if (root.plasmoidConfig) {
-                             root.plasmoidConfig.cachedBootEntries = fullData
-                         } else {
-                             try { Plasmoid.configuration.cachedBootEntries = fullData } catch(e) {}
-                         }
+                        // Saving to config cache
+                        if (root.plasmoidConfig) {
+                            root.plasmoidConfig.cachedBootEntries = fullData;
+                        } else {
+                            try {
+                                Plasmoid.configuration.cachedBootEntries = fullData;
+                            } catch (e) {}
+                        }
                     }
-                    execSource.disconnectSource(sourceName)
-                    delete root.cmdDataBuffer[sourceName]
-                } catch(e) {
+                    execSource.disconnectSource(sourceName);
+                    delete root.cmdDataBuffer[sourceName];
+                } catch (e) {
                     // Wait for the remaining JSON payload.
                 }
             } else if (sourceName && sourceName.indexOf("CanHibernate") !== -1 && data["stdout"]) {
-                var res = data["stdout"].trim()
-                root.canHibernate = (res === "yes")
-                execSource.disconnectSource(sourceName)
+                var res = data["stdout"].trim();
+                root.canHibernate = (res === "yes");
+                execSource.disconnectSource(sourceName);
             }
         }
     }
@@ -75,138 +78,172 @@ Item {
 
     // Release the popup if authentication does not complete in time.
     Timer {
-         id: authSafetyTimer
-         interval: 10000 // Reduced to 10s for loading timeout
-         repeat: false
-         onTriggered: {
-             if (root.isLoading) {
-                 console.warn("Loading timed out")
-                 root.isLoading = false
-             }
-             root.requestPreventClosing(false)
-         }
+        id: authSafetyTimer
+        interval: 10000 // Reduced to 10s for loading timeout
+        repeat: false
+        onTriggered: {
+            if (root.isLoading) {
+                console.warn("Loading timed out");
+                root.isLoading = false;
+            }
+            root.requestPreventClosing(false);
+        }
     }
 
     function loadEntries() {
-        var cached
+        var cached;
         if (root.plasmoidConfig) {
-             cached = root.plasmoidConfig.cachedBootEntries
+            cached = root.plasmoidConfig.cachedBootEntries;
         } else {
-             // Fallback
-             try { cached = Plasmoid.configuration.cachedBootEntries } catch(e) {}
+            // Fallback
+            try {
+                cached = Plasmoid.configuration.cachedBootEntries;
+            } catch (e) {}
         }
 
         if (cached && cached.length > 0) {
             try {
                 // Loading from config cache
-                var rawCached = JSON.parse(cached)
-                root.processEntries(rawCached)
-                return
-            } catch(e) {
-                console.error("[PowerView] Cache corrupt")
+                var rawCached = JSON.parse(cached);
+                root.processEntries(rawCached);
+                return;
+            } catch (e) {
+                console.error("[PowerView] Cache corrupt");
             }
         }
         // Without a cache, scanning explicitly starts the authenticated load.
-        root.isLoading = false
+        root.isLoading = false;
     }
 
     function loadEntriesWithAuth() {
-        root.isLoading = true
-        root.requestPreventClosing(true)
-        authSafetyTimer.start()
+        root.isLoading = true;
+        root.requestPreventClosing(true);
+        authSafetyTimer.start();
         // Reset buffer
-        root.cmdDataBuffer = {}
-        execSource.connectSource("pkexec bootctl list --json=short")
+        root.cmdDataBuffer = {};
+        execSource.connectSource("pkexec bootctl list --json=short");
     }
 
     // Auto-load if visible and empty (fail-safe)
     onVisibleChanged: {
         if (visible && root.bootEntries.length === 0) {
-            loadEntries()
+            loadEntries();
         }
     }
 
     function processEntries(entries) {
         // Customize text for BIOS/Firmware and assign icons
         for (var k = 0; k < entries.length; k++) {
-            var t = (entries[k].title || "").toLowerCase()
-            var i = (entries[k].id || "").toLowerCase()
+            var t = (entries[k].title || "").toLowerCase();
+            var i = (entries[k].id || "").toLowerCase();
 
-            if (entries[k].id === "auto-reboot-to-firmware-setup" ||
-                entries[k].title === "Reboot Into Firmware Interface" ||
-                t === "reboot into firmware interface") {
-                entries[k].title = "BIOS"
-                entries[k].iconName = "application-x-firmware"
+            if (entries[k].id === "auto-reboot-to-firmware-setup" || entries[k].title === "Reboot Into Firmware Interface" || t === "reboot into firmware interface") {
+                entries[k].title = "BIOS";
+                entries[k].iconName = "application-x-firmware";
             } else {
-                if (t.includes("limine") || i.includes("limine")) entries[k].iconName = "org.xfce.terminal-settings"
-                else if (t.includes("arch") || i.includes("arch")) entries[k].iconName = "distributor-logo-archlinux"
-                else if (t.includes("manjaro")) entries[k].iconName = "distributor-logo-manjaro"
-                else if (t.includes("endeavour")) entries[k].iconName = "distributor-logo-endeavouros"
-                else if (t.includes("garuda")) entries[k].iconName = "distributor-logo-garuda"
-                else if (t.includes("cachyos")) entries[k].iconName = "distributor-logo-cachyos"
-                else if (t.includes("gentoo")) entries[k].iconName = "distributor-logo-gentoo"
-                else if (t.includes("windows") || i.includes("windows")) entries[k].iconName = "distributor-logo-windows"
-                else if (t.includes("kubuntu")) entries[k].iconName = "distributor-logo-kubuntu"
-                else if (t.includes("xubuntu")) entries[k].iconName = "distributor-logo-xubuntu"
-                else if (t.includes("lubuntu")) entries[k].iconName = "distributor-logo-lubuntu"
-                else if (t.includes("neon")) entries[k].iconName = "distributor-logo-neon"
-                else if (t.includes("ubuntu")) entries[k].iconName = "distributor-logo-ubuntu"
-                else if (t.includes("fedora")) entries[k].iconName = "distributor-logo-fedora"
-                else if (t.includes("opensuse") || t.includes("suse")) entries[k].iconName = "distributor-logo-opensuse"
-                else if (t.includes("debian")) entries[k].iconName = "distributor-logo-debian"
-                else if (t.includes("kali")) entries[k].iconName = "distributor-logo-kali"
-                else if (t.includes("mint")) entries[k].iconName = "distributor-logo-linuxmint"
-                else if (t.includes("elementary")) entries[k].iconName = "distributor-logo-elementary"
-                else if (t.includes("pop") && t.includes("os")) entries[k].iconName = "distributor-logo-pop-os"
-                else if (t.includes("centos")) entries[k].iconName = "distributor-logo-centos"
-                else if (t.includes("alma")) entries[k].iconName = "distributor-logo-almalinux"
-                else if (t.includes("rocky")) entries[k].iconName = "distributor-logo-rocky"
-                else if (t.includes("rhel") || t.includes("redhat")) entries[k].iconName = "distributor-logo-redhat"
-                else if (t.includes("nixos")) entries[k].iconName = "distributor-logo-nixos"
-                else if (t.includes("void")) entries[k].iconName = "distributor-logo-void"
-                else if (t.includes("mageia")) entries[k].iconName = "distributor-logo-mageia"
-                else if (t.includes("zorin")) entries[k].iconName = "distributor-logo-zorin"
-                else if (t.includes("freebsd")) entries[k].iconName = "distributor-logo-freebsd"
-                else if (t.includes("android")) entries[k].iconName = "distributor-logo-android"
-                else if (t.includes("qubes")) entries[k].iconName = "distributor-logo-qubes"
-                else if (t.includes("slackware")) entries[k].iconName = "distributor-logo-slackware"
-                else entries[k].iconName = "system-run"
+                if (t.includes("limine") || i.includes("limine"))
+                    entries[k].iconName = "org.xfce.terminal-settings";
+                else if (t.includes("arch") || i.includes("arch"))
+                    entries[k].iconName = "distributor-logo-archlinux";
+                else if (t.includes("manjaro"))
+                    entries[k].iconName = "distributor-logo-manjaro";
+                else if (t.includes("endeavour"))
+                    entries[k].iconName = "distributor-logo-endeavouros";
+                else if (t.includes("garuda"))
+                    entries[k].iconName = "distributor-logo-garuda";
+                else if (t.includes("cachyos"))
+                    entries[k].iconName = "distributor-logo-cachyos";
+                else if (t.includes("gentoo"))
+                    entries[k].iconName = "distributor-logo-gentoo";
+                else if (t.includes("windows") || i.includes("windows"))
+                    entries[k].iconName = "distributor-logo-windows";
+                else if (t.includes("kubuntu"))
+                    entries[k].iconName = "distributor-logo-kubuntu";
+                else if (t.includes("xubuntu"))
+                    entries[k].iconName = "distributor-logo-xubuntu";
+                else if (t.includes("lubuntu"))
+                    entries[k].iconName = "distributor-logo-lubuntu";
+                else if (t.includes("neon"))
+                    entries[k].iconName = "distributor-logo-neon";
+                else if (t.includes("ubuntu"))
+                    entries[k].iconName = "distributor-logo-ubuntu";
+                else if (t.includes("fedora"))
+                    entries[k].iconName = "distributor-logo-fedora";
+                else if (t.includes("opensuse") || t.includes("suse"))
+                    entries[k].iconName = "distributor-logo-opensuse";
+                else if (t.includes("debian"))
+                    entries[k].iconName = "distributor-logo-debian";
+                else if (t.includes("kali"))
+                    entries[k].iconName = "distributor-logo-kali";
+                else if (t.includes("mint"))
+                    entries[k].iconName = "distributor-logo-linuxmint";
+                else if (t.includes("elementary"))
+                    entries[k].iconName = "distributor-logo-elementary";
+                else if (t.includes("pop") && t.includes("os"))
+                    entries[k].iconName = "distributor-logo-pop-os";
+                else if (t.includes("centos"))
+                    entries[k].iconName = "distributor-logo-centos";
+                else if (t.includes("alma"))
+                    entries[k].iconName = "distributor-logo-almalinux";
+                else if (t.includes("rocky"))
+                    entries[k].iconName = "distributor-logo-rocky";
+                else if (t.includes("rhel") || t.includes("redhat"))
+                    entries[k].iconName = "distributor-logo-redhat";
+                else if (t.includes("nixos"))
+                    entries[k].iconName = "distributor-logo-nixos";
+                else if (t.includes("void"))
+                    entries[k].iconName = "distributor-logo-void";
+                else if (t.includes("mageia"))
+                    entries[k].iconName = "distributor-logo-mageia";
+                else if (t.includes("zorin"))
+                    entries[k].iconName = "distributor-logo-zorin";
+                else if (t.includes("freebsd"))
+                    entries[k].iconName = "distributor-logo-freebsd";
+                else if (t.includes("android"))
+                    entries[k].iconName = "distributor-logo-android";
+                else if (t.includes("qubes"))
+                    entries[k].iconName = "distributor-logo-qubes";
+                else if (t.includes("slackware"))
+                    entries[k].iconName = "distributor-logo-slackware";
+                else
+                    entries[k].iconName = "system-run";
             }
         }
-        root.bootEntries = entries
+        root.bootEntries = entries;
     }
 
     function checkHibernate() {
-        execSource.connectSource("qdbus org.freedesktop.login1 /org/freedesktop/login1 org.freedesktop.login1.Manager.CanHibernate")
+        execSource.connectSource("qdbus org.freedesktop.login1 /org/freedesktop/login1 org.freedesktop.login1.Manager.CanHibernate");
     }
 
     Component.onCompleted: {
-        loadEntries()
-        checkHibernate()
+        loadEntries();
+        checkHibernate();
     }
 
     Component.onDestruction: {
-        root.requestPreventClosing(false)
+        root.requestPreventClosing(false);
     }
 
     function executeCommand(cmd) {
-        execSource.connectSource(cmd)
+        execSource.connectSource(cmd);
     }
 
     // Shell escape helper for safe command construction
     function shellEscape(str) {
-        if (str === undefined || str === null) return "''"
-        return "'" + str.toString().replace(/'/g, "'\\''") + "'"
+        if (str === undefined || str === null)
+            return "''";
+        return "'" + str.toString().replace(/'/g, "'\\''") + "'";
     }
 
     function rebootToEntry(id) {
-        var cmd = ""
+        var cmd = "";
         if (id === "auto-reboot-to-firmware-setup") {
-            cmd = "systemctl reboot --firmware-setup"
+            cmd = "systemctl reboot --firmware-setup";
         } else {
-            cmd = "systemctl reboot --boot-loader-entry=" + shellEscape(id)
+            cmd = "systemctl reboot --boot-loader-entry=" + shellEscape(id);
         }
-        executeCommand(cmd)
+        executeCommand(cmd);
     }
 
     // ScrollView to allow scrolling if content overflows
@@ -273,9 +310,9 @@ Item {
                         // Trust the user setting provided in config
                         if (root.showBootOptions) {
                             if (root.bootEntries.length === 0) {
-                                root.loadEntries()
+                                root.loadEntries();
                             }
-                            root.bootEntriesVisible = !root.bootEntriesVisible
+                            root.bootEntriesVisible = !root.bootEntriesVisible;
                         }
                     }
 
@@ -305,13 +342,22 @@ Item {
                 // Show requested boot options or the initial scan action.
                 property bool shouldShow: root.bootEntriesVisible || root.bootEntries.length === 0
                 implicitHeight: shouldShow ? (Math.max(bootFlow.implicitHeight, 40) + 20) : 0
-                Behavior on implicitHeight { NumberAnimation { duration: 200; easing.type: Easing.OutQuad } }
+                Behavior on implicitHeight {
+                    NumberAnimation {
+                        duration: 200
+                        easing.type: Easing.OutQuad
+                    }
+                }
 
                 clip: true
 
                 // Opacity animation as well for smoother look
                 opacity: shouldShow ? 1 : 0
-                Behavior on opacity { NumberAnimation { duration: 200 } }
+                Behavior on opacity {
+                    NumberAnimation {
+                        duration: 200
+                    }
+                }
 
                 Rectangle {
                     anchors.fill: parent
@@ -411,8 +457,8 @@ Item {
                             hoverEnabled: true
                             cursorShape: Qt.PointingHandCursor
                             onClicked: {
-                                root.bootEntries = []
-                                root.loadEntriesWithAuth()
+                                root.bootEntries = [];
+                                root.loadEntriesWithAuth();
                             }
                         }
 
@@ -449,19 +495,19 @@ Item {
                         radius: 4
 
                         RowLayout {
-                             anchors.centerIn: parent
-                             spacing: 8
-                             Kirigami.Icon {
-                                 source: "system-search"
-                                 Layout.preferredWidth: 16
-                                 Layout.preferredHeight: 16
-                                 color: root.textColor
-                             }
-                             Text {
+                            anchors.centerIn: parent
+                            spacing: 8
+                            Kirigami.Icon {
+                                source: "system-search"
+                                Layout.preferredWidth: 16
+                                Layout.preferredHeight: 16
+                                color: root.textColor
+                            }
+                            Text {
                                 text: i18nd("plasma_applet_com.mcc45tr.filesearch", "Scan for boot entries")
                                 color: root.textColor
                                 font.bold: true
-                             }
+                            }
                         }
 
                         MouseArea {
@@ -530,7 +576,7 @@ Item {
     }
 
     // --- INNER COMPONENT: POWER BUTTON ---
-    component PowerButton : Rectangle {
+    component PowerButton: Rectangle {
         id: btn
 
         property string text
@@ -540,8 +586,8 @@ Item {
         property string confirmMessage: i18nd("plasma_applet_com.mcc45tr.filesearch", "(Press again)")
         property bool pendingConfirmation: false
 
-        signal triggered()
-        signal singleClicked()
+        signal triggered
+        signal singleClicked
 
         radius: 12
 
@@ -557,16 +603,20 @@ Item {
         // Color Logic with Animation
         property color targetColor: {
             if (btn.pendingConfirmation) {
-                return Qt.rgba(btn.confirmColor.r, btn.confirmColor.g, btn.confirmColor.b, 0.5)
+                return Qt.rgba(btn.confirmColor.r, btn.confirmColor.g, btn.confirmColor.b, 0.5);
             }
             if (btnMouse.containsMouse) {
-                return Qt.rgba(root.textColor.r, root.textColor.g, root.textColor.b, 0.1)
+                return Qt.rgba(root.textColor.r, root.textColor.g, root.textColor.b, 0.1);
             }
-            return Qt.rgba(root.textColor.r, root.textColor.g, root.textColor.b, 0.05)
+            return Qt.rgba(root.textColor.r, root.textColor.g, root.textColor.b, 0.05);
         }
 
         color: targetColor
-        Behavior on color { ColorAnimation { duration: 200 } }
+        Behavior on color {
+            ColorAnimation {
+                duration: 200
+            }
+        }
 
         ColumnLayout {
             anchors.centerIn: parent
@@ -596,7 +646,11 @@ Item {
             Text {
                 visible: btn.pendingConfirmation
                 opacity: visible ? 1.0 : 0.0
-                Behavior on opacity { NumberAnimation { duration: 200 } }
+                Behavior on opacity {
+                    NumberAnimation {
+                        duration: 200
+                    }
+                }
                 text: btn.confirmMessage
                 font.family: Kirigami.Theme.smallFont.family
                 font.pixelSize: Kirigami.Theme.smallFont.pixelSize
@@ -617,15 +671,15 @@ Item {
             onClicked: {
                 if (btn.doubleClickRequired) {
                     if (btn.pendingConfirmation) {
-                        btn.triggered()
-                        btn.pendingConfirmation = false
+                        btn.triggered();
+                        btn.pendingConfirmation = false;
                     } else {
-                        btn.pendingConfirmation = true
-                        btn.singleClicked()
-                        resetTimer.restart()
+                        btn.pendingConfirmation = true;
+                        btn.singleClicked();
+                        resetTimer.restart();
                     }
                 } else {
-                    btn.triggered()
+                    btn.triggered();
                 }
             }
         }

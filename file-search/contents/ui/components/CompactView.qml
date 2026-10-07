@@ -35,16 +35,10 @@ Item {
 
     readonly property bool isMediumMode: !isButtonMode && !isWideMode && !isExtraWideMode && !isUltraWideMode
 
-    readonly property bool showMediumModeWeatherTicker: compactRoot.isMediumMode &&
-        compactRoot.logic &&
-        compactRoot.logic.plasmoidConfig &&
-        compactRoot.logic.plasmoidConfig.weatherEnabled &&
-        compactRoot.logic.plasmoidConfig.weatherPlaceholderCycling &&
-        compactRoot.logic.weatherCacheLoaded &&
-        compactRoot.logic.weatherCache !== ""
+    readonly property bool showMediumModeWeatherTicker: compactRoot.isMediumMode && compactRoot.logic && compactRoot.logic.plasmoidConfig && compactRoot.logic.plasmoidConfig.weatherEnabled && compactRoot.logic.plasmoidConfig.weatherPlaceholderCycling && compactRoot.logic.weatherCacheLoaded && compactRoot.logic.weatherCache !== ""
 
     // Signals
-    signal toggleExpanded()
+    signal toggleExpanded
 
     // Button Mode - icon only (no background)
     Kirigami.Icon {
@@ -67,8 +61,6 @@ Item {
             onClicked: compactRoot.toggleExpanded()
         }
     }
-
-
 
     // Main Button Container (for non-button modes)
     Rectangle {
@@ -148,7 +140,11 @@ Item {
                 color: compactRoot.showSearchButtonBackground ? compactRoot.accentColor : "transparent"
                 visible: (compactRoot.isWideMode || compactRoot.isExtraWideMode || compactRoot.isUltraWideMode) && compactRoot.showSearchButton
 
-                Behavior on Layout.preferredWidth { NumberAnimation { duration: 200 } }
+                Behavior on Layout.preferredWidth {
+                    NumberAnimation {
+                        duration: 200
+                    }
+                }
 
                 Kirigami.Icon {
                     anchors.centerIn: parent
@@ -170,5 +166,4 @@ Item {
             onClicked: compactRoot.toggleExpanded()
         }
     }
-
 }

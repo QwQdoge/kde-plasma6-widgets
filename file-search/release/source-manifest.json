@@ -3,8 +3,8 @@
     {
       "mode": "0644",
       "path": "contents/config/config.qml",
-      "sha256": "461b64293c7dc468da38c30ed18a585753244d7b953405d1347bd50d4c6ac9b3",
-      "size": 1078
+      "sha256": "740a1374345cf9c6f9c1c7d2babc7f9e65df87f55f390f7d551d56efad1cebc9",
+      "size": 1077
     },
     {
       "mode": "0644",
@@ -1113,7 +1113,7 @@
     {
       "mode": "0644",
       "path": "contents/ui/components/ButtonModeSearchInput.qml",
-      "sha256": "e51c51fb65adc17c6ef2689aeef3f1ac084cd714a03d2013b0a0a0d6b160c674",
+      "sha256": "7b4e97008fe896fd468dc29be8fc79438bdf79de34b0c48c4d82c6c2f49e5e58",
       "size": 4309
     },
     {
@@ -1125,182 +1125,182 @@
     {
       "mode": "0644",
       "path": "contents/ui/components/CategoryHeader.qml",
-      "sha256": "11a65d6883e6333e6dedf45d80186053629ebeaf683339ef353c04248a98b70d",
-      "size": 3040
+      "sha256": "f41be258d8c5b96ef9a3fed0f977e5d4d8634a2724d90a97d9cdb3c413eefe82",
+      "size": 3020
     },
     {
       "mode": "0644",
       "path": "contents/ui/components/CompactView.qml",
-      "sha256": "fd5469c169f580d2273b730d70528bfad4340cd36fb96c72d3bf1b59e4688381",
-      "size": 7877
+      "sha256": "3b0535111366a0eb6568bcfeaae3b50a0a31fdd88b5ffd92b510d4461d8a0c23",
+      "size": 7904
     },
     {
       "mode": "0644",
       "path": "contents/ui/components/DailyForecastView.qml",
-      "sha256": "d6388b12cdc9da523e54dd4e592dbcb3f119c3a89e33ad6a075a3ad6f9ac8d28",
-      "size": 3567
+      "sha256": "30336b344327315eb58a1cf2bcd6d075e9a19bca4e4fc638fa362cf7e5035a11",
+      "size": 3604
     },
     {
       "mode": "0644",
       "path": "contents/ui/components/DateView.qml",
-      "sha256": "fbbd095775cde77bf368d22a180119d77d0d1b5f343334cd61df5d41bbcf5ad2",
-      "size": 7244
+      "sha256": "8ee13a63665d940007c97b2540bc0a81d01bcf1c8a1cd2f38c4e96021879b3ea",
+      "size": 7283
     },
     {
       "mode": "0644",
       "path": "contents/ui/components/DebugOverlay.qml",
-      "sha256": "fbb9a52b10137593ad604d08e42e983f6a5a51019bb4dc627df3132f5dc2e6de",
-      "size": 8342
+      "sha256": "4e4997525b698e767499f24d2e24075dac96a52f09ca300339bd1d3b77e38d6d",
+      "size": 9812
     },
     {
       "mode": "0644",
       "path": "contents/ui/components/FilterChips.qml",
-      "sha256": "b3ec8dc6dd64764fcbae7a3a533c41d02ee20c43d64a25710fd9eff68547b0ca",
-      "size": 3822
+      "sha256": "9d02e91e872633b07ef23f83ac3d482d21430af074210ec537c94ba93845ab79",
+      "size": 3828
     },
     {
       "mode": "0644",
       "path": "contents/ui/components/ForecastDetailsView.qml",
-      "sha256": "3730071f0502bb104eb7a4e07fa7f3ec46b344f25530debdc0a242d7f3561446",
-      "size": 16766
+      "sha256": "21f4d8dadc90aa851984282173691ce935bea0dd8da81d0a585a2f466ac8a417",
+      "size": 18778
     },
     {
       "mode": "0644",
       "path": "contents/ui/components/ForecastItem.qml",
-      "sha256": "5be17e48bf89bc4995ad97c8087aab9f7780b8d1c27fdd7f7120c16ba7739a52",
-      "size": 6086
+      "sha256": "95c6b5e937659364a3ed0e2bcde322704f88e2e60fc7f99fdc72b9351dc504e2",
+      "size": 6159
     },
     {
       "mode": "0644",
       "path": "contents/ui/components/HelpView.qml",
-      "sha256": "cdd6b503a875dc06f246bc9513fa2dea499f8fc93faf4d59a511c831bce1a7fa",
-      "size": 8329
+      "sha256": "59bb2bafbd5a5cdb4fd43a67e16ef22813c1b1f2241821a4946ff7328c895bd3",
+      "size": 9948
     },
     {
       "mode": "0644",
       "path": "contents/ui/components/HiddenSearchInput.qml",
-      "sha256": "b0d5b2f48f278421f9835798f369bc924cbadac3bc310864e40cab31032ce3bb",
-      "size": 2171
+      "sha256": "e8dcadb95a20f1a229a587ea2d84e1bc2e7411ecfaa21998ace04613072c5ab1",
+      "size": 2172
     },
     {
       "mode": "0644",
       "path": "contents/ui/components/HistoryContextMenu.qml",
-      "sha256": "09e960d5032ffcc837ffd3b84b40b1b8f62bd3529ec5dac7da9fc4643896d959",
-      "size": 5922
+      "sha256": "2264b81cd70fbc6f92abba6b8e5ec35d463a9ba007c6f5e77e55580fc37624a7",
+      "size": 6065
     },
     {
       "mode": "0644",
       "path": "contents/ui/components/HistoryListView.qml",
-      "sha256": "62d1204119d3cc59d348916e2d2bab7abb06254a99d4a26227b40a63c3f05932",
-      "size": 31041
+      "sha256": "c7745c590512f4646701b3942fc8ff8d110a2bb92399430c30e1077b2de7b910",
+      "size": 34398
     },
     {
       "mode": "0644",
       "path": "contents/ui/components/HistoryTileView.qml",
-      "sha256": "aa6f87e19287eed354cec0e9abd0bcec267f5004abcaefd9a38387d74b944e03",
-      "size": 43551
+      "sha256": "6994d0f7f0bacea501ef418dec981bd743e215f3bc0afee959cef47a17cc3800",
+      "size": 48071
     },
     {
       "mode": "0644",
       "path": "contents/ui/components/KWalletStore.qml",
-      "sha256": "8349e29642b307a98d08bd13820692953e8bf2728ec100acb34e9020cb092c51",
-      "size": 4643
+      "sha256": "7acdb80ded73d8c42dc0d57b19b2748a7401e86bebd13e0381203de6d38a053f",
+      "size": 4879
     },
     {
       "mode": "0644",
       "path": "contents/ui/components/LargeModeLayout.qml",
-      "sha256": "0cf2fbd050850fb54bf7990fb173f84f15f01659c0b8ad059c86f58c903fc170",
-      "size": 16269
+      "sha256": "a0c1143c6c9261b4273e6367e6dfac851649de08aabb811a9d2fe79e59d126cf",
+      "size": 17896
     },
     {
       "mode": "0644",
       "path": "contents/ui/components/LogicController.qml",
-      "sha256": "0c1bd3a194dd5957fcc17cc16d465b2cdaf114bd888a50e2058e7735309024f2",
-      "size": 38980
+      "sha256": "79f0b6e5f82cb79a92d366d0185deeef5ffd20c12ff6d047f1b074a778cbd8ef",
+      "size": 38669
     },
     {
       "mode": "0644",
       "path": "contents/ui/components/NotificationManager.qml",
-      "sha256": "697eea3b696915ab3bb8c86d416c8115d0654f0238c10893d953b0a2859378d8",
-      "size": 22534
+      "sha256": "a4fd842be223f4a93e0b8ec6df97fb30b47a96b0860f7e7f545fea8075dec2fb",
+      "size": 23039
     },
     {
       "mode": "0644",
       "path": "contents/ui/components/PinButton.qml",
-      "sha256": "50cc65c9565024cef5cdc6ea32816901622d22010fde41a2c0547606fac7acf6",
-      "size": 2031
+      "sha256": "35e0522a7c9ebc8553a658f9627b08b93bf3714c0acaf83888afa648f2ebc641",
+      "size": 2107
     },
     {
       "mode": "0644",
       "path": "contents/ui/components/PinnedSection.qml",
-      "sha256": "6bd6042fee16ee16f3a2584615cec61f525d752ad5805e3135822beae638ddfd",
-      "size": 22314
+      "sha256": "84af7411831bcc413040e9fb9adb5e4da870a2b4858768ef749de02fea1dee2d",
+      "size": 21608
     },
     {
       "mode": "0644",
       "path": "contents/ui/components/PowerView.qml",
-      "sha256": "a6f89d737ea65bdad2a21187d4094d38b28999bb940cc44eca716f44a2783458",
-      "size": 27560
+      "sha256": "8517eccf345485a5b305d4a11ca12c7d21e8773d71bd0b025ace813be3b1a42d",
+      "size": 28683
     },
     {
       "mode": "0644",
       "path": "contents/ui/components/PrimaryResultPreview.qml",
-      "sha256": "2805b6c3e6e4759fb8269fa216ce74461e8227157a8cc3de8ba4ac8a1c3c65de",
-      "size": 6254
+      "sha256": "2da8fee342ebae9c248b42106d585887b461583405c499bc70a615e2dbaa27ad",
+      "size": 6225
     },
     {
       "mode": "0644",
       "path": "contents/ui/components/QueryHints.qml",
-      "sha256": "f6477ba89cf109b8e4d289143dcc2fb801c4ea1b9104fa38a38819095ef35dac",
-      "size": 25663
+      "sha256": "82d0379fa9a27b809872f313513d7ee407d35f831e240aac050297f478348f86",
+      "size": 28242
     },
     {
       "mode": "0644",
       "path": "contents/ui/components/ResultsListView.qml",
-      "sha256": "439530a049aed6c4e338cdf5ea0eefa612f28951bbc711d8d8719b1a35db424a",
-      "size": 39561
+      "sha256": "49591aab4b2af0d80e68d27e31925466af97c50e26dee2328d819d0d60565e42",
+      "size": 39581
     },
     {
       "mode": "0644",
       "path": "contents/ui/components/ResultsTileView.qml",
-      "sha256": "dd591437ebd6f0ffbff9a14004f3c4dad144118677ca095e9aa58faf6555392f",
-      "size": 66944
+      "sha256": "c1fb050ad9bded83972c2d6e2f654bda0ed23e15da9e9fc8f2775a75969af711",
+      "size": 67593
     },
     {
       "mode": "0644",
       "path": "contents/ui/components/RssTicker.qml",
-      "sha256": "15c0127adccc9e23e59dad2f54780b05ffc3349f66331c185116b1536d5ba88c",
-      "size": 31362
+      "sha256": "0293de9ff199b02ca1b88e5e574aa91373ebe1e33b3dfae7a5c7a31c81a3845f",
+      "size": 33404
     },
     {
       "mode": "0644",
       "path": "contents/ui/components/SearchBar.qml",
-      "sha256": "9bae11ce8abfa112c48b003d625d0e2ed10ece4f927f636221266d4a13b7796a",
-      "size": 4050
+      "sha256": "d0e861c275f8dc695d364425c8237a46eb3cae8efa05fcf1d85a49892e892fec",
+      "size": 4097
     },
     {
       "mode": "0644",
       "path": "contents/ui/components/SearchPopup.qml",
-      "sha256": "ecd90060b6c4e134c6e7f99cd496040db5eba67ca212ec4487126e8d132dceec",
-      "size": 51085
+      "sha256": "d0067493de31c924fb570cff4c27e7e114200ae1e3b28f3e6b44250e7a1c396c",
+      "size": 52017
     },
     {
       "mode": "0644",
       "path": "contents/ui/components/SmallModeLayout.qml",
-      "sha256": "568a1e3db316a527cd8d0705af1b9d6f967c6ad1b525cedee261157f4118e801",
-      "size": 7030
+      "sha256": "687817a9a6bf9079b0e95706399ad69c32a8673533440d67a02c3cb7b999cea9",
+      "size": 7495
     },
     {
       "mode": "0644",
       "path": "contents/ui/components/TileDataManager.qml",
-      "sha256": "3d01c56349e967a9b7ac6503b67a71b054f6ef4bc50ad2c36fc964bdf01b934b",
-      "size": 20012
+      "sha256": "588f86c0b77fcba7bb22088dee94196ab24ad4706c3eb12b3585854180403e04",
+      "size": 19419
     },
     {
       "mode": "0644",
       "path": "contents/ui/components/WeatherDetailsView.qml",
-      "sha256": "42963548a0a3cc232d7d3df5481d4fdbfda1f9ec7f77211612ddb24d50098739",
-      "size": 19431
+      "sha256": "7467af0252477a60e04df665b45c7b75e9487aed0cbd4f3141ca7e148fc999c6",
+      "size": 21771
     },
     {
       "mode": "0644",
@@ -1317,38 +1317,38 @@
     {
       "mode": "0644",
       "path": "contents/ui/components/WeatherView.qml",
-      "sha256": "577fe2583298a25ad8d3028c7c242f43243caad6a9a7efe9a90035bb98f0dbdf",
-      "size": 16526
+      "sha256": "b85f925d23d9f4f5333e8fc5af0d42ba0f394bd2f6ca4c5da89ea098d727fec4",
+      "size": 17323
     },
     {
       "mode": "0644",
       "path": "contents/ui/components/WideModeLayout.qml",
-      "sha256": "6442ce9a3ab330a3d5cb83ad64cd5c14173178d6132f6b3051e7f9537c34b5ac",
-      "size": 15330
+      "sha256": "c4873367fb976d4bde529fb17e291f60abc0a6fcdf8bb4ec1982234ceecbac3d",
+      "size": 16826
     },
     {
       "mode": "0644",
       "path": "contents/ui/config/ConfigCategories.qml",
-      "sha256": "8ee2a0f4ae28ecd72a9440804ddfe7ad34ddfd86d6f82cc2d94061951bd90569",
-      "size": 23679
+      "sha256": "7d97c15a3abbead06e6a5bba96f6749e27b13402c25811772225943c54c019fc",
+      "size": 23151
     },
     {
       "mode": "0644",
       "path": "contents/ui/config/ConfigDebug.qml",
-      "sha256": "f8f468852c075cee928dc69d6acd58965d833fd64e755d6b1d51f715911b413a",
-      "size": 16738
+      "sha256": "1457c541b1099d1b49aa5eafa8e77998a1592e2c12602183b7c2444c036c6e34",
+      "size": 17164
     },
     {
       "mode": "0644",
       "path": "contents/ui/config/ConfigGeneral.qml",
-      "sha256": "f2e948c6c873d544d5fc97e6362460469af147c368fe515d9f892540f3145615",
-      "size": 79578
+      "sha256": "a0ed4090bcc2f6fe90197a72a5ce28d5c9d510ca983ba5ac5f38348ee0d2a3bb",
+      "size": 78309
     },
     {
       "mode": "0644",
       "path": "contents/ui/config/ConfigHelp.qml",
-      "sha256": "a0553b7f72d0f3ba57ca0e0e84106d1207b79086fed82172693e9d355f2be3d9",
-      "size": 10119
+      "sha256": "6857948d8bfb55972701e794e8481d1555becf73be55c525fe745d1fcf415719",
+      "size": 10039
     },
     {
       "mode": "0644",
@@ -1377,8 +1377,8 @@
     {
       "mode": "0644",
       "path": "contents/ui/config/ConfigRSS.qml",
-      "sha256": "f326735bf8a7e384ec056be55f3c9768afecf37242bf9e4c1f999391ac927083",
-      "size": 50730
+      "sha256": "ea0f35ed52ebee101d657dba96266a9b51374a243054fe744b45c94ab63b2434",
+      "size": 59491
     },
     {
       "mode": "0644",
@@ -1455,8 +1455,8 @@
     {
       "mode": "0644",
       "path": "contents/ui/main.qml",
-      "sha256": "a4cf7dd7d24729c9c2435ccec8ec8215c671971d9a907c1c6e0b49c5f7b8249b",
-      "size": 11817
+      "sha256": "cf9de23a4f88ffaf2089e79266da939166818c4eb6647cf0e28cf480cb0821a4",
+      "size": 11706
     },
     {
       "mode": "0644",

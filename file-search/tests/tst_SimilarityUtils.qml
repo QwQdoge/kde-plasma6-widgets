@@ -16,11 +16,20 @@ TestCase {
 
     function test_priorityThenSimilarityThenStableOrder() {
         var items = [
-            { display: "Dolphin", category: "Apps" },
-            { display: "Konsole", category: "Apps" },
-            { display: "Konsole Manual", category: "Docs" }
+            {
+                display: "Dolphin",
+                category: "Apps"
+            },
+            {
+                display: "Konsole",
+                category: "Apps"
+            },
+            {
+                display: "Konsole Manual",
+                category: "Docs"
+            }
         ];
-        var sorted = SimilarityUtils.sortByPriorityAndSimilarity(items, "kon", {}, function(_, category) {
+        var sorted = SimilarityUtils.sortByPriorityAndSimilarity(items, "kon", {}, function (_, category) {
             return category === "Docs" ? 0 : 1;
         }, 0, false, {});
 
@@ -31,13 +40,25 @@ TestCase {
 
     function test_smartLimitKeepsMinimumZeroScoreItems() {
         var items = [
-            { display: "Konsole", category: "Apps" },
-            { display: "Dolphin", category: "Apps" },
-            { display: "Kate", category: "Apps" }
+            {
+                display: "Konsole",
+                category: "Apps"
+            },
+            {
+                display: "Dolphin",
+                category: "Apps"
+            },
+            {
+                display: "Kate",
+                category: "Apps"
+            }
         ];
-        var sorted = SimilarityUtils.sortByPriorityAndSimilarity(items, "kon", {}, function() {
+        var sorted = SimilarityUtils.sortByPriorityAndSimilarity(items, "kon", {}, function () {
             return 0;
-        }, 0, false, { minResults: 2, smartResultLimit: true });
+        }, 0, false, {
+            minResults: 2,
+            smartResultLimit: true
+        });
 
         compare(sorted.length, 2);
         compare(sorted[0].display, "Konsole");

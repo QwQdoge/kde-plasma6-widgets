@@ -16,14 +16,14 @@ Item {
     property var currentWeather: null
 
     onQueryCityChanged: {
-        invalidateActiveRequest()
+        invalidateActiveRequest();
         if (queryCity !== "") {
-            isLoading = true
-            errorMessage = ""
-            queryDebounce.restart()
+            isLoading = true;
+            errorMessage = "";
+            queryDebounce.restart();
         } else {
-            queryDebounce.stop()
-            loadCachedWeatherOrFetch()
+            queryDebounce.stop();
+            loadCachedWeatherOrFetch();
         }
     }
     property var forecastDaily: []
@@ -47,38 +47,45 @@ Item {
         onTriggered: weatherView.fetchWeatherData()
     }
 
-    KWalletStore { id: secretStore }
+    KWalletStore {
+        id: secretStore
+    }
 
     function readSecret(entry, callback) {
-        secretStore.read(entry, callback)
+        secretStore.read(entry, callback);
     }
 
     function loadWeatherSecrets(callback) {
         if (secretsLoaded) {
-            callback()
-            return
+            callback();
+            return;
         }
-        secretWaiters.push(callback)
-        if (secretsLoading) return
-        secretsLoading = true
-        var remaining = 2
+        secretWaiters.push(callback);
+        if (secretsLoading)
+            return;
+        secretsLoading = true;
+        var remaining = 2;
         function completed() {
-            remaining--
-            if (remaining > 0) return
-            secretsLoaded = true
-            secretsLoading = false
-            var waiters = secretWaiters.slice()
-            secretWaiters = []
-            for (var i = 0; i < waiters.length; i++) waiters[i]()
+            remaining--;
+            if (remaining > 0)
+                return;
+            secretsLoaded = true;
+            secretsLoading = false;
+            var waiters = secretWaiters.slice();
+            secretWaiters = [];
+            for (var i = 0; i < waiters.length; i++)
+                waiters[i]();
         }
-        readSecret("weatherApiKey", function(ok, value) {
-            if (ok) secureApiKey = value
-            completed()
-        })
-        readSecret("weatherApiKey2", function(ok, value) {
-            if (ok) secureApiKey2 = value
-            completed()
-        })
+        readSecret("weatherApiKey", function (ok, value) {
+            if (ok)
+                secureApiKey = value;
+            completed();
+        });
+        readSecret("weatherApiKey2", function (ok, value) {
+            if (ok)
+                secureApiKey2 = value;
+            completed();
+        });
     }
 
     // UI Layout Properties expected by mweather sub-components
@@ -96,7 +103,8 @@ Item {
     readonly property string weatherProvider: plasmoidConfig ? (plasmoidConfig.weatherProvider || "openmeteo") : "openmeteo"
     readonly property string iconPack: plasmoidConfig ? (plasmoidConfig.weatherIconPack || "default") : "default"
     readonly property string units: {
-        if (!plasmoidConfig) return "metric";
+        if (!plasmoidConfig)
+            return "metric";
         if (plasmoidConfig.weatherUseSystemUnits) {
             return Qt.locale().measurementSystem === Locale.MetricSystem ? "metric" : "imperial";
         }
@@ -111,107 +119,109 @@ Item {
     // Auto-fetch on visible
     onVisibleChanged: {
         if (visible && !currentWeather) {
-            loadCachedWeatherOrFetch()
+            loadCachedWeatherOrFetch();
         }
     }
 
     Component.onCompleted: {
-        loadCachedWeatherOrFetch()
+        loadCachedWeatherOrFetch();
     }
 
     Connections {
         target: weatherView.logic
         function onWeatherCacheLoadedChanged() {
             if (weatherView.logic.weatherCacheLoaded && !weatherView.currentWeather)
-                weatherView.loadCachedWeatherOrFetch()
+                weatherView.loadCachedWeatherOrFetch();
         }
     }
 
     Component.onDestruction: invalidateActiveRequest()
 
     function invalidateActiveRequest() {
-        requestGeneration++
-        if (activeRequest && activeRequest.cancel) activeRequest.cancel()
-        activeRequest = null
-        isFetching = false
+        requestGeneration++;
+        if (activeRequest && activeRequest.cancel)
+            activeRequest.cancel();
+        activeRequest = null;
+        isFetching = false;
     }
 
     function loadCachedWeatherOrFetch() {
         if (queryCity !== "") {
-            fetchWeatherData()
-            return
+            fetchWeatherData();
+            return;
         }
         if (logic && !logic.weatherCacheLoaded)
-            return
-        var cached = logic ? logic.weatherCache : ((plasmoidConfig && plasmoidConfig.weatherCache) ? plasmoidConfig.weatherCache : "")
+            return;
+        var cached = logic ? logic.weatherCache : ((plasmoidConfig && plasmoidConfig.weatherCache) ? plasmoidConfig.weatherCache : "");
         if (cached && cached !== "{}" && cached !== "") {
             try {
-                var result = JSON.parse(cached)
+                var result = JSON.parse(cached);
                 if (result && result.current) {
-                    currentWeather = result.current
-                    forecastDaily = result.forecast ? result.forecast.daily : []
-                    forecastHourly = (result.forecast && result.forecast.hourly) ? result.forecast.hourly : []
-                    location = result.current.location
-                    isLoading = false
-                    errorMessage = ""
+                    currentWeather = result.current;
+                    forecastDaily = result.forecast ? result.forecast.daily : [];
+                    forecastHourly = (result.forecast && result.forecast.hourly) ? result.forecast.hourly : [];
+                    location = result.current.location;
+                    isLoading = false;
+                    errorMessage = "";
 
                     // Check if stale
-                    var lastUpdate = (plasmoidConfig && plasmoidConfig.weatherLastUpdate) ? plasmoidConfig.weatherLastUpdate : 0
-                    var refreshInterval = (plasmoidConfig && plasmoidConfig.weatherRefreshInterval !== undefined) ? plasmoidConfig.weatherRefreshInterval : 15
-                    var ageMs = Date.now() - lastUpdate
+                    var lastUpdate = (plasmoidConfig && plasmoidConfig.weatherLastUpdate) ? plasmoidConfig.weatherLastUpdate : 0;
+                    var refreshInterval = (plasmoidConfig && plasmoidConfig.weatherRefreshInterval !== undefined) ? plasmoidConfig.weatherRefreshInterval : 15;
+                    var ageMs = Date.now() - lastUpdate;
                     if (ageMs > refreshInterval * 60 * 1000 || ageMs < 0) {
-                        fetchWeatherData()
+                        fetchWeatherData();
                     }
-                    return
+                    return;
                 }
             } catch (e) {
-                console.warn("WeatherView: Failed to parse cached weather:", e)
+                console.warn("WeatherView: Failed to parse cached weather:", e);
             }
         }
-        fetchWeatherData()
+        fetchWeatherData();
     }
 
     function fetchWeatherData() {
-        queryDebounce.stop()
-        invalidateActiveRequest()
-        var generation = requestGeneration
-        var requestedCity = queryCity
-        isFetching = true
-        isLoading = true
-        errorMessage = ""
+        queryDebounce.stop();
+        invalidateActiveRequest();
+        var generation = requestGeneration;
+        var requestedCity = queryCity;
+        isFetching = true;
+        isLoading = true;
+        errorMessage = "";
 
-        var units = "metric"
-        var refreshInterval = 15
-        var provider = "openmeteo"
-        var locationMode = "auto"
-        var loc = ""
-        var apiKey = ""
-        var apiKey2 = ""
+        var units = "metric";
+        var refreshInterval = 15;
+        var provider = "openmeteo";
+        var locationMode = "auto";
+        var loc = "";
+        var apiKey = "";
+        var apiKey2 = "";
 
         if (plasmoidConfig) {
-             if (plasmoidConfig.weatherUseSystemUnits) {
-                  units = Qt.locale().measurementSystem === Locale.MetricSystem ? "metric" : "imperial"
-             } else {
-                  units = plasmoidConfig.weatherUnits || "metric"
-             }
-             refreshInterval = plasmoidConfig.weatherRefreshInterval !== undefined ? plasmoidConfig.weatherRefreshInterval : 15
-             provider = plasmoidConfig.weatherProvider || "openmeteo"
-             locationMode = plasmoidConfig.weatherLocationMode || "auto"
-             loc = plasmoidConfig.weatherLocation || ""
+            if (plasmoidConfig.weatherUseSystemUnits) {
+                units = Qt.locale().measurementSystem === Locale.MetricSystem ? "metric" : "imperial";
+            } else {
+                units = plasmoidConfig.weatherUnits || "metric";
+            }
+            refreshInterval = plasmoidConfig.weatherRefreshInterval !== undefined ? plasmoidConfig.weatherRefreshInterval : 15;
+            provider = plasmoidConfig.weatherProvider || "openmeteo";
+            locationMode = plasmoidConfig.weatherLocationMode || "auto";
+            loc = plasmoidConfig.weatherLocation || "";
         }
 
         if (queryCity !== "") {
-            locationMode = "manual"
-            loc = queryCity
+            locationMode = "manual";
+            loc = queryCity;
         }
 
         function issueRequest() {
-            if (generation !== requestGeneration) return
+            if (generation !== requestGeneration)
+                return;
             if (secretsLoaded) {
-                apiKey = secureApiKey
-                apiKey2 = secureApiKey2
+                apiKey = secureApiKey;
+                apiKey2 = secureApiKey2;
             }
-            var completedSynchronously = false
+            var completedSynchronously = false;
             var controller = WeatherService.fetchWeather({
                 location: locationMode === "auto" ? "" : loc,
                 autoDetect: locationMode === "auto",
@@ -220,43 +230,45 @@ Item {
                 apiKey: apiKey,
                 apiKey2: apiKey2,
                 refreshInterval: refreshInterval
-            }, function(result) {
-                completedSynchronously = true
-                if (generation !== requestGeneration) return
-                activeRequest = null
-                isFetching = false
-                isLoading = false
+            }, function (result) {
+                completedSynchronously = true;
+                if (generation !== requestGeneration)
+                    return;
+                activeRequest = null;
+                isFetching = false;
+                isLoading = false;
                 if (result.success) {
-                    currentWeather = result.current
-                    forecastDaily = result.forecast.daily
-                    forecastHourly = result.forecast.hourly || []
-                    location = result.current.location
+                    currentWeather = result.current;
+                    forecastDaily = result.forecast.daily;
+                    forecastHourly = result.forecast.hourly || [];
+                    location = result.current.location;
                     // Only save cache if this is not a temporary query city search
                     if (plasmoidConfig && requestedCity === "") {
                         if (logic && logic.saveWeatherCache)
-                            logic.saveWeatherCache(result)
-                        if (!result.fromCache) plasmoidConfig.weatherLastUpdate = Date.now()
+                            logic.saveWeatherCache(result);
+                        if (!result.fromCache)
+                            plasmoidConfig.weatherLastUpdate = Date.now();
                     }
                 } else {
                     var err = result.error || "Unknown error";
                     if (err === "Location not found" || result.code === 404 || err.indexOf("404") !== -1) {
-                        errorMessage = i18nd("plasma_applet_com.mcc45tr.filesearch", "City not found")
+                        errorMessage = i18nd("plasma_applet_com.mcc45tr.filesearch", "City not found");
                     } else {
-                        errorMessage = i18nd("plasma_applet_com.mcc45tr.filesearch", err)
+                        errorMessage = i18nd("plasma_applet_com.mcc45tr.filesearch", err);
                     }
                 }
-            })
+            });
             if (!completedSynchronously && generation === requestGeneration) {
-                activeRequest = controller
+                activeRequest = controller;
             } else if (generation !== requestGeneration && controller && controller.cancel) {
-                controller.cancel()
+                controller.cancel();
             }
         }
 
         if ((provider === "openweathermap" || provider === "weatherapi") && !secretsLoaded) {
-            loadWeatherSecrets(issueRequest)
+            loadWeatherSecrets(issueRequest);
         } else {
-            issueRequest()
+            issueRequest();
         }
     }
 
@@ -264,61 +276,64 @@ Item {
         target: weatherView.plasmoidConfig
         ignoreUnknownSignals: true
         function onWeatherUpdateTriggerChanged() {
-            weatherView.fetchWeatherData()
+            weatherView.fetchWeatherData();
         }
     }
 
     function calculateIsNight(item) {
-        if (!item) return false
+        if (!item)
+            return false;
 
         // Determine the reference for sunrise/sunset
-        var referenceItem = (item.sunrise && item.sunset) ? item : weatherView.currentWeather
+        var referenceItem = (item.sunrise && item.sunset) ? item : weatherView.currentWeather;
 
         if (!referenceItem || !referenceItem.sunrise || !referenceItem.sunset) {
             // Fallback: no sunrise/sunset data at all, use simple hour range
-            var fallbackHour = item.timestamp ? new Date(item.timestamp).getHours() : new Date().getHours()
-            return fallbackHour < 6 || fallbackHour >= 20
+            var fallbackHour = item.timestamp ? new Date(item.timestamp).getHours() : new Date().getHours();
+            return fallbackHour < 6 || fallbackHour >= 20;
         }
 
         // Determine the hour to compare
-        var compareDate
+        var compareDate;
         if (item.timestamp) {
-            compareDate = new Date(item.timestamp)
+            compareDate = new Date(item.timestamp);
         } else if (item.date) {
             // Daily forecast item with a date string but no timestamp — show as daytime
-            return false
+            return false;
         } else {
-            compareDate = new Date()
+            compareDate = new Date();
         }
 
         // Parse sunrise/sunset to extract hours and minutes in local time
-        var sunriseDate = new Date(referenceItem.sunrise)
-        var sunsetDate = new Date(referenceItem.sunset)
+        var sunriseDate = new Date(referenceItem.sunrise);
+        var sunsetDate = new Date(referenceItem.sunset);
 
         // Convert everything to minutes-since-midnight for clean comparison
-        var compareMinutes = compareDate.getHours() * 60 + compareDate.getMinutes()
-        var sunriseMinutes = sunriseDate.getHours() * 60 + sunriseDate.getMinutes()
-        var sunsetMinutes = sunsetDate.getHours() * 60 + sunsetDate.getMinutes()
+        var compareMinutes = compareDate.getHours() * 60 + compareDate.getMinutes();
+        var sunriseMinutes = sunriseDate.getHours() * 60 + sunriseDate.getMinutes();
+        var sunsetMinutes = sunsetDate.getHours() * 60 + sunsetDate.getMinutes();
 
         // It's night if current time is before sunrise or after sunset
-        return compareMinutes < sunriseMinutes || compareMinutes >= sunsetMinutes
+        return compareMinutes < sunriseMinutes || compareMinutes >= sunsetMinutes;
     }
 
     function getWeatherIcon(item) {
-        if (!item) return Qt.resolvedUrl("../../images/clear_day.svg")
-        var isNight = calculateIsNight(item)
-        var provider = (plasmoidConfig && plasmoidConfig.weatherProvider) ? plasmoidConfig.weatherProvider : "openmeteo"
-        var pack = (plasmoidConfig && plasmoidConfig.weatherIconPack) ? plasmoidConfig.weatherIconPack : "default"
-        var path = WeatherIcons.getIconPath(item.code, provider, isNight, pack)
+        if (!item)
+            return Qt.resolvedUrl("../../images/clear_day.svg");
+        var isNight = calculateIsNight(item);
+        var provider = (plasmoidConfig && plasmoidConfig.weatherProvider) ? plasmoidConfig.weatherProvider : "openmeteo";
+        var pack = (plasmoidConfig && plasmoidConfig.weatherIconPack) ? plasmoidConfig.weatherIconPack : "default";
+        var path = WeatherIcons.getIconPath(item.code, provider, isNight, pack);
         if (path.indexOf("/") !== -1) {
-            return Qt.resolvedUrl(path)
+            return Qt.resolvedUrl(path);
         }
-        return path
+        return path;
     }
 
     function getLocalizedDay(dayIndex) {
-        if (dayIndex === undefined) return ""
-        return Qt.locale().dayName(dayIndex, Locale.ShortFormat)
+        if (dayIndex === undefined)
+            return "";
+        return Qt.locale().dayName(dayIndex, Locale.ShortFormat);
     }
 
     // Main Layout
@@ -331,8 +346,16 @@ Item {
             anchors.centerIn: parent
             visible: weatherView.isLoading
             spacing: 10
-            PlasmaComponents.BusyIndicator { running: weatherView.isLoading; Layout.alignment: Qt.AlignHCenter }
-            PlasmaComponents.Label { text: i18nd("plasma_applet_com.mcc45tr.filesearch", "Loading weather data..."); color: Kirigami.Theme.textColor; font: Kirigami.Theme.defaultFont; Layout.alignment: Qt.AlignHCenter }
+            PlasmaComponents.BusyIndicator {
+                running: weatherView.isLoading
+                Layout.alignment: Qt.AlignHCenter
+            }
+            PlasmaComponents.Label {
+                text: i18nd("plasma_applet_com.mcc45tr.filesearch", "Loading weather data...")
+                color: Kirigami.Theme.textColor
+                font: Kirigami.Theme.defaultFont
+                Layout.alignment: Qt.AlignHCenter
+            }
         }
 
         // Error State
@@ -341,9 +364,26 @@ Item {
             visible: !weatherView.isLoading && weatherView.errorMessage !== ""
             spacing: 10
             width: parent.width * 0.8
-            Kirigami.Icon { source: "dialog-error"; Layout.preferredWidth: 32; Layout.preferredHeight: 32; Layout.alignment: Qt.AlignHCenter }
-            PlasmaComponents.Label { text: weatherView.errorMessage; color: Kirigami.Theme.textColor; font: Kirigami.Theme.defaultFont; Layout.alignment: Qt.AlignHCenter; horizontalAlignment: Text.AlignHCenter; wrapMode: Text.Wrap; Layout.fillWidth: true }
-            PlasmaComponents.Button { text: i18nd("plasma_applet_com.mcc45tr.filesearch", "Refresh"); Layout.alignment: Qt.AlignHCenter; onClicked: weatherView.fetchWeatherData() }
+            Kirigami.Icon {
+                source: "dialog-error"
+                Layout.preferredWidth: 32
+                Layout.preferredHeight: 32
+                Layout.alignment: Qt.AlignHCenter
+            }
+            PlasmaComponents.Label {
+                text: weatherView.errorMessage
+                color: Kirigami.Theme.textColor
+                font: Kirigami.Theme.defaultFont
+                Layout.alignment: Qt.AlignHCenter
+                horizontalAlignment: Text.AlignHCenter
+                wrapMode: Text.Wrap
+                Layout.fillWidth: true
+            }
+            PlasmaComponents.Button {
+                text: i18nd("plasma_applet_com.mcc45tr.filesearch", "Refresh")
+                Layout.alignment: Qt.AlignHCenter
+                onClicked: weatherView.fetchWeatherData()
+            }
         }
 
         // Content State - Dynamic loaders for different view modes
@@ -351,50 +391,56 @@ Item {
             anchors.fill: parent
             anchors.margins: 8
             active: !weatherView.isLoading && weatherView.errorMessage === "" && weatherView.currentWeather !== null && weatherView.isWideMode
-            sourceComponent: WideModeLayout { weatherRoot: weatherView }
+            sourceComponent: WideModeLayout {
+                weatherRoot: weatherView
+            }
         }
 
         Loader {
             anchors.fill: parent
             anchors.margins: 0
             active: !weatherView.isLoading && weatherView.errorMessage === "" && weatherView.currentWeather !== null && weatherView.isSmallMode
-            sourceComponent: SmallModeLayout { weatherRoot: weatherView }
+            sourceComponent: SmallModeLayout {
+                weatherRoot: weatherView
+            }
         }
 
         Loader {
             anchors.fill: parent
             anchors.margins: 10
             active: !weatherView.isLoading && weatherView.errorMessage === "" && weatherView.currentWeather !== null && weatherView.isLargeMode
-            sourceComponent: LargeModeLayout { weatherRoot: weatherView }
+            sourceComponent: LargeModeLayout {
+                weatherRoot: weatherView
+            }
         }
     }
 
     // Keep translated condition strings discoverable by xgettext.
     function dummyTranslations() {
-        i18nd("plasma_applet_com.mcc45tr.filesearch", "Clear")
-        i18nd("plasma_applet_com.mcc45tr.filesearch", "Mainly Clear")
-        i18nd("plasma_applet_com.mcc45tr.filesearch", "Partly Cloudy")
-        i18nd("plasma_applet_com.mcc45tr.filesearch", "Overcast")
-        i18nd("plasma_applet_com.mcc45tr.filesearch", "Fog")
-        i18nd("plasma_applet_com.mcc45tr.filesearch", "Drizzle")
-        i18nd("plasma_applet_com.mcc45tr.filesearch", "Freezing Drizzle")
-        i18nd("plasma_applet_com.mcc45tr.filesearch", "Rain")
-        i18nd("plasma_applet_com.mcc45tr.filesearch", "Freezing Rain")
-        i18nd("plasma_applet_com.mcc45tr.filesearch", "Snow")
-        i18nd("plasma_applet_com.mcc45tr.filesearch", "Snow Grains")
-        i18nd("plasma_applet_com.mcc45tr.filesearch", "Rain Showers")
-        i18nd("plasma_applet_com.mcc45tr.filesearch", "Snow Showers")
-        i18nd("plasma_applet_com.mcc45tr.filesearch", "Thunderstorm")
-        i18nd("plasma_applet_com.mcc45tr.filesearch", "Thunderstorm with Hail")
-        i18nd("plasma_applet_com.mcc45tr.filesearch", "Unknown")
-        i18nd("plasma_applet_com.mcc45tr.filesearch", "Cloudy")
-        i18nd("plasma_applet_com.mcc45tr.filesearch", "Mist")
-        i18nd("plasma_applet_com.mcc45tr.filesearch", "Smoke")
-        i18nd("plasma_applet_com.mcc45tr.filesearch", "Haze")
-        i18nd("plasma_applet_com.mcc45tr.filesearch", "Dust")
-        i18nd("plasma_applet_com.mcc45tr.filesearch", "Sand")
-        i18nd("plasma_applet_com.mcc45tr.filesearch", "Ash")
-        i18nd("plasma_applet_com.mcc45tr.filesearch", "Squall")
-        i18nd("plasma_applet_com.mcc45tr.filesearch", "Tornado")
+        i18nd("plasma_applet_com.mcc45tr.filesearch", "Clear");
+        i18nd("plasma_applet_com.mcc45tr.filesearch", "Mainly Clear");
+        i18nd("plasma_applet_com.mcc45tr.filesearch", "Partly Cloudy");
+        i18nd("plasma_applet_com.mcc45tr.filesearch", "Overcast");
+        i18nd("plasma_applet_com.mcc45tr.filesearch", "Fog");
+        i18nd("plasma_applet_com.mcc45tr.filesearch", "Drizzle");
+        i18nd("plasma_applet_com.mcc45tr.filesearch", "Freezing Drizzle");
+        i18nd("plasma_applet_com.mcc45tr.filesearch", "Rain");
+        i18nd("plasma_applet_com.mcc45tr.filesearch", "Freezing Rain");
+        i18nd("plasma_applet_com.mcc45tr.filesearch", "Snow");
+        i18nd("plasma_applet_com.mcc45tr.filesearch", "Snow Grains");
+        i18nd("plasma_applet_com.mcc45tr.filesearch", "Rain Showers");
+        i18nd("plasma_applet_com.mcc45tr.filesearch", "Snow Showers");
+        i18nd("plasma_applet_com.mcc45tr.filesearch", "Thunderstorm");
+        i18nd("plasma_applet_com.mcc45tr.filesearch", "Thunderstorm with Hail");
+        i18nd("plasma_applet_com.mcc45tr.filesearch", "Unknown");
+        i18nd("plasma_applet_com.mcc45tr.filesearch", "Cloudy");
+        i18nd("plasma_applet_com.mcc45tr.filesearch", "Mist");
+        i18nd("plasma_applet_com.mcc45tr.filesearch", "Smoke");
+        i18nd("plasma_applet_com.mcc45tr.filesearch", "Haze");
+        i18nd("plasma_applet_com.mcc45tr.filesearch", "Dust");
+        i18nd("plasma_applet_com.mcc45tr.filesearch", "Sand");
+        i18nd("plasma_applet_com.mcc45tr.filesearch", "Ash");
+        i18nd("plasma_applet_com.mcc45tr.filesearch", "Squall");
+        i18nd("plasma_applet_com.mcc45tr.filesearch", "Tornado");
     }
 }

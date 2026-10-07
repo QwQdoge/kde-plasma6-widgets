@@ -19,10 +19,10 @@ Item {
         interval: 60000 - (Date.now() % 60000) + 25
         repeat: false
         onTriggered: {
-            root.updateTime()
-            interval = 60000
-            repeat = true
-            restart()
+            root.updateTime();
+            interval = 60000;
+            repeat = true;
+            restart();
         }
     }
 
@@ -32,84 +32,87 @@ Item {
     property string yearStr: ""
 
     function updateTime() {
-        var now = new Date()
-        timeStr = now.toLocaleTimeString(Qt.locale(), "HH:mm")
-        dayStr = now.toLocaleDateString(Qt.locale(), "dddd")
-        datePartStr = now.toLocaleDateString(Qt.locale(), "d MMMM")
-        yearStr = now.toLocaleDateString(Qt.locale(), "yyyy")
-        currentDate = now
+        var now = new Date();
+        timeStr = now.toLocaleTimeString(Qt.locale(), "HH:mm");
+        dayStr = now.toLocaleDateString(Qt.locale(), "dddd");
+        datePartStr = now.toLocaleDateString(Qt.locale(), "d MMMM");
+        yearStr = now.toLocaleDateString(Qt.locale(), "yyyy");
+        currentDate = now;
     }
 
     property var currentDate: new Date()
 
     Component.onCompleted: {
-        updateTime()
-        minuteTimer.start()
+        updateTime();
+        minuteTimer.start();
     }
 
     // --- CALENDAR LOGIC ---
     property var weekdayLabels: {
-        var labels = []
-        var firstDay = Qt.locale().firstDayOfWeek
+        var labels = [];
+        var firstDay = Qt.locale().firstDayOfWeek;
         for (var i = 0; i < 7; ++i) {
-            labels.push(Qt.locale().dayName((firstDay + i) % 7, 2))
+            labels.push(Qt.locale().dayName((firstDay + i) % 7, 2));
         }
-        return labels
+        return labels;
     }
 
     function getCalendarData(monthOffset, baseDate) {
-        var today = baseDate || new Date()
-        var targetDate = new Date(today.getFullYear(), today.getMonth() + monthOffset, 1)
-        var displayYear = targetDate.getFullYear()
-        var displayMonth = targetDate.getMonth()
-        var label = Qt.locale().monthName(displayMonth).toLocaleUpperCase(Qt.locale().name)
+        var today = baseDate || new Date();
+        var targetDate = new Date(today.getFullYear(), today.getMonth() + monthOffset, 1);
+        var displayYear = targetDate.getFullYear();
+        var displayMonth = targetDate.getMonth();
+        var label = Qt.locale().monthName(displayMonth).toLocaleUpperCase(Qt.locale().name);
 
-        var cells = []
-        var firstOfMonth = new Date(displayYear, displayMonth, 1)
-        var firstDayOfWeek = Qt.locale().firstDayOfWeek
+        var cells = [];
+        var firstOfMonth = new Date(displayYear, displayMonth, 1);
+        var firstDayOfWeek = Qt.locale().firstDayOfWeek;
 
-        var currentDayNameIndex = firstOfMonth.getDay()
-        var startDay = (currentDayNameIndex - firstDayOfWeek + 7) % 7
+        var currentDayNameIndex = firstOfMonth.getDay();
+        var startDay = (currentDayNameIndex - firstDayOfWeek + 7) % 7;
 
-        var daysInMonth = new Date(displayYear, displayMonth + 1, 0).getDate()
-        var prevMonthLastDate = new Date(displayYear, displayMonth, 0).getDate()
+        var daysInMonth = new Date(displayYear, displayMonth + 1, 0).getDate();
+        var prevMonthLastDate = new Date(displayYear, displayMonth, 0).getDate();
 
         for (var i = 0; i < startDay; ++i) {
-            var dayNum = prevMonthLastDate - startDay + 1 + i
+            var dayNum = prevMonthLastDate - startDay + 1 + i;
             cells.push({
                 day: String(dayNum),
                 currentMonth: false,
                 isToday: false,
                 date: new Date(displayYear, displayMonth - 1, dayNum)
-            })
+            });
         }
 
         for (var d = 1; d <= daysInMonth; ++d) {
             var checkDate = new Date(displayYear, displayMonth, d);
-            var isToday = checkDate.getDate() === today.getDate() &&
-                          checkDate.getMonth() === today.getMonth() &&
-                          checkDate.getFullYear() === today.getFullYear();
+            var isToday = checkDate.getDate() === today.getDate() && checkDate.getMonth() === today.getMonth() && checkDate.getFullYear() === today.getFullYear();
 
             cells.push({
                 day: String(d),
                 currentMonth: true,
                 isToday: isToday,
                 date: checkDate
-            })
+            });
         }
 
-        var nextMonthDay = 1
+        var nextMonthDay = 1;
         while (cells.length % 7 !== 0) {
             cells.push({
                 day: String(nextMonthDay),
                 currentMonth: false,
                 isToday: false,
                 date: new Date(displayYear, displayMonth + 1, nextMonthDay)
-            })
-            nextMonthDay++
+            });
+            nextMonthDay++;
         }
 
-        return { label: label, cells: cells, year: displayYear, monthIndex: displayMonth }
+        return {
+            label: label,
+            cells: cells,
+            year: displayYear,
+            monthIndex: displayMonth
+        };
     }
 
     Item {

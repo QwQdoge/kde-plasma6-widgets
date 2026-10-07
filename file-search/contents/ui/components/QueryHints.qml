@@ -41,41 +41,216 @@ Rectangle {
             icon: "view-calendar",
             category: "Files",
             options: [
-                { label: i18nd("plasma_applet_com.mcc45tr.filesearch", "Calendar"), value: "timeline:/calendar/" },
-                { label: i18nd("plasma_applet_com.mcc45tr.filesearch", "Today"), value: "timeline:/today" },
-                { label: i18nd("plasma_applet_com.mcc45tr.filesearch", "Yesterday"), value: "timeline:/yesterday" },
-                { label: i18nd("plasma_applet_com.mcc45tr.filesearch", "This Week"), value: "timeline:/thisweek" },
-                { label: i18nd("plasma_applet_com.mcc45tr.filesearch", "This Month"), value: "timeline:/thismonth" }
+                {
+                    label: i18nd("plasma_applet_com.mcc45tr.filesearch", "Calendar"),
+                    value: "timeline:/calendar/"
+                },
+                {
+                    label: i18nd("plasma_applet_com.mcc45tr.filesearch", "Today"),
+                    value: "timeline:/today"
+                },
+                {
+                    label: i18nd("plasma_applet_com.mcc45tr.filesearch", "Yesterday"),
+                    value: "timeline:/yesterday"
+                },
+                {
+                    label: i18nd("plasma_applet_com.mcc45tr.filesearch", "This Week"),
+                    value: "timeline:/thisweek"
+                },
+                {
+                    label: i18nd("plasma_applet_com.mcc45tr.filesearch", "This Month"),
+                    value: "timeline:/thismonth"
+                }
             ]
         },
-        { prefix: "file:/", hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "File Path"), desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Search via absolute file path"), icon: "folder", category: "Files", localeBase: "file" },
-        { prefix: "baloo:", hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "File Index"), desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Search exclusively in Baloo file index"), icon: "baloo", category: "Files" },
-        { prefix: "documents:", hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Documents"), desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Search only document files"), icon: "document-multiple", category: "Files" },
-        { prefix: "images:", hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Images"), desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Search only image files"), icon: "image-jpeg", category: "Files" },
-
-        { prefix: "app:", hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Applications"), desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Search for installed applications"), icon: "applications-all", category: "System", localeBase: "app" },
-        { prefix: "services:", hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Services"), desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Search system background services"), icon: "preferences-system", category: "System", localeBase: "services" },
-        { prefix: "shell:", hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Shell"), desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Execute shell commands directly"), icon: "utilities-terminal", category: "System", localeBase: "shell" },
-
-        { prefix: "calc:", hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Calculator"), desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Perform mathematical calculations"), icon: "accessories-calculator", category: "Utility" },
-        { prefix: "unit:", hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Unit Converter"), desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Convert between weights, distances, etc."), icon: "measure", category: "Utility", localeBase: "unit" },
-        { prefix: "spell ", hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Spelling"), desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Check word spelling"), icon: "tools-check-spelling", category: "Utility", localeBase: "spell" },
-
-        { prefix: "gg:", hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Google"), desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Search the web using Google"), icon: "google", category: "Web", localeBase: "google" },
-        { prefix: "dd:", hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "DuckDuckGo"), desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Search the web using DuckDuckGo"), icon: "internet-web-browser", category: "Web", localeBase: "ddg" },
-        { prefix: "wp:", hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Wikipedia"), desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Search Wikipedia articles"), icon: "wikipedia", category: "Web", localeBase: "wikipedia" },
-        { prefix: "b:", hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Bookmarks"), desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Search browser bookmarks"), icon: "bookmarks", category: "Web", localeBase: "bookmarks" },
-        { prefix: "rss:", hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "RSS Feeds"), desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Search exclusively in RSS news feeds"), icon: "news-subscribe", category: "Web", localeBase: "rss" },
-        { prefix: "weather:", hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Weather"), desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Show current weather"), icon: "weather-many-clouds", category: "Utility", localeBase: "weather" },
-        { prefix: "calendar:", hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Calendar"), desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Show calendar"), icon: "view-calendar", category: "Utility", localeBase: "Calendar" },
-        { prefix: "clock:", hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Clock"), desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Show large clock"), icon: "preferences-system-time", category: "Utility", localeBase: "clock" },
-        { prefix: "date:", hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Date"), desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Show calendar and date information"), icon: "view-calendar-day", category: "Utility", localeBase: "date" },
-        { prefix: "power:", hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Power"), desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Show power management options"), icon: "system-shutdown", category: "System", localeBase: "power" },
-        { prefix: "define:", hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Define"), desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Check word definition"), icon: "accessories-dictionary", category: "Utility", localeBase: "define" },
-        { prefix: "#", hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Unicode Characters"), desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Search unicode characters"), icon: "character-set", category: "Utility", localeBase: "unicode" },
-
-        { prefix: "man:/", hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Man Pages"), desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Browse system manual pages"), icon: "help-contents", category: "Help", localeBase: "man" },
-        { prefix: "help:", hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Help"), desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Show widget documentation"), icon: "help-about", category: "Help", localeBase: "help" }
+        {
+            prefix: "file:/",
+            hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "File Path"),
+            desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Search via absolute file path"),
+            icon: "folder",
+            category: "Files",
+            localeBase: "file"
+        },
+        {
+            prefix: "baloo:",
+            hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "File Index"),
+            desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Search exclusively in Baloo file index"),
+            icon: "baloo",
+            category: "Files"
+        },
+        {
+            prefix: "documents:",
+            hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Documents"),
+            desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Search only document files"),
+            icon: "document-multiple",
+            category: "Files"
+        },
+        {
+            prefix: "images:",
+            hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Images"),
+            desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Search only image files"),
+            icon: "image-jpeg",
+            category: "Files"
+        },
+        {
+            prefix: "app:",
+            hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Applications"),
+            desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Search for installed applications"),
+            icon: "applications-all",
+            category: "System",
+            localeBase: "app"
+        },
+        {
+            prefix: "services:",
+            hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Services"),
+            desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Search system background services"),
+            icon: "preferences-system",
+            category: "System",
+            localeBase: "services"
+        },
+        {
+            prefix: "shell:",
+            hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Shell"),
+            desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Execute shell commands directly"),
+            icon: "utilities-terminal",
+            category: "System",
+            localeBase: "shell"
+        },
+        {
+            prefix: "calc:",
+            hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Calculator"),
+            desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Perform mathematical calculations"),
+            icon: "accessories-calculator",
+            category: "Utility"
+        },
+        {
+            prefix: "unit:",
+            hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Unit Converter"),
+            desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Convert between weights, distances, etc."),
+            icon: "measure",
+            category: "Utility",
+            localeBase: "unit"
+        },
+        {
+            prefix: "spell ",
+            hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Spelling"),
+            desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Check word spelling"),
+            icon: "tools-check-spelling",
+            category: "Utility",
+            localeBase: "spell"
+        },
+        {
+            prefix: "gg:",
+            hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Google"),
+            desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Search the web using Google"),
+            icon: "google",
+            category: "Web",
+            localeBase: "google"
+        },
+        {
+            prefix: "dd:",
+            hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "DuckDuckGo"),
+            desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Search the web using DuckDuckGo"),
+            icon: "internet-web-browser",
+            category: "Web",
+            localeBase: "ddg"
+        },
+        {
+            prefix: "wp:",
+            hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Wikipedia"),
+            desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Search Wikipedia articles"),
+            icon: "wikipedia",
+            category: "Web",
+            localeBase: "wikipedia"
+        },
+        {
+            prefix: "b:",
+            hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Bookmarks"),
+            desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Search browser bookmarks"),
+            icon: "bookmarks",
+            category: "Web",
+            localeBase: "bookmarks"
+        },
+        {
+            prefix: "rss:",
+            hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "RSS Feeds"),
+            desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Search exclusively in RSS news feeds"),
+            icon: "news-subscribe",
+            category: "Web",
+            localeBase: "rss"
+        },
+        {
+            prefix: "weather:",
+            hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Weather"),
+            desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Show current weather"),
+            icon: "weather-many-clouds",
+            category: "Utility",
+            localeBase: "weather"
+        },
+        {
+            prefix: "calendar:",
+            hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Calendar"),
+            desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Show calendar"),
+            icon: "view-calendar",
+            category: "Utility",
+            localeBase: "Calendar"
+        },
+        {
+            prefix: "clock:",
+            hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Clock"),
+            desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Show large clock"),
+            icon: "preferences-system-time",
+            category: "Utility",
+            localeBase: "clock"
+        },
+        {
+            prefix: "date:",
+            hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Date"),
+            desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Show calendar and date information"),
+            icon: "view-calendar-day",
+            category: "Utility",
+            localeBase: "date"
+        },
+        {
+            prefix: "power:",
+            hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Power"),
+            desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Show power management options"),
+            icon: "system-shutdown",
+            category: "System",
+            localeBase: "power"
+        },
+        {
+            prefix: "define:",
+            hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Define"),
+            desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Check word definition"),
+            icon: "accessories-dictionary",
+            category: "Utility",
+            localeBase: "define"
+        },
+        {
+            prefix: "#",
+            hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Unicode Characters"),
+            desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Search unicode characters"),
+            icon: "character-set",
+            category: "Utility",
+            localeBase: "unicode"
+        },
+        {
+            prefix: "man:/",
+            hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Man Pages"),
+            desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Browse system manual pages"),
+            icon: "help-contents",
+            category: "Help",
+            localeBase: "man"
+        },
+        {
+            prefix: "help:",
+            hint: i18nd("plasma_applet_com.mcc45tr.filesearch", "Help"),
+            desc: i18nd("plasma_applet_com.mcc45tr.filesearch", "Show widget documentation"),
+            icon: "help-about",
+            category: "Help",
+            localeBase: "help"
+        }
     ]
 
     // Filtered list of known prefixes based on settings
@@ -83,9 +258,11 @@ Rectangle {
         var list = [];
         for (var i = 0; i < knownPrefixes.length; i++) {
             var p = knownPrefixes[i];
-            if (p.prefix === ":") continue; // Skip trigger
+            if (p.prefix === ":")
+                continue; // Skip trigger
 
-            if (!PrefixRegistry.isEnabled(p.prefix, plasmoidConfig)) continue;
+            if (!PrefixRegistry.isEnabled(p.prefix, plasmoidConfig))
+                continue;
 
             list.push(p);
         }
@@ -104,9 +281,12 @@ Rectangle {
             if (p.localeBase) {
                 var locKeyVal = i18nd("plasma_applet_com.mcc45tr.filesearch", p.localeBase);
                 var suffix = "";
-                if (p.prefix.endsWith(":")) suffix = ":";
-                else if (p.prefix.endsWith(" ")) suffix = " ";
-                else if (p.prefix.endsWith(":/")) suffix = ":/";
+                if (p.prefix.endsWith(":"))
+                    suffix = ":";
+                else if (p.prefix.endsWith(" "))
+                    suffix = " ";
+                else if (p.prefix.endsWith(":/"))
+                    suffix = ":/";
                 map[p.prefix] = ((locKeyVal || p.localeBase) + suffix).toLowerCase();
             } else {
                 map[p.prefix] = p.prefix.toLowerCase();
@@ -115,17 +295,17 @@ Rectangle {
         return map;
     }
     readonly property var _registryLocalizedPrefixes: ({
-        weather: i18nd("plasma_applet_com.mcc45tr.filesearch", "weather"),
-        calendar: i18nd("plasma_applet_com.mcc45tr.filesearch", "Calendar"),
-        date: i18nd("plasma_applet_com.mcc45tr.filesearch", "date"),
-        clock: i18nd("plasma_applet_com.mcc45tr.filesearch", "clock"),
-        power: i18nd("plasma_applet_com.mcc45tr.filesearch", "power"),
-        help: i18nd("plasma_applet_com.mcc45tr.filesearch", "help"),
-        unit: i18nd("plasma_applet_com.mcc45tr.filesearch", "unit"),
-        kill: i18nd("plasma_applet_com.mcc45tr.filesearch", "kill"),
-        spell: i18nd("plasma_applet_com.mcc45tr.filesearch", "spell"),
-        shell: i18nd("plasma_applet_com.mcc45tr.filesearch", "shell")
-    })
+            weather: i18nd("plasma_applet_com.mcc45tr.filesearch", "weather"),
+            calendar: i18nd("plasma_applet_com.mcc45tr.filesearch", "Calendar"),
+            date: i18nd("plasma_applet_com.mcc45tr.filesearch", "date"),
+            clock: i18nd("plasma_applet_com.mcc45tr.filesearch", "clock"),
+            power: i18nd("plasma_applet_com.mcc45tr.filesearch", "power"),
+            help: i18nd("plasma_applet_com.mcc45tr.filesearch", "help"),
+            unit: i18nd("plasma_applet_com.mcc45tr.filesearch", "unit"),
+            kill: i18nd("plasma_applet_com.mcc45tr.filesearch", "kill"),
+            spell: i18nd("plasma_applet_com.mcc45tr.filesearch", "spell"),
+            shell: i18nd("plasma_applet_com.mcc45tr.filesearch", "shell")
+        })
     // Cached i18n strings used in detectHint error paths
     readonly property string _unknownPrefixText: i18nd("plasma_applet_com.mcc45tr.filesearch", "Unknown prefix")
     readonly property string _tryText: i18nd("plasma_applet_com.mcc45tr.filesearch", "try")
@@ -164,7 +344,8 @@ Rectangle {
         var today = new Date();
 
         // If baseQuery doesn't end with /, add it
-        if (!baseQuery.endsWith("/")) baseQuery += "/";
+        if (!baseQuery.endsWith("/"))
+            baseQuery += "/";
 
         for (var i = 0; i < 31; i++) {
             var d = new Date();
@@ -187,15 +368,18 @@ Rectangle {
                 label = dayName;
             }
 
-            if (i === 0) val = baseQuery + i18nd("plasma_applet_com.mcc45tr.filesearch", "Today");
-            else if (i === 1) val = baseQuery + i18nd("plasma_applet_com.mcc45tr.filesearch", "Yesterday");
-            else if (i === 2) val = baseQuery + i18nd("plasma_applet_com.mcc45tr.filesearch", "Two days ago");
+            if (i === 0)
+                val = baseQuery + i18nd("plasma_applet_com.mcc45tr.filesearch", "Today");
+            else if (i === 1)
+                val = baseQuery + i18nd("plasma_applet_com.mcc45tr.filesearch", "Yesterday");
+            else if (i === 2)
+                val = baseQuery + i18nd("plasma_applet_com.mcc45tr.filesearch", "Two days ago");
 
             options.push({
                 label: label,
                 value: val,
                 // These are used for button labels
-                displayLabel: (i===0 ? i18nd("plasma_applet_com.mcc45tr.filesearch", "Today") : (i===1 ? i18nd("plasma_applet_com.mcc45tr.filesearch", "Yesterday") : (i===2 ? i18nd("plasma_applet_com.mcc45tr.filesearch", "Two days ago") : dayName)))
+                displayLabel: (i === 0 ? i18nd("plasma_applet_com.mcc45tr.filesearch", "Today") : (i === 1 ? i18nd("plasma_applet_com.mcc45tr.filesearch", "Yesterday") : (i === 2 ? i18nd("plasma_applet_com.mcc45tr.filesearch", "Two days ago") : dayName)))
             });
         }
         return options;
@@ -203,7 +387,14 @@ Rectangle {
 
     function detectHint(query) {
         if (!query || query.length === 0) {
-            return { show: false, text: "", icon: "", isError: false, isPrefixMenu: false, options: undefined }
+            return {
+                show: false,
+                text: "",
+                icon: "",
+                isError: false,
+                isPrefixMenu: false,
+                options: undefined
+            };
         }
 
         // Full prefix menu trigger
@@ -214,10 +405,10 @@ Rectangle {
                 text: _searchPrefixesText,
                 icon: "help-about",
                 isError: false
-            }
+            };
         }
 
-        var lowerQuery = query.toLowerCase()
+        var lowerQuery = query.toLowerCase();
 
         // 1. Check for known prefixes using cached locale map
         var bestMatch = null;
@@ -225,94 +416,100 @@ Rectangle {
         var matchedPrefix = "";
 
         for (var i = 0; i < activePrefixes.length; i++) {
-             var p = activePrefixes[i]
+            var p = activePrefixes[i];
 
-             var aliases = PrefixRegistry.aliasesFor(p.prefix, _registryLocalizedPrefixes)
-             // Prefixes that are only presentation metadata still use their
-             // cached localized spelling.
-             if (!PrefixRegistry.definitionFor(p.prefix)) {
-                 aliases.push(p.prefix.toLowerCase())
-                 aliases.push(_localizedPrefixMap[p.prefix] || "")
-             }
-             for (var a = 0; a < aliases.length; ++a) {
-                 var candidate = aliases[a]
-                 if (candidate && lowerQuery.startsWith(candidate) && candidate.length > bestLen) {
-                     bestMatch = p
-                     bestLen = candidate.length
-                     matchedPrefix = candidate
-                 }
-             }
+            var aliases = PrefixRegistry.aliasesFor(p.prefix, _registryLocalizedPrefixes);
+            // Prefixes that are only presentation metadata still use their
+            // cached localized spelling.
+            if (!PrefixRegistry.definitionFor(p.prefix)) {
+                aliases.push(p.prefix.toLowerCase());
+                aliases.push(_localizedPrefixMap[p.prefix] || "");
+            }
+            for (var a = 0; a < aliases.length; ++a) {
+                var candidate = aliases[a];
+                if (candidate && lowerQuery.startsWith(candidate) && candidate.length > bestLen) {
+                    bestMatch = p;
+                    bestLen = candidate.length;
+                    matchedPrefix = candidate;
+                }
+            }
         }
 
         // Special Timeline sub-logic
         if (bestMatch && bestMatch.prefix === "timeline:/") {
-             // Basic timeline:/ match
-             if (lowerQuery === matchedPrefix.toLowerCase() || lowerQuery === matchedPrefix.toLowerCase().replace("/", "")) {
-                  return {
+            // Basic timeline:/ match
+            if (lowerQuery === matchedPrefix.toLowerCase() || lowerQuery === matchedPrefix.toLowerCase().replace("/", "")) {
+                return {
                     show: true,
                     text: bestMatch.hint,
                     icon: bestMatch.icon,
                     isError: false,
                     prefix: matchedPrefix,
                     options: getTimelineMonthOptions()
-                 }
-             }
+                };
+            }
 
-             // Check calendar sub-path
-             if (lowerQuery.indexOf("/calendar/") !== -1) {
-                  // If slashes count >= 3, show days
-                  var slashes = (query.match(/\//g) || []).length;
-                  if (slashes >= 3) {
-                       return {
-                            show: true,
-                            text: _browseCalendarText,
-                            icon: "view-calendar-day",
-                            isError: false,
-                            prefix: query,
-                            options: getTimelineDayOptions(query)
-                       }
-                  }
-
-                   return {
+            // Check calendar sub-path
+            if (lowerQuery.indexOf("/calendar/") !== -1) {
+                // If slashes count >= 3, show days
+                var slashes = (query.match(/\//g) || []).length;
+                if (slashes >= 3) {
+                    return {
                         show: true,
                         text: _browseCalendarText,
-                        icon: "view-calendar-month",
+                        icon: "view-calendar-day",
                         isError: false,
-                        prefix: matchedPrefix,
-                        options: getTimelineMonthOptions()
-                   }
-             }
+                        prefix: query,
+                        options: getTimelineDayOptions(query)
+                    };
+                }
+
+                return {
+                    show: true,
+                    text: _browseCalendarText,
+                    icon: "view-calendar-month",
+                    isError: false,
+                    prefix: matchedPrefix,
+                    options: getTimelineMonthOptions()
+                };
+            }
         }
 
         if (bestMatch) {
-             // Known prefix found
+            // Known prefix found
 
-             // Check for Man page installation
-             if (bestMatch.prefix === "man:/" && logic && logic.ensureManAvailability) {
-                 logic.ensureManAvailability();
-             }
-             if (bestMatch.prefix === "man:/" && logic && logic.manCheckCompleted && !logic.manInstalled) {
-                 return { show: true, text: _manNotInstalledText, icon: "dialog-error", isError: true, prefix: matchedPrefix }
-             }
+            // Check for Man page installation
+            if (bestMatch.prefix === "man:/" && logic && logic.ensureManAvailability) {
+                logic.ensureManAvailability();
+            }
+            if (bestMatch.prefix === "man:/" && logic && logic.manCheckCompleted && !logic.manInstalled) {
+                return {
+                    show: true,
+                    text: _manNotInstalledText,
+                    icon: "dialog-error",
+                    isError: true,
+                    prefix: matchedPrefix
+                };
+            }
 
-             var baseHint = bestMatch.hint;
-             var queryPart = "";
+            var baseHint = bestMatch.hint;
+            var queryPart = "";
 
-             // Check if user has typed something after the prefix
-             if (query.length > bestLen) {
-                 var rawQuery = query.substring(bestLen).trim();
-                 if (rawQuery.length > 0) {
-                     queryPart = ' "' + rawQuery + '"';
-                 }
-             }
+            // Check if user has typed something after the prefix
+            if (query.length > bestLen) {
+                var rawQuery = query.substring(bestLen).trim();
+                if (rawQuery.length > 0) {
+                    queryPart = ' "' + rawQuery + '"';
+                }
+            }
 
-             if (queryPart.length > 0) {
-                 if (bestMatch.prefix === "gg:" || bestMatch.prefix === "dd:" || bestMatch.prefix === "wp:" || bestMatch.prefix === "define:") {
-                      baseHint = baseHint + queryPart;
-                 }
-             }
+            if (queryPart.length > 0) {
+                if (bestMatch.prefix === "gg:" || bestMatch.prefix === "dd:" || bestMatch.prefix === "wp:" || bestMatch.prefix === "define:") {
+                    baseHint = baseHint + queryPart;
+                }
+            }
 
-             return {
+            return {
                 show: true,
                 text: baseHint,
                 icon: bestMatch.icon,
@@ -320,29 +517,30 @@ Rectangle {
                 isPrefixMenu: false,
                 prefix: matchedPrefix,
                 options: bestMatch.options
-             }
+            };
         }
 
         // Unknown prefix detection
-        var prefixMatch = query.match(/^([A-Za-z][A-Za-z0-9+.-]{0,31}:)/)
+        var prefixMatch = query.match(/^([A-Za-z][A-Za-z0-9+.-]{0,31}:)/);
         if (prefixMatch) {
-            var potentialPrefix = prefixMatch[1].toLowerCase()
+            var potentialPrefix = prefixMatch[1].toLowerCase();
 
             var isKnown = false;
             for (var k = 0; k < activePrefixes.length; k++) {
-                 var kp = activePrefixes[k];
-                 var knownAliases = PrefixRegistry.aliasesFor(kp.prefix, _registryLocalizedPrefixes)
-                 if (!PrefixRegistry.definitionFor(kp.prefix)) {
-                     knownAliases.push(kp.prefix.toLowerCase())
-                     knownAliases.push(_localizedPrefixMap[kp.prefix] || "")
-                 }
-                 for (var aliasIndex = 0; aliasIndex < knownAliases.length; ++aliasIndex) {
-                     if (knownAliases[aliasIndex] && knownAliases[aliasIndex].startsWith(potentialPrefix)) {
-                         isKnown = true
-                         break
-                     }
-                 }
-                 if (isKnown) break;
+                var kp = activePrefixes[k];
+                var knownAliases = PrefixRegistry.aliasesFor(kp.prefix, _registryLocalizedPrefixes);
+                if (!PrefixRegistry.definitionFor(kp.prefix)) {
+                    knownAliases.push(kp.prefix.toLowerCase());
+                    knownAliases.push(_localizedPrefixMap[kp.prefix] || "");
+                }
+                for (var aliasIndex = 0; aliasIndex < knownAliases.length; ++aliasIndex) {
+                    if (knownAliases[aliasIndex] && knownAliases[aliasIndex].startsWith(potentialPrefix)) {
+                        isKnown = true;
+                        break;
+                    }
+                }
+                if (isKnown)
+                    break;
             }
 
             if (!isKnown && potentialPrefix !== "file:" && potentialPrefix !== "http:" && potentialPrefix !== "https:") {
@@ -353,11 +551,18 @@ Rectangle {
                     isError: true,
                     isPrefixMenu: false,
                     options: undefined
-                }
+                };
             }
         }
 
-        return { show: false, text: "", icon: "", isError: false, isPrefixMenu: false, options: undefined }
+        return {
+            show: false,
+            text: "",
+            icon: "",
+            isError: false,
+            isPrefixMenu: false,
+            options: undefined
+        };
     }
 
     // Read-only helper for view mode
@@ -367,9 +572,7 @@ Rectangle {
     color: Qt.rgba(bgColor.r, bgColor.g, bgColor.b, 0.95)
     radius: 12
     border.width: currentHint.isError ? 0 : 1
-    border.color: currentHint.isError
-        ? Qt.rgba(1, 0.3, 0.3, 0.5)
-        : Qt.rgba(accentColor.r, accentColor.g, accentColor.b, 0.3)
+    border.color: currentHint.isError ? Qt.rgba(1, 0.3, 0.3, 0.5) : Qt.rgba(accentColor.r, accentColor.g, accentColor.b, 0.3)
 
     Kirigami.InlineMessage {
         anchors.fill: parent
@@ -449,7 +652,10 @@ Rectangle {
         visible: !queryHints.currentHint.isPrefixMenu && !queryHints.currentHint.isError
 
         // Spacer Left
-        Item { Layout.fillWidth: true; visible: !queryHints.currentHint.options }
+        Item {
+            Layout.fillWidth: true
+            visible: !queryHints.currentHint.options
+        }
 
         // Icon
         Kirigami.Icon {
@@ -457,18 +663,14 @@ Rectangle {
             Layout.preferredWidth: 16
             Layout.preferredHeight: 16
             Layout.alignment: Qt.AlignVCenter
-            color: queryHints.currentHint.isError
-                ? Kirigami.Theme.negativeTextColor
-                : queryHints.textColor
+            color: queryHints.currentHint.isError ? Kirigami.Theme.negativeTextColor : queryHints.textColor
         }
 
         // Standard Text
         Text {
             visible: !queryHints.currentHint.options
             text: queryHints.currentHint.text || ""
-            color: queryHints.currentHint.isError
-                ? Kirigami.Theme.negativeTextColor
-                : Qt.rgba(queryHints.textColor.r, queryHints.textColor.g, queryHints.textColor.b, 0.8)
+            color: queryHints.currentHint.isError ? Kirigami.Theme.negativeTextColor : Qt.rgba(queryHints.textColor.r, queryHints.textColor.g, queryHints.textColor.b, 0.8)
             font.family: Kirigami.Theme.smallFont.family
             font.pixelSize: Kirigami.Theme.smallFont.pixelSize
             Layout.alignment: Qt.AlignVCenter
@@ -476,7 +678,10 @@ Rectangle {
         }
 
         // Spacer Right
-        Item { Layout.fillWidth: true; visible: !queryHints.currentHint.options }
+        Item {
+            Layout.fillWidth: true
+            visible: !queryHints.currentHint.options
+        }
 
         // Result Limit Controls (Sub-options for timeline etc)
         RowLayout {
@@ -509,12 +714,14 @@ Rectangle {
                     }
 
                     onClicked: {
-                        hintSelected(modelData.value)
+                        hintSelected(modelData.value);
                     }
                 }
             }
 
-            Item { Layout.fillWidth: true } // Spacer
+            Item {
+                Layout.fillWidth: true
+            } // Spacer
         }
     }
 }

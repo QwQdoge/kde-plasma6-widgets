@@ -18,12 +18,12 @@ PlasmaComponents.ScrollView {
     // Preview control - bound from config
     property bool previewEnabled: true
     property var previewSettings: ({
-        "images": false,
-        "videos": false,
-        "text": false,
-        "documents": false,
-        "applications": false
-    })
+            "images": false,
+            "videos": false,
+            "text": false,
+            "documents": false,
+            "applications": false
+        })
     property bool previewShowResults: true
     property int previewInlineMode: 1
     property int previewSize: 1
@@ -35,16 +35,14 @@ PlasmaComponents.ScrollView {
     property string searchText: ""
     property bool isLoading: false
     // Pin support
-    property var isPinnedFunc: function(matchId) {
+    property var isPinnedFunc: function (matchId) {
         return false;
     }
-    property var togglePinFunc: function(item) {
-    }
+    property var togglePinFunc: function (item) {}
     // RSS settings from config
     property bool rssShowImages: true
     property bool rssExpandableCards: true
-    property var expandedItems: ({
-    })
+    property var expandedItems: ({})
     // Use flat sorted data (JS Array) instead of raw model for consistency
     property var flatSortedData: []
     property bool resultAnimationsEnabled: true
@@ -92,13 +90,11 @@ PlasmaComponents.ScrollView {
     function moveUp() {
         if (currentIndex > 0)
             currentIndex--;
-
     }
 
     function moveDown() {
         if (currentIndex < resultsList.count - 1)
             currentIndex++;
-
     }
 
     function activateCurrentItem() {
@@ -160,7 +156,6 @@ PlasmaComponents.ScrollView {
                 font.family: Kirigami.Theme.defaultFont.family
                 font.pixelSize: Kirigami.Theme.defaultFont.pixelSize
             }
-
         }
 
         highlight: Rectangle {
@@ -183,7 +178,6 @@ PlasmaComponents.ScrollView {
                 font.bold: true
                 color: Qt.rgba(resultsListRoot.textColor.r, resultsListRoot.textColor.g, resultsListRoot.textColor.b, 0.6)
             }
-
         }
 
         delegate: Item {
@@ -191,7 +185,9 @@ PlasmaComponents.ScrollView {
 
             Accessible.role: Accessible.ListItem
             Accessible.name: modelData.display || ""
-            Accessible.description: [modelData.category || "", modelData.subtext || ""].filter(function(part) { return part.length > 0 }).join(", ")
+            Accessible.description: [modelData.category || "", modelData.subtext || ""].filter(function (part) {
+                return part.length > 0;
+            }).join(", ")
             Accessible.selectable: true
             Accessible.selected: resultsList.currentIndex === index
             Accessible.focused: resultsList.currentIndex === index
@@ -205,8 +201,7 @@ PlasmaComponents.ScrollView {
                 // contentY share a coordinate system. Avoid mapToItem on every scroll frame.
                 var viewportTop = resultsList.contentY - resultsList.cacheBuffer;
                 var viewportBottom = resultsList.contentY + resultsList.height + resultsList.cacheBuffer;
-                return delegateRoot.y + delegateRoot.height >= viewportTop
-                        && delegateRoot.y <= viewportBottom;
+                return delegateRoot.y + delegateRoot.height >= viewportTop && delegateRoot.y <= viewportBottom;
             }
             property real cachedHeight: 0
             readonly property bool isRSS: modelData.category === "RSS" || modelData.category === resultsListRoot.locNews || (modelData.duplicateId && modelData.duplicateId.toString().startsWith("rss:"))
@@ -225,10 +220,10 @@ PlasmaComponents.ScrollView {
 
             function loadTextSnippet() {
                 if (!previewPath || !logic)
-                    return ;
+                    return;
 
                 var token = ++snippetRequestToken;
-                logic.readLocalTextSnippet(previewPath, function(content, bytes) {
+                logic.readLocalTextSnippet(previewPath, function (content, bytes) {
                     if (token !== delegateRoot.snippetRequestToken)
                         return;
                     var lines = content.split('\n').slice(0, 5).join('\n');
@@ -249,8 +244,7 @@ PlasmaComponents.ScrollView {
             function toggleExpansion() {
                 delegateRoot.animateHeight = true;
                 var matchId = modelData.duplicateId || modelData.display || "";
-                var newExpanded = {
-                };
+                var newExpanded = {};
                 // Replace the array so QML observes the state change.
                 for (var key in resultsListRoot.expandedItems) {
                     newExpanded[key] = resultsListRoot.expandedItems[key];
@@ -292,7 +286,6 @@ PlasmaComponents.ScrollView {
             onHeightChanged: {
                 if (inViewport && height > 0)
                     cachedHeight = height;
-
             }
             height: {
                 if (!inViewport && cachedHeight > 0)
@@ -305,7 +298,6 @@ PlasmaComponents.ScrollView {
                 if (showInlinePreview) {
                     if (isTextFile)
                         loadTextSnippet();
-
                 }
             }
 
@@ -343,7 +335,6 @@ PlasmaComponents.ScrollView {
                                 source: (isRSS && modelData.sourceIcon) ? modelData.sourceIcon : (modelData.decoration || (isRSS ? "news-subscribe" : "application-x-executable"))
                                 color: isRSS ? resultsListRoot.accentColor : resultsListRoot.textColor
                             }
-
                         }
 
                         // Text Content
@@ -375,7 +366,6 @@ PlasmaComponents.ScrollView {
                                 elide: Text.ElideMiddle
                                 Layout.fillWidth: true
                             }
-
                         }
 
                         // Right side icons
@@ -386,7 +376,6 @@ PlasmaComponents.ScrollView {
                             visible: resultsListRoot.isPinnedFunc(modelData.duplicateId || modelData.display)
                             color: resultsListRoot.accentColor
                         }
-
                     }
 
                     ColumnLayout {
@@ -416,9 +405,7 @@ PlasmaComponents.ScrollView {
                                 NumberAnimation {
                                     duration: 250
                                 }
-
                             }
-
                         }
 
                         // Image for RSS
@@ -484,18 +471,17 @@ PlasmaComponents.ScrollView {
                                         font.family: Kirigami.Theme.smallFont.family
                                         font.pixelSize: Kirigami.Theme.smallFont.pixelSize
                                     }
-
                                 }
 
                                 MouseArea {
                                     anchors.fill: parent
                                     onClicked: {
                                         if (modelData.url) {
-                                            if (Utils.isSafeExternalUrl(modelData.url)) Qt.openUrlExternally(modelData.url);
+                                            if (Utils.isSafeExternalUrl(modelData.url))
+                                                Qt.openUrlExternally(modelData.url);
                                         }
                                     }
                                 }
-
                             }
 
                             PlasmaComponents.Button {
@@ -538,11 +524,8 @@ PlasmaComponents.ScrollView {
                                     color: parent.hovered ? Qt.rgba(resultsListRoot.textColor.r, resultsListRoot.textColor.g, resultsListRoot.textColor.b, 0.1) : "transparent"
                                     radius: 16
                                 }
-
                             }
-
                         }
-
                     }
 
                     // Native Inline Preview Card
@@ -603,7 +586,6 @@ PlasmaComponents.ScrollView {
                                     sourceSize.width: Math.max(1, thumbContainer.width)
                                     sourceSize.height: Math.max(1, thumbContainer.height)
                                 }
-
                             }
 
                             // Right Column: Metadata
@@ -658,9 +640,7 @@ PlasmaComponents.ScrollView {
                                     Layout.fillWidth: true
                                     textFormat: Text.PlainText
                                 }
-
                             }
-
                         }
 
                         // Text File Snippet Preview
@@ -686,7 +666,6 @@ PlasmaComponents.ScrollView {
                                 font.pixelSize: Kirigami.Theme.smallFont.pixelSize
                                 wrapMode: Text.Wrap
                             }
-
                         }
 
                         // Quick Actions
@@ -715,16 +694,11 @@ PlasmaComponents.ScrollView {
                                 onClicked: {
                                     if (resultsListRoot.logic && delegateRoot.previewPath)
                                         resultsListRoot.logic.openContainingFolder(delegateRoot.previewPath);
-
                                 }
                             }
-
                         }
-
                     }
-
                 }
-
             }
 
             MouseArea {
@@ -736,7 +710,7 @@ PlasmaComponents.ScrollView {
                 acceptedButtons: Qt.LeftButton | Qt.RightButton
                 drag.target: dragProxy
                 drag.threshold: 10
-                onClicked: (mouse) => {
+                onClicked: mouse => {
                     var matchId = modelData.duplicateId || modelData.display || "";
                     var filePath = delegateRoot.resolvedFilePath();
                     if (mouse.button === Qt.RightButton) {
@@ -824,7 +798,6 @@ PlasmaComponents.ScrollView {
                         width: 300
                         visible: delegateRoot.previewPath.length > 0
                     }
-
                 }
 
                 background: Rectangle {
@@ -833,7 +806,6 @@ PlasmaComponents.ScrollView {
                     border.width: 1
                     radius: 6
                 }
-
             }
 
             Behavior on height {
@@ -844,11 +816,7 @@ PlasmaComponents.ScrollView {
                     easing.type: Easing.InOutQuad
                     onFinished: delegateRoot.animateHeight = false
                 }
-
             }
-
         }
-
     }
-
 }

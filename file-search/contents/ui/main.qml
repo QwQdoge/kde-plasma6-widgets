@@ -11,10 +11,11 @@ PlasmoidItem {
 
     // Load bundled fonts with the root item so every lazily-created view can use
     // them. Fall back to the desktop theme until the font is ready.
-    FontLoader { id: barlowMedium; source: "../fonts/BarlowCondensed-Medium.ttf" }
-    readonly property string uiFontFamily: barlowMedium.status === FontLoader.Ready
-        ? barlowMedium.name
-        : Kirigami.Theme.defaultFont.family
+    FontLoader {
+        id: barlowMedium
+        source: "../fonts/BarlowCondensed-Medium.ttf"
+    }
+    readonly property string uiFontFamily: barlowMedium.status === FontLoader.Ready ? barlowMedium.name : Kirigami.Theme.defaultFont.family
 
     // ===== CORE PROPERTIES =====
     property string searchText: ""
@@ -22,13 +23,12 @@ PlasmoidItem {
 
     // Responsive font size based on height (40% of panel height)
     readonly property int responsiveFontSize: Math.max(10, Math.round(height * 0.4))
-    
+
     // ===== PANEL DETECTION =====
     // Check if widget is in a panel (horizontal or vertical)
     // FormFactor: 0=Planar (Desktop), 1=Horizontal, 2=Vertical, 3=Application
-    readonly property bool isInPanel: Plasmoid.formFactor === PlasmaCore.Types.Horizontal || 
-                                       Plasmoid.formFactor === PlasmaCore.Types.Vertical
-    
+    readonly property bool isInPanel: Plasmoid.formFactor === PlasmaCore.Types.Horizontal || Plasmoid.formFactor === PlasmaCore.Types.Vertical
+
     // ===== DISPLAY MODE CONFIGURATION =====
     // 0 = Button, 1 = Medium, 2 = Wide, 3 = Extra Wide
     // If not in panel, force button mode
@@ -41,86 +41,82 @@ PlasmoidItem {
     readonly property bool isExtraWideMode: false
     readonly property bool isUltraWideMode: false
 
-    readonly property int legacyPanelWidthStep: configDisplayMode === 1 ? 0
-        : (configDisplayMode === 2 ? 4 : (configDisplayMode === 3 ? 7 : 12))
-    readonly property int panelWidthStep: Plasmoid.configuration.panelWidthStep >= 0
-        ? Math.max(0, Math.min(12, Plasmoid.configuration.panelWidthStep))
-        : legacyPanelWidthStep
+    readonly property int legacyPanelWidthStep: configDisplayMode === 1 ? 0 : (configDisplayMode === 2 ? 4 : (configDisplayMode === 3 ? 7 : 12))
+    readonly property int panelWidthStep: Plasmoid.configuration.panelWidthStep >= 0 ? Math.max(0, Math.min(12, Plasmoid.configuration.panelWidthStep)) : legacyPanelWidthStep
     readonly property real panelContentOpacity: {
-        var level = Plasmoid.configuration.panelContentOpacity
-        return level === 0 ? 0.45 : (level === 1 ? 0.7 : 1.0)
+        var level = Plasmoid.configuration.panelContentOpacity;
+        return level === 0 ? 0.45 : (level === 1 ? 0.7 : 1.0);
     }
 
     // ===== LAYOUT CALCULATIONS =====
     readonly property real textContentWidth: isButtonMode ? 0 : (textMetrics.width + ((isWideMode || isExtraWideMode || isUltraWideMode) ? (height + 30) : 20))
     readonly property real minimumPanelWidth: 70
     readonly property real maximumPanelWidth: height * 9
-    readonly property real steppedPanelWidth: minimumPanelWidth
-        + (maximumPanelWidth - minimumPanelWidth) * panelWidthStep / 12
+    readonly property real steppedPanelWidth: minimumPanelWidth + (maximumPanelWidth - minimumPanelWidth) * panelWidthStep / 12
     readonly property real baseWidth: isButtonMode ? height : steppedPanelWidth
-    
+
     Layout.preferredWidth: baseWidth
     Layout.preferredHeight: Plasmoid.configuration.panelHeight > 0 ? Plasmoid.configuration.panelHeight : 38
     Layout.minimumWidth: 50
     Layout.minimumHeight: Plasmoid.configuration.panelHeight > 0 ? Plasmoid.configuration.panelHeight : 34
-    
+
     // Character limits
     readonly property int maxCharsWide: 65
     readonly property int maxCharsMedium: 35
     readonly property int maxCharsUltra: 110
     readonly property int maxChars: Math.round(maxCharsMedium + (maxCharsUltra - maxCharsMedium) * panelWidthStep / 12)
-    
+
     // Truncated text for display
     readonly property string placeholderText: i18nd("plasma_applet_com.mcc45tr.filesearch", "Start searching...")
     readonly property string rawSearchText: searchText.length > 0 ? searchText : placeholderText
     readonly property string truncatedText: rawSearchText.length > maxChars ? rawSearchText.substring(0, maxChars) + "..." : rawSearchText
-    
+
     TextMetrics {
         id: textMetrics
         font.family: root.uiFontFamily
         font.pixelSize: root.responsiveFontSize
         text: root.truncatedText
     }
-    
+
     TextMetrics {
         id: placeholderMetrics
         font.family: textMetrics.font.family
         font.pixelSize: textMetrics.font.pixelSize
         text: root.placeholderText
     }
-    
+
     readonly property real placeholderContentWidth: isButtonMode ? 0 : (placeholderMetrics.width + ((isWideMode || isExtraWideMode || isUltraWideMode) ? (height + 30) : 20))
-    
+
     // No background - transparent
     Plasmoid.backgroundHints: PlasmaCore.Types.NoBackground
-    
+
     // Prevent closing when interacting with external dialogs (like auth)
     property bool preventClosing: false
     hideOnWindowDeactivate: !preventClosing
-    
+
     // ===== VIEW MODE CONFIGURATION =====
     readonly property int viewMode: Plasmoid.configuration.viewMode
     readonly property bool isTileView: viewMode === 1
-    
+
     // Icon sizes
     readonly property int iconSize: Math.max(16, Plasmoid.configuration.iconSize || 48)
     readonly property int listIconSize: Math.max(16, Plasmoid.configuration.listIconSize || 22)
-    
+
     // ===== THEME COLORS =====
     readonly property color bgColor: Kirigami.Theme.backgroundColor
     readonly property color textColor: Kirigami.Theme.textColor
     readonly property color accentColor: Kirigami.Theme.highlightColor
-    
+
     // ===== LOGIC CONTROLLER (Non-visual) =====
     Components.LogicController {
         id: controller
         plasmoidConfig: Plasmoid.configuration
     }
-    
+
     // ===== LOCALIZATION =====
     // Localization removed
     // Use standard i18nd("plasma_applet_com.mcc45tr.filesearch", )
-    
+
     // ===== CONTEXTUAL ACTIONS (Right-Click Menu) =====
     Plasmoid.contextualActions: [
         PlasmaCore.Action {
@@ -140,7 +136,7 @@ PlasmoidItem {
     // ===== COMPACT REPRESENTATION (Panel Widget) =====
     compactRepresentation: Components.CompactView {
         anchors.fill: parent
-        
+
         isButtonMode: root.isButtonMode
         isWideMode: root.isWideMode
         isExtraWideMode: root.isExtraWideMode
@@ -159,39 +155,38 @@ PlasmoidItem {
         showSearchButton: Plasmoid.configuration.showSearchButton
         showSearchButtonBackground: Plasmoid.configuration.showSearchButtonBackground
         contentOpacity: root.panelContentOpacity
-        
+
         logic: controller
         rssPlaceholderCycling: Plasmoid.configuration.rssPlaceholderCycling
         rssShowFullHeadline: Plasmoid.configuration.rssShowFullHeadline
         rssShowSource: Plasmoid.configuration.rssShowSource
         rssFrequency: Plasmoid.configuration.rssFrequency
         weatherFrequency: Plasmoid.configuration.weatherFrequency
-        
+
         onToggleExpanded: root.expanded = !root.expanded
     }
-    
+
     // ===== FULL REPRESENTATION (Popup) =====
     fullRepresentation: Components.SearchPopup {
         id: popup
         logic: controller
         plasmoidConfig: Plasmoid.configuration
-        
+
         // Data binding
         searchText: root.searchText
         expanded: root.expanded
-        
+
         displayMode: root.displayMode
         viewMode: root.viewMode
         iconSize: root.iconSize
         listIconSize: root.listIconSize
-        
+
         textColor: root.textColor
         accentColor: root.accentColor
         bgColor: root.bgColor
         // Pass panel status for styling decisions
         isInPanel: root.isInPanel
-        
-        
+
         showDebug: Plasmoid.configuration.debugOverlay && Plasmoid.configuration.userProfile === 1
         showBootOptions: Plasmoid.configuration.showBootOptions
         showPinnedBar: Plasmoid.configuration.showPinnedBar
@@ -204,17 +199,23 @@ PlasmoidItem {
         previewSize: Plasmoid.configuration.previewSize !== undefined ? Plasmoid.configuration.previewSize : 1
         previewSettings: {
             try {
-                return JSON.parse(Plasmoid.configuration.previewSettings || '{"images": false, "videos": false, "text": false, "documents": false, "applications": false}')
+                return JSON.parse(Plasmoid.configuration.previewSettings || '{"images": false, "videos": false, "text": false, "documents": false, "applications": false}');
             } catch (e) {
-                return {"images": false, "videos": false, "text": false, "documents": false, "applications": false}
+                return {
+                    "images": false,
+                    "videos": false,
+                    "text": false,
+                    "documents": false,
+                    "applications": false
+                };
             }
         }
 
         // Signal handlers
-        onRequestSearchTextUpdate: (text) => root.searchText = text
-        onRequestExpandChange: (exp) => root.expanded = exp
-        onRequestViewModeChange: (mode) => Plasmoid.configuration.viewMode = mode
-        onRequestPreventClosing: (prevent) => root.preventClosing = prevent
+        onRequestSearchTextUpdate: text => root.searchText = text
+        onRequestExpandChange: exp => root.expanded = exp
+        onRequestViewModeChange: mode => Plasmoid.configuration.viewMode = mode
+        onRequestPreventClosing: prevent => root.preventClosing = prevent
     }
 
     function refreshWeatherIfDue() {
@@ -228,9 +229,7 @@ PlasmoidItem {
         if (ageMs <= refreshInterval * 60 * 1000 && ageMs >= 0)
             return;
 
-        var units = config.weatherUseSystemUnits
-            ? (Qt.locale().measurementSystem === Locale.MetricSystem ? "metric" : "imperial")
-            : (config.weatherUnits || "metric");
+        var units = config.weatherUseSystemUnits ? (Qt.locale().measurementSystem === Locale.MetricSystem ? "metric" : "imperial") : (config.weatherUnits || "metric");
         var provider = config.weatherProvider || "openmeteo";
         // Keyed providers retrieve credentials from KWallet when their view opens.
         if (provider !== "openmeteo")
@@ -246,7 +245,7 @@ PlasmoidItem {
             apiKey: "",
             apiKey2: "",
             refreshInterval: refreshInterval
-        }, function(result) {
+        }, function (result) {
             if (!result.success)
                 return;
             controller.saveWeatherCache(result);

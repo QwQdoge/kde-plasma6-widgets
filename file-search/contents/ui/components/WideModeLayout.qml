@@ -14,8 +14,12 @@ Item {
     property bool forecastMode: weatherRoot.forecastMode
     property string location: weatherRoot.location
 
-    function getWeatherIcon(item) { return weatherRoot.getWeatherIcon(item) }
-    function getLocalizedDay(day) { return weatherRoot.getLocalizedDay(day) }
+    function getWeatherIcon(item) {
+        return weatherRoot.getWeatherIcon(item);
+    }
+    function getLocalizedDay(day) {
+        return weatherRoot.getLocalizedDay(day);
+    }
 
     clip: true
 
@@ -25,11 +29,21 @@ Item {
         spacing: 8
 
         opacity: weatherRoot.showForecastDetails ? 0 : 1
-        Behavior on opacity { NumberAnimation { duration: 300; easing.type: Easing.OutQuad } }
+        Behavior on opacity {
+            NumberAnimation {
+                duration: 300
+                easing.type: Easing.OutQuad
+            }
+        }
 
         transform: Translate {
             y: weatherRoot.showForecastDetails ? -wideLayoutContainer.height : 0
-            Behavior on y { NumberAnimation { duration: 350; easing.type: Easing.InOutQuart } }
+            Behavior on y {
+                NumberAnimation {
+                    duration: 350
+                    easing.type: Easing.InOutQuart
+                }
+            }
         }
 
         Rectangle {
@@ -51,22 +65,35 @@ Item {
             Timer {
                 id: autoCloseTimer
                 interval: 5000
-                onTriggered: if (currentSection.isExpanded) currentSection.isExpanded = false
+                onTriggered: if (currentSection.isExpanded)
+                    currentSection.isExpanded = false
             }
 
-            Behavior on Layout.preferredWidth { NumberAnimation { duration: 200; easing.type: Easing.InOutQuad } }
-            Behavior on radius { NumberAnimation { duration: 200; easing.type: Easing.InOutQuad } }
+            Behavior on Layout.preferredWidth {
+                NumberAnimation {
+                    duration: 200
+                    easing.type: Easing.InOutQuad
+                }
+            }
+            Behavior on radius {
+                NumberAnimation {
+                    duration: 200
+                    easing.type: Easing.InOutQuad
+                }
+            }
 
             MouseArea {
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
                 onClicked: {
-                    currentSection.isExpanded = !currentSection.isExpanded
-                    currentSection.isExpanded ? autoCloseTimer.restart() : autoCloseTimer.stop()
+                    currentSection.isExpanded = !currentSection.isExpanded;
+                    currentSection.isExpanded ? autoCloseTimer.restart() : autoCloseTimer.stop();
                 }
-                onEntered: if (currentSection.isExpanded) autoCloseTimer.stop()
-                onExited: if (currentSection.isExpanded) autoCloseTimer.restart()
+                onEntered: if (currentSection.isExpanded)
+                    autoCloseTimer.stop()
+                onExited: if (currentSection.isExpanded)
+                    autoCloseTimer.restart()
             }
 
             ColumnLayout {
@@ -76,9 +103,15 @@ Item {
                 spacing: 2
                 visible: !currentSection.isExpanded
                 opacity: currentSection.isExpanded ? 0 : 1
-                Behavior on opacity { NumberAnimation { duration: 150 } }
+                Behavior on opacity {
+                    NumberAnimation {
+                        duration: 150
+                    }
+                }
 
-                Item { Layout.fillHeight: true }
+                Item {
+                    Layout.fillHeight: true
+                }
 
                 Kirigami.Icon {
                     source: getWeatherIcon(currentWeather)
@@ -133,17 +166,39 @@ Item {
                     spacing: 8
                     RowLayout {
                         spacing: 1
-                        Text { text: "▲"; color: Kirigami.Theme.positiveTextColor; font.pixelSize: Math.max(Kirigami.Theme.smallFont.pixelSize, Math.min(Kirigami.Theme.defaultFont.pixelSize, wideLayout.height * 0.07)); font.bold: true }
-                        Text { text: currentWeather ? currentWeather.temp_max + "°" : "--"; color: Kirigami.Theme.textColor; font.pixelSize: Math.max(Kirigami.Theme.smallFont.pixelSize, Math.min(Kirigami.Theme.defaultFont.pixelSize, wideLayout.height * 0.07)); font.bold: true }
+                        Text {
+                            text: "▲"
+                            color: Kirigami.Theme.positiveTextColor
+                            font.pixelSize: Math.max(Kirigami.Theme.smallFont.pixelSize, Math.min(Kirigami.Theme.defaultFont.pixelSize, wideLayout.height * 0.07))
+                            font.bold: true
+                        }
+                        Text {
+                            text: currentWeather ? currentWeather.temp_max + "°" : "--"
+                            color: Kirigami.Theme.textColor
+                            font.pixelSize: Math.max(Kirigami.Theme.smallFont.pixelSize, Math.min(Kirigami.Theme.defaultFont.pixelSize, wideLayout.height * 0.07))
+                            font.bold: true
+                        }
                     }
                     RowLayout {
                         spacing: 1
-                        Text { text: "▼"; color: Kirigami.Theme.negativeTextColor; font.pixelSize: Math.max(Kirigami.Theme.smallFont.pixelSize, Math.min(Kirigami.Theme.defaultFont.pixelSize, wideLayout.height * 0.07)); font.bold: true }
-                        Text { text: currentWeather ? currentWeather.temp_min + "°" : "--"; color: Kirigami.Theme.textColor; font.pixelSize: Math.max(Kirigami.Theme.smallFont.pixelSize, Math.min(Kirigami.Theme.defaultFont.pixelSize, wideLayout.height * 0.07)); font.bold: true }
+                        Text {
+                            text: "▼"
+                            color: Kirigami.Theme.negativeTextColor
+                            font.pixelSize: Math.max(Kirigami.Theme.smallFont.pixelSize, Math.min(Kirigami.Theme.defaultFont.pixelSize, wideLayout.height * 0.07))
+                            font.bold: true
+                        }
+                        Text {
+                            text: currentWeather ? currentWeather.temp_min + "°" : "--"
+                            color: Kirigami.Theme.textColor
+                            font.pixelSize: Math.max(Kirigami.Theme.smallFont.pixelSize, Math.min(Kirigami.Theme.defaultFont.pixelSize, wideLayout.height * 0.07))
+                            font.bold: true
+                        }
                     }
                 }
 
-                Item { Layout.fillHeight: true }
+                Item {
+                    Layout.fillHeight: true
+                }
             }
 
             Flickable {
@@ -158,23 +213,33 @@ Item {
                 flickableDirection: Flickable.VerticalFlick
                 boundsBehavior: Flickable.StopAtBounds
 
-                Behavior on opacity { NumberAnimation { duration: 150 } }
-                PlasmaComponents.ScrollBar.vertical: PlasmaComponents.ScrollBar { policy: PlasmaComponents.ScrollBar.AlwaysOff; width: 0 }
+                Behavior on opacity {
+                    NumberAnimation {
+                        duration: 150
+                    }
+                }
+                PlasmaComponents.ScrollBar.vertical: PlasmaComponents.ScrollBar {
+                    policy: PlasmaComponents.ScrollBar.AlwaysOff
+                    width: 0
+                }
 
                 WheelHandler {
                     target: expandedFlickable
                     orientation: Qt.Vertical
                     acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
-                    onWheel: (wheel) => {
-                        expandedFlickable.contentY -= wheel.angleDelta.y * 0.5
-                        expandedFlickable.contentY = Math.max(0, Math.min(expandedFlickable.contentY, expandedFlickable.contentHeight - expandedFlickable.height))
+                    onWheel: wheel => {
+                        expandedFlickable.contentY -= wheel.angleDelta.y * 0.5;
+                        expandedFlickable.contentY = Math.max(0, Math.min(expandedFlickable.contentY, expandedFlickable.contentHeight - expandedFlickable.height));
                     }
                 }
 
                 MouseArea {
                     anchors.fill: parent
                     propagateComposedEvents: true
-                    onClicked: { currentSection.isExpanded = false; autoCloseTimer.stop() }
+                    onClicked: {
+                        currentSection.isExpanded = false;
+                        autoCloseTimer.stop();
+                    }
                 }
 
                 WeatherDetailsView {
@@ -243,14 +308,14 @@ Item {
                 cellHeight: height
                 flow: GridView.FlowTopToBottom
 
-                onItemClicked: function(data, idx, cardRect) {
+                onItemClicked: function (data, idx, cardRect) {
                     if (!forecastMode) {
                         if (idx === 0) {
-                            currentSection.isExpanded = true
-                            autoCloseTimer.restart()
+                            currentSection.isExpanded = true;
+                            autoCloseTimer.restart();
                         } else if (data.hasDetails) {
-                            weatherRoot.selectedForecast = data
-                            weatherRoot.showForecastDetails = true
+                            weatherRoot.selectedForecast = data;
+                            weatherRoot.showForecastDetails = true;
                         }
                     }
                 }
@@ -269,7 +334,12 @@ Item {
 
         transform: Translate {
             y: weatherRoot.showForecastDetails ? 0 : wideLayoutContainer.height
-            Behavior on y { NumberAnimation { duration: 350; easing.type: Easing.InOutQuart } }
+            Behavior on y {
+                NumberAnimation {
+                    duration: 350
+                    easing.type: Easing.InOutQuart
+                }
+            }
         }
 
         Timer {
@@ -283,16 +353,21 @@ Item {
             target: weatherRoot
             function onShowForecastDetailsChanged() {
                 if (weatherRoot.showForecastDetails) {
-                    overlayAutoCloseTimer.restart()
+                    overlayAutoCloseTimer.restart();
                 } else {
-                    overlayAutoCloseTimer.stop()
+                    overlayAutoCloseTimer.stop();
                 }
             }
         }
 
         // Opacity of content: fade in slightly later
         property real contentOpacity: weatherRoot.showForecastDetails ? 1 : 0
-        Behavior on contentOpacity { NumberAnimation { duration: 300; easing.type: Easing.OutQuad } }
+        Behavior on contentOpacity {
+            NumberAnimation {
+                duration: 300
+                easing.type: Easing.OutQuad
+            }
+        }
 
         // Hover Listener for auto-close timer
         MouseArea {
@@ -300,10 +375,11 @@ Item {
             z: 1000
             hoverEnabled: true
             propagateComposedEvents: true
-            onPressed: (mouse) => mouse.accepted = false
-            onWheel: (wheel) => wheel.accepted = false
+            onPressed: mouse => mouse.accepted = false
+            onWheel: wheel => wheel.accepted = false
             onEntered: overlayAutoCloseTimer.stop()
-            onExited: if (weatherRoot.showForecastDetails) overlayAutoCloseTimer.restart()
+            onExited: if (weatherRoot.showForecastDetails)
+                overlayAutoCloseTimer.restart()
         }
 
         // Background Click Listener (fallback if Flickable doesn't cover everything)
@@ -323,7 +399,10 @@ Item {
             boundsBehavior: Flickable.StopAtBounds
             opacity: forecastDetailsOverlay.contentOpacity
 
-            PlasmaComponents.ScrollBar.vertical: PlasmaComponents.ScrollBar { policy: forecastDetailsContent.height > parent.height ? PlasmaComponents.ScrollBar.AlwaysOn : PlasmaComponents.ScrollBar.AlwaysOff; width: 6 }
+            PlasmaComponents.ScrollBar.vertical: PlasmaComponents.ScrollBar {
+                policy: forecastDetailsContent.height > parent.height ? PlasmaComponents.ScrollBar.AlwaysOn : PlasmaComponents.ScrollBar.AlwaysOff
+                width: 6
+            }
 
             Item {
                 width: parent.width
