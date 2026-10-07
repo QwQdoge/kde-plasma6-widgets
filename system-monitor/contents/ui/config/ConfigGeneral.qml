@@ -8,6 +8,8 @@ Kirigami.FormLayout {
 
     property alias cfg_showCpu: showCpu.checked
     property alias cfg_showMemory: showMemory.checked
+    property alias cfg_showSwap: showSwap.checked
+    property alias cfg_showTemperatures: showTemperatures.checked
     property alias cfg_showGpu: showGpu.checked
     property alias cfg_showNetwork: showNetwork.checked
     property alias cfg_showDisk: showDisk.checked
@@ -44,6 +46,16 @@ Kirigami.FormLayout {
     Controls.CheckBox {
         id: showMemory
         text: i18n("Memory")
+    }
+
+    Controls.CheckBox {
+        id: showSwap
+        text: i18n("Swap")
+    }
+
+    Controls.CheckBox {
+        id: showTemperatures
+        text: i18n("Show temperatures when available")
     }
 
     Controls.CheckBox {

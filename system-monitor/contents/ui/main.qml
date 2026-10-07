@@ -18,6 +18,8 @@ PlasmoidItem {
 
     readonly property bool showCpu: Plasmoid.configuration.showCpu !== false
     readonly property bool showMemory: Plasmoid.configuration.showMemory !== false
+    readonly property bool showSwap: Plasmoid.configuration.showSwap !== false
+    readonly property bool showTemperatures: Plasmoid.configuration.showTemperatures !== false
     readonly property bool showGpu: Plasmoid.configuration.showGpu !== false
     readonly property bool showNetwork: Plasmoid.configuration.showNetwork !== false
     readonly property bool showDisk: Plasmoid.configuration.showDisk !== false
@@ -27,6 +29,7 @@ PlasmoidItem {
 
     property var cpuHistory: []
     property var memoryHistory: []
+    property var swapHistory: []
     property var gpuHistory: []
     property var networkDownHistory: []
     property var networkUpHistory: []
@@ -45,6 +48,10 @@ PlasmoidItem {
     readonly property real memoryUsed: numberFrom(memoryUsedSensor)
     readonly property real memoryTotal: numberFrom(memoryTotalSensor)
     readonly property real memoryPercent: memoryTotal > 0 ? memoryUsed / memoryTotal * 100 : NaN
+
+    readonly property real swapUsed: numberFrom(swapUsedSensor)
+    readonly property real swapTotal: numberFrom(swapTotalSensor)
+    readonly property real swapPercent: swapTotal > 0 ? swapUsed / swapTotal * 100 : NaN
 
     readonly property real gpuUsage: numberFrom(gpuUsageSensor)
     readonly property real gpuTemperature: positiveNumberFrom(gpuTemperatureSensor)
@@ -138,6 +145,8 @@ PlasmoidItem {
             cpuHistory = appendHistory(cpuHistory, cpuUsage);
         if (showMemory)
             memoryHistory = appendHistory(memoryHistory, memoryPercent);
+        if (showSwap)
+            swapHistory = appendHistory(swapHistory, swapPercent);
         if (showGpu && gpuId.length > 0)
             gpuHistory = appendHistory(gpuHistory, gpuUsage);
         if (showNetwork) {
@@ -293,7 +302,7 @@ PlasmoidItem {
         id: cpuTemperatureSensor
         sensorId: "cpu/all/averageTemperature"
         updateRateLimit: root.updateInterval
-        enabled: root.visible && root.showCpu
+        enabled: root.visible && root.showCpu && root.showTemperatures
     }
 
     Sensors.Sensor {
@@ -322,6 +331,20 @@ PlasmoidItem {
         sensorId: "network/all/upload"
         updateRateLimit: root.updateInterval
         enabled: root.visible && root.showNetwork
+    }
+
+    Sensors.Sensor {
+        id: swapUsedSensor
+        sensorId: "memory/swap/used"
+        updateRateLimit: root.updateInterval
+        enabled: root.visible && root.showSwap
+    }
+
+    Sensors.Sensor {
+        id: swapTotalSensor
+        sensorId: "memory/swap/total"
+        updateRateLimit: root.updateInterval
+        enabled: root.visible && root.showSwap
     }
 
     Sensors.Sensor {
@@ -380,7 +403,7 @@ PlasmoidItem {
         id: gpuTemperatureSensor
         sensorId: root.gpuId.length > 0 ? "gpu/" + root.gpuId + "/temperature" : ""
         updateRateLimit: root.updateInterval
-        enabled: root.visible && root.showGpu && root.gpuId.length > 0
+        enabled: root.visible && root.showGpu && root.showTemperatures && root.gpuId.length > 0
     }
 
     Sensors.Sensor {
@@ -527,7 +550,7 @@ PlasmoidItem {
                         detailText: {
                             var parts = [];
                             var freq = root.formatFrequency(root.cpuFrequency);
-                            var temp = root.formatTemperature(root.cpuTemperature);
+                            var temp = root.showTemperatures ? root.formatTemperature(root.cpuTemperature) : "";
                             if (freq.length > 0) parts.push(freq);
                             if (temp.length > 0) parts.push(temp);
                             return parts.join("  ·  ");
@@ -555,6 +578,22 @@ PlasmoidItem {
                     }
 
                     MetricCard {
+                        visible: root.showSwap
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: implicitHeight
+                        title: i18n("Swap")
+                        iconName: "drive-harddisk"
+                        valueText: root.percentText(root.swapPercent)
+                        detailText: !isNaN(root.swapUsed) && !isNaN(root.swapTotal)
+                                    ? root.formatBytes(root.swapUsed) + " / " + root.formatBytes(root.swapTotal)
+                                    : ""
+                        graphValues: root.swapHistory
+                        graphMaximum: 100
+                        progress: isNaN(root.swapPercent) ? -1 : root.swapPercent / 100
+                        accentColor: Kirigami.Theme.neutralTextColor
+                    }
+
+                    MetricCard {
                         visible: root.showGpu && root.gpuId.length > 0
                         Layout.fillWidth: true
                         Layout.preferredHeight: implicitHeight
@@ -565,7 +604,7 @@ PlasmoidItem {
                             var parts = [];
                             if (!isNaN(root.gpuVramUsed) && !isNaN(root.gpuVramTotal) && root.gpuVramTotal > 0)
                                 parts.push(root.formatBytes(root.gpuVramUsed) + " / " + root.formatBytes(root.gpuVramTotal));
-                            var temp = root.formatTemperature(root.gpuTemperature);
+                            var temp = root.showTemperatures ? root.formatTemperature(root.gpuTemperature) : "";
                             if (temp.length > 0) parts.push(temp);
                             return parts.join("  ·  ");
                         }
