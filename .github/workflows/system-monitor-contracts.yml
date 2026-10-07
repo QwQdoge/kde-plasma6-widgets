@@ -8,7 +8,7 @@ on:
       - '.github/workflows/system-monitor-contracts.yml'
   push:
     branches:
-      - meo/system-monitor-functional-v2
+      - main
 
 permissions:
   contents: read

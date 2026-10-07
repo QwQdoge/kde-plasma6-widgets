@@ -4,10 +4,11 @@ on:
   pull_request:
     paths:
       - 'system-monitor/**'
+      - 'weather/**'
       - '.github/workflows/system-monitor-qml.yml'
   push:
     branches:
-      - meo/system-monitor-functional-v2
+      - main
 
 permissions:
   contents: read
@@ -45,3 +46,11 @@ jobs:
           mapfile -t files < <(find system-monitor/contents -type f -name '*.qml' -print | sort)
           test "${#files[@]}" -gt 0
           "$lint" -I /usr/lib/qt6/qml "${files[@]}"
+
+      - name: Validate weather forecast QML and keyboard interaction
+        env:
+          QT_QPA_PLATFORM: offscreen
+          QT_QUICK_BACKEND: software
+        run: |
+          /usr/lib/qt6/bin/qmllint -I /usr/lib/qt6/qml weather/contents/ui/ForecastItem.qml weather/tests/tst_ForecastKeyboard.qml
+          /usr/lib/qt6/bin/qmltestrunner -input weather/tests/tst_ForecastKeyboard.qml
