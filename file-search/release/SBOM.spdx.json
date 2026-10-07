@@ -7,7 +7,7 @@
     ]
   },
   "dataLicense": "CC0-1.0",
-  "documentNamespace": "https://github.com/MCC45TR/Plasma6Widgets/spdx/ed1ee5330a8ba5667abc7ac6709e49c380d492b0ac100b25e96a88298e852bc8",
+  "documentNamespace": "https://github.com/MCC45TR/Plasma6Widgets/spdx/0850b3baee3b332a9c5623bf292a91cf1569dbfcbd59b9c826e4b91709527352",
   "files": [
     {
       "SPDXID": "SPDXRef-File-1",
@@ -2210,7 +2210,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "d9cfece5a7ad0e2bc620009c893770b2cc552e76369227d76431739694ae1df0"
+          "checksumValue": "81d8f9c7428ed234607f5827be5ea5ddc18cd645a83109fb5b1ad1380122e4ed"
         }
       ],
       "copyrightText": "NOASSERTION",

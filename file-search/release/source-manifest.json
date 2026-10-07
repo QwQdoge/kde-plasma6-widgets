@@ -1101,8 +1101,8 @@
     {
       "mode": "0644",
       "path": "contents/tools/rss_sync.py",
-      "sha256": "d9cfece5a7ad0e2bc620009c893770b2cc552e76369227d76431739694ae1df0",
-      "size": 13921
+      "sha256": "81d8f9c7428ed234607f5827be5ea5ddc18cd645a83109fb5b1ad1380122e4ed",
+      "size": 19745
     },
     {
       "mode": "0755",
