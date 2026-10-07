@@ -12,6 +12,12 @@
     <entry name="showMemory" type="Bool">
       <default>true</default>
     </entry>
+    <entry name="showSwap" type="Bool">
+      <default>true</default>
+    </entry>
+    <entry name="showTemperatures" type="Bool">
+      <default>true</default>
+    </entry>
     <entry name="showGpu" type="Bool">
       <default>true</default>
     </entry>
