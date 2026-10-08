@@ -7,7 +7,7 @@ QML_FILES=$(find contents tests -name '*.qml' | sort)
 QML_TEST_FILES=$(find tests -name 'tst_*.qml' | sort)
 
 python3 -m unittest discover -s tests -p 'test_*.py' -v
-python3 -m py_compile contents/tools/rss_sync.py tools/build_release.py tests/test_*.py
+python3 -m py_compile contents/tools/rss_sync.py contents/tools/thumbnailer.py tools/build_release.py tests/test_*.py
 sh -n contents/tools/rss_sync.sh tests/run_checks.sh
 python3 -m json.tool metadata.json >/dev/null
 python3 tests/benchmark_rss.py --check
