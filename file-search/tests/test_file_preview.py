@@ -1,3 +1,4 @@
+import base64
 import json
 import os
 from pathlib import Path
@@ -11,6 +12,7 @@ import urllib.parse
 ROOT = Path(__file__).resolve().parents[1]
 HELPER = ROOT / "contents" / "tools" / "thumbnailer.py"
 PNG = b"\x89PNG\r\n\x1a\n"
+VALID_PNG = base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgYGD4DwABBAEAX+XDSwAAAABJRU5ErkJggg==")
 
 
 def encoded(value):
@@ -20,7 +22,7 @@ def encoded(value):
 class ThumbnailerTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
-        self.root = Path(self.temp.name)
+        self.root = Path(self.temp.name).resolve()
         self.bin = self.root / "bin"
         self.bin.mkdir()
         self.cache = self.root / "cache"
@@ -29,7 +31,7 @@ class ThumbnailerTests(unittest.TestCase):
         fake = self.bin / "kioclient6"
         fake.write_text(
             "#!/usr/bin/env python3\n"
-            "import json, os, sys, time\n"
+            "import base64, json, os, sys, time\n"
             "mode = os.environ.get('FAKE_MODE', 'ok')\n"
             "log = os.environ.get('FAKE_LOG')\n"
             "if log:\n"
@@ -38,10 +40,12 @@ class ThumbnailerTests(unittest.TestCase):
             "    time.sleep(5)\n"
             "elif mode == 'huge':\n"
             "    sys.stdout.buffer.write(b'\\x89PNG\\r\\n\\x1a\\n' + b'x' * 200000)\n"
+            "elif mode == 'signature':\n"
+            "    sys.stdout.buffer.write(b'\\x89PNG\\r\\n\\x1a\\n' + b'ok')\n"
             "elif mode == 'bad':\n"
             "    sys.stdout.buffer.write(b'not a png')\n"
             "else:\n"
-            "    sys.stdout.buffer.write(b'\\x89PNG\\r\\n\\x1a\\n' + b'ok')\n",
+            f"    sys.stdout.buffer.write(base64.b64decode({base64.b64encode(VALID_PNG).decode()!r}))\n",
             encoding="utf-8",
         )
         fake.chmod(0o755)
@@ -68,6 +72,55 @@ class ThumbnailerTests(unittest.TestCase):
             *extra,
         ]
         return subprocess.run(command, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=5)
+
+    def test_signature_only_png_is_rejected(self):
+        source = self.root / "invalid.pdf"
+        source.write_bytes(b"x")
+        result = self.run_helper(source, mode="signature")
+        self.assertEqual(result.returncode, 5)
+        self.assertFalse((self.cache / "aabb.png").exists())
+
+    def test_rejects_symlink_parent_without_changing_target_permissions(self):
+        source = self.root / "plain.pdf"
+        source.write_bytes(b"x")
+        real = self.root / "real"
+        real.mkdir(mode=0o755)
+        victim = real / "previews"
+        victim.mkdir(mode=0o755)
+        link = self.root / "parent-link"
+        link.symlink_to(real, target_is_directory=True)
+        result = self.run_helper(source, cache=link / "previews")
+        self.assertEqual(result.returncode, 2)
+        self.assertEqual(victim.stat().st_mode & 0o777, 0o755)
+
+    def test_rejects_nonfinite_timeout(self):
+        source = self.root / "plain.pdf"
+        source.write_bytes(b"x")
+        for limit in ("nan", "inf", "-inf"):
+            result = self.run_helper(source, "aabb", "--timeout=" + limit)
+            self.assertEqual(result.returncode, 2)
+            self.assertFalse(self.log.exists())
+
+    def test_reclaims_cancelled_generation_temporary_file(self):
+        source = self.root / "plain.pdf"
+        source.write_bytes(b"x")
+        orphan = self.cache / ".aabb.123.456"
+        orphan.write_bytes(b"orphan")
+        result = self.run_helper(source)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertFalse(orphan.exists())
+
+    def test_cache_lock_symlink_cannot_change_target_permissions(self):
+        source = self.root / "plain.pdf"
+        source.write_bytes(b"x")
+        victim = self.root / "victim"
+        victim.write_bytes(b"keep")
+        victim.chmod(0o644)
+        (self.cache / ".generation.lock").symlink_to(victim)
+        result = self.run_helper(source)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(victim.stat().st_mode & 0o777, 0o644)
+        self.assertEqual(victim.read_bytes(), b"keep")
 
     def test_uri_boundaries_preserve_spaces_unicode_hash_and_percent(self):
         source = self.root / "a b#%测试.pdf"
@@ -142,6 +195,7 @@ class PreviewIntegrationContractTests(unittest.TestCase):
         self.assertIn("maximumConcurrentRequests: 1", manager)
         self.assertIn("failureCacheTtlMs", manager)
         self.assertIn("executor.disconnectSource", manager)
+        self.assertIn('"exec python3 "', manager)
         self.assertNotIn("thumbnailer.sh", manager)
 
 

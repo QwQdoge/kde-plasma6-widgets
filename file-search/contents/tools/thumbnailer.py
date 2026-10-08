@@ -4,17 +4,22 @@ from __future__ import annotations
 
 import argparse
 import ctypes
+import fcntl
+import math
 import os
 import re
 import selectors
 import shutil
 import signal
 import stat
+import struct
 import subprocess
 import sys
 import time
 import urllib.parse
+import zlib
 
+HELPER_PID = os.getpid()
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 SAFE_ENCODED = re.compile(r"^[A-Za-z0-9._~%\-]+$")
 SAFE_KEY = re.compile(r"^[0-9a-f]{1,64}$")
@@ -56,24 +61,106 @@ def local_path(value: str, label: str) -> str:
             value = urllib.parse.unquote(parsed.path, errors="strict")
         except (UnicodeDecodeError, ValueError):
             fail(f"invalid {label} URI", 2)
+    if any(ord(ch) < 32 or ord(ch) == 127 for ch in value):
+        fail(f"control character in {label}", 2)
     if not os.path.isabs(value):
         fail(f"{label} must be absolute", 2)
     return os.path.normpath(value)
 
 
 def ensure_cache_dir(path: str) -> int:
-    if os.path.lexists(path):
-        st = os.lstat(path)
-        if stat.S_ISLNK(st.st_mode) or not stat.S_ISDIR(st.st_mode):
-            fail("unsafe preview cache directory", 2)
-    else:
-        os.makedirs(path, mode=0o700, exist_ok=False)
-    os.chmod(path, 0o700)
-    flags = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_NOFOLLOW", 0)
+    # Traverse through descriptors; never chmod a path between lstat and open.
+    # O_NOFOLLOW applies to every component, not just the final directory.
+    flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+    fd = os.open("/", flags)
     try:
-        return os.open(path, flags)
-    except OSError as exc:
-        fail(f"cannot open preview cache directory: {exc}", 2)
+        for component in path.split("/"):
+            if not component:
+                continue
+            try:
+                next_fd = os.open(component, flags, dir_fd=fd)
+            except FileNotFoundError:
+                try:
+                    os.mkdir(component, 0o700, dir_fd=fd)
+                except FileExistsError:
+                    pass
+                next_fd = os.open(component, flags, dir_fd=fd)
+            os.close(fd)
+            fd = next_fd
+        st = os.fstat(fd)
+        if not stat.S_ISDIR(st.st_mode) or st.st_uid != os.getuid():
+            fail("unsafe preview cache directory owner", 2)
+        os.fchmod(fd, 0o700)
+        return fd
+    except BaseException:
+        os.close(fd)
+        raise
+
+
+def valid_png(fd: int, max_bytes: int) -> bool:
+    st = os.fstat(fd)
+    if not stat.S_ISREG(st.st_mode) or not 0 < st.st_size <= max_bytes:
+        return False
+    os.lseek(fd, 0, os.SEEK_SET)
+    with os.fdopen(os.dup(fd), "rb") as stream:
+        if stream.read(8) != PNG_SIGNATURE:
+            return False
+        first = True
+        seen_data = False
+        while stream.tell() < st.st_size:
+            header = stream.read(8)
+            if len(header) != 8:
+                return False
+            length, kind = struct.unpack(">I4s", header)
+            if length > st.st_size - stream.tell() - 4:
+                return False
+            payload = stream.read(length)
+            checksum = stream.read(4)
+            if len(checksum) != 4 or struct.unpack(">I", checksum)[0] != zlib.crc32(kind + payload):
+                return False
+            if first:
+                if kind != b"IHDR" or length != 13:
+                    return False
+                width, height, depth, color, compression, filtering, interlace = struct.unpack(">IIBBBBB", payload)
+                depths = {0: (1, 2, 4, 8, 16), 2: (8, 16), 3: (1, 2, 4, 8), 4: (8, 16), 6: (8, 16)}
+                if (not 0 < width <= 8192 or not 0 < height <= 8192
+                        or width * height > 16 * 1024 * 1024
+                        or depth not in depths.get(color, ())
+                        or compression != 0 or filtering != 0 or interlace not in (0, 1)):
+                    return False
+                first = False
+            elif kind == b"IHDR":
+                return False
+            if kind == b"IDAT":
+                seen_data = True
+            if kind == b"IEND":
+                return length == 0 and seen_data and stream.tell() == st.st_size
+        return False
+
+
+def lock_cache(dir_fd: int) -> int:
+    fd = os.open(".generation.lock", os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW | os.O_NONBLOCK,
+                 0o600, dir_fd=dir_fd)
+    try:
+        st = os.fstat(fd)
+        if not stat.S_ISREG(st.st_mode) or st.st_uid != os.getuid() or st.st_nlink != 1:
+            fail("unsafe preview cache lock", 2)
+        os.fchmod(fd, 0o600)
+        try:
+            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            fail("preview cache generation is already in progress", 2)
+        # Exclusive ownership proves no other compliant helper owns a temporary
+        # preview here. SIGKILL cancellation can leave one, so reclaim it now.
+        for name in os.listdir(dir_fd):
+            if re.fullmatch(r"\.[0-9a-f]{1,64}\.[0-9]+\.[0-9]+", name):
+                st = lstat_at(dir_fd, name)
+                if st is not None and stat.S_ISREG(st.st_mode) and st.st_uid == os.getuid():
+                    os.unlink(name, dir_fd=dir_fd)
+        return fd
+    except BaseException:
+        os.close(fd)
+        raise
 
 
 def lstat_at(dir_fd: int, name: str):
@@ -93,7 +180,7 @@ def is_valid_cached(dir_fd: int, name: str, source_mtime: float, max_bytes: int,
         return False
     fd = os.open(name, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0), dir_fd=dir_fd)
     try:
-        return os.read(fd, len(PNG_SIGNATURE)) == PNG_SIGNATURE
+        return valid_png(fd, max_bytes)
     finally:
         os.close(fd)
 
@@ -101,7 +188,7 @@ def is_valid_cached(dir_fd: int, name: str, source_mtime: float, max_bytes: int,
 def prune_cache(dir_fd: int, cache_dir: str, ttl: int, max_files: int, max_total_bytes: int) -> None:
     now = time.time()
     entries = []
-    for name in os.listdir(cache_dir):
+    for name in os.listdir(dir_fd):
         if not name.endswith(".png") or name.startswith("."):
             continue
         st = lstat_at(dir_fd, name)
@@ -127,7 +214,10 @@ def prune_cache(dir_fd: int, cache_dir: str, ttl: int, max_files: int, max_total
 
 def child_parent_death_signal() -> None:
     if sys.platform.startswith("linux"):
-        ctypes.CDLL(None).prctl(1, signal.SIGKILL)
+        if ctypes.CDLL(None).prctl(1, signal.SIGKILL) != 0:
+            os._exit(1)
+        if os.getppid() != HELPER_PID:
+            os.kill(os.getpid(), signal.SIGKILL)
 
 
 def terminate_process(proc: subprocess.Popen[bytes]) -> None:
@@ -206,9 +296,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--cache-files", type=int, default=DEFAULT_CACHE_FILES)
     parser.add_argument("--cache-bytes", type=int, default=DEFAULT_CACHE_BYTES)
     args = parser.parse_args()
-    if args.timeout <= 0 or args.timeout > 60 or args.max_bytes < len(PNG_SIGNATURE) or args.max_bytes > DEFAULT_MAX_BYTES:
+    if not math.isfinite(args.timeout) or args.timeout <= 0 or args.timeout > 60 or args.max_bytes < len(PNG_SIGNATURE) or args.max_bytes > DEFAULT_MAX_BYTES:
         fail("invalid resource limits", 2)
-    if args.cache_ttl <= 0 or args.cache_files <= 0 or args.cache_bytes <= 0:
+    if (not 0 < args.cache_ttl <= DEFAULT_CACHE_TTL
+            or not 0 < args.cache_files <= DEFAULT_CACHE_FILES
+            or not 0 < args.cache_bytes <= DEFAULT_CACHE_BYTES):
         fail("invalid cache limits", 2)
     return args
 
@@ -226,9 +318,14 @@ def main() -> int:
     if not stat.S_ISREG(source_stat.st_mode):
         fail("source is not a regular file", 2)
 
-    dir_fd = ensure_cache_dir(cache_dir)
-    target_name = args.cache_key + ".png"
     try:
+        dir_fd = ensure_cache_dir(cache_dir)
+    except OSError as exc:
+        fail(f"cannot open preview cache directory: {exc}", 2)
+    target_name = args.cache_key + ".png"
+    lock_fd = None
+    try:
+        lock_fd = lock_cache(dir_fd)
         target_stat = lstat_at(dir_fd, target_name)
         if target_stat is not None and stat.S_ISLNK(target_stat.st_mode):
             fail("unsafe preview cache target", 2)
@@ -246,7 +343,7 @@ def main() -> int:
             stream_thumbnail([kio, "--noninteractive", "cat", thumbnail_uri], dir_fd, temp_name, args.timeout, args.max_bytes)
             fd = os.open(temp_name, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0), dir_fd=dir_fd)
             try:
-                if os.read(fd, len(PNG_SIGNATURE)) != PNG_SIGNATURE:
+                if not valid_png(fd, args.max_bytes):
                     fail("KIO returned an invalid preview", 5)
             finally:
                 os.close(fd)
@@ -261,6 +358,8 @@ def main() -> int:
         print("READY:" + os.path.join(cache_dir, target_name))
         return 0
     finally:
+        if lock_fd is not None:
+            os.close(lock_fd)
         os.close(dir_fd)
 
 

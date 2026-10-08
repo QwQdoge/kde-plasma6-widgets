@@ -174,7 +174,7 @@ QtObject {
             return;
         }
         var key = Qt.md5("file://" + encodeURI(path));
-        var command = "python3 " + Utils.shellEscape(helperPath()) + " --source-encoded=" + sourceEncoded + " --cache-encoded=" + cacheEncoded + " --cache-key=" + key;
+        var command = "exec python3 " + Utils.shellEscape(helperPath()) + " --source-encoded=" + sourceEncoded + " --cache-encoded=" + cacheEncoded + " --cache-key=" + key;
         var source = command + " # file_preview_" + (++serial);
         activeSources[path] = source;
         activeCount++;
