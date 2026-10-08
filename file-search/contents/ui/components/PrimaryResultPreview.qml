@@ -2,7 +2,6 @@ import QtQuick
 import QtQuick.Layouts
 import QtCore
 import org.kde.kirigami as Kirigami
-import "../js/PreviewUtils.js" as PreviewUtils
 import "../js/utils.js" as Utils
 
 // Primary Result Preview Component (Calculator, Unit Conversions, and files)
@@ -19,6 +18,7 @@ Rectangle {
     property bool previewEnabled: true
     property var previewSettings: ({})
     readonly property string thumbnailCacheBase: Utils.decodeLocalPath(StandardPaths.writableLocation(StandardPaths.HomeLocation)) + "/.cache/thumbnails"
+    readonly property string previewCacheBase: Utils.decodeLocalPath(StandardPaths.writableLocation(StandardPaths.HomeLocation)) + "/.cache/com.mcc45tr.filesearch/previews"
 
     // Signals
     signal resultClicked(int idx, string display, string decoration, string category, string matchId, string filePath)
@@ -43,7 +43,22 @@ Rectangle {
     readonly property string firstMatchId: firstItem ? (firstItem.duplicateId || firstItem.display || "") : firstModelData(resultsModel && resultsModel.DuplicateRole !== undefined ? resultsModel.DuplicateRole : Qt.UserRole, firstDisplay)
     readonly property string firstFilePath: firstItem ? (firstItem.url || "") : ""
     readonly property int firstResultIndex: firstItem && firstItem.index !== undefined ? firstItem.index : 0
-    readonly property string previewSource: PreviewUtils.getPreviewSource(firstFilePath, previewEnabled, previewSettings, thumbnailCacheBase)
+    readonly property string previewSource: previewResolver.source
+
+    FilePreviewManager {
+        id: previewManager
+        cacheBase: root.previewCacheBase
+    }
+
+    FilePreviewSource {
+        id: previewResolver
+        manager: previewManager
+        fileUrl: root.firstFilePath
+        category: root.firstCategory
+        active: root.previewEnabled && root.firstFilePath.length > 0
+        settings: root.previewSettings
+        freedesktopThumbnailBase: root.thumbnailCacheBase
+    }
 
     function firstModelData(role, fallback) {
         if (resultCount === 0 || !resultsModel || role === undefined)
